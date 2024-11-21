@@ -10,6 +10,7 @@ export default {
     extend: {
       colors: {
         primary: {
+          50: "#0D0F10",
           100: "#131619",
           200: "#1A1D21",
           300: "#686B6E",
@@ -29,10 +30,21 @@ export default {
           200: "#87DDEE",
           300: "#B6F09C",
         },
+        glass: {
+          100: "#D7EDED",
+          200: "#CCEBEB",
+        },
         accent: "#B6F09C",
       },
       fontFamily: {
         jakarta: ["Plus Jakarta Sans", "sans-serif"],
+      },
+      backgroundImage: {
+        "glass-gradient":
+          "linear-gradient(to bottom right, #D7EDED 0%, rgba(204, 235, 235, 0) 100%)",
+      },
+      opacity: {
+        16: "0.16",
       },
     },
   },

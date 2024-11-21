@@ -21,7 +21,7 @@ function Login() {
         <Image
           src={images.logo}
           alt="Logo"
-          className="absolute top-5 left-5 h-20 w-20"
+          className="absolute top-5 left-5 h-14 w-14"
         />
         <div className="p-4 items-start justify-center flex flex-col w-3/4">
           <div className="flex flex-row items-center mb-7">

@@ -19,7 +19,7 @@ function Register() {
     <div className="w-full h-screen flex flex-row bg-primary-100">
       <div className="w-3/4 p-4 flex flex-col justify-between items-center">
         <div className="flex justify-between items-center flex-row w-full">
-          <Image src={images.logo} alt="Logo" className="w-20 h-20" />
+          <Image src={images.logo} alt="Logo" className="w-14 h-14" />
           <Link
             href="/login"
             className="text-transparent text-base font-jakarta font-semibold bg-clip-text bg-gradient-to-tr from-gradientGreen-100 to-gradientGreen-200"
