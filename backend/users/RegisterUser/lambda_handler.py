@@ -21,7 +21,8 @@ def lambda_handler(event, context):
     try:
         email = event['email']
         password = event['password']
-        username = event['username']
+        first_name = event['first_name']
+        last_name = event['last_name']
     except Exception as e:
         return build_response(
             400,
@@ -33,10 +34,10 @@ def lambda_handler(event, context):
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    return register_user(dynamodb, email, password, username)
+    return register_user(dynamodb, email, password, first_name, last_name)
 
 
-def register_user(dynamodb, email, password, username):
+def register_user(dynamodb, email, password, first_name, last_name):
     is_user_found = check_if_user_exists(dynamodb, email)
 
     if is_user_found:
@@ -52,7 +53,8 @@ def register_user(dynamodb, email, password, username):
     add_user_to_the_table(dynamodb, {
         'email': email,
         'password': hashed_password,
-        'username': username
+        'first_name': first_name,
+        'last_name': last_name
     })
 
     logger.info(f"User {email} has been successfully registered")
