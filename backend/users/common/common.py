@@ -21,7 +21,6 @@ _LAMBDA_USERS_TABLE_RESOURCE = {
 # TODO: view configuration for lambda_s3_resource
 lambda_s3_resource = {
     "client": boto3.client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
-    "bucket_name": environ.get("", "iolap-project")
 }
 
 class LambdaS3Class:
@@ -33,7 +32,6 @@ class LambdaS3Class:
         Initialize an S3 Resource
         """
         self.client = lambda_s3_resource["client"]
-        self.bucket_name = lambda_s3_resource["bucket_name"]
 
 
 class LambdaDynamoDBClass:
