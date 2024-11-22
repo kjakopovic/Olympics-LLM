@@ -185,6 +185,7 @@ Resources:
             ApiId: !Ref UserServiceApi
 
   # Profile
+  # TODO: GetUsersPublicInfoFunction doesn't exists for now
   GetUsersPublicInfoFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -217,7 +218,7 @@ Resources:
             Method: GET
             ApiId: !Ref UserServiceApi
 
-  DeleteProfileFunction:
+  DeleteUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
