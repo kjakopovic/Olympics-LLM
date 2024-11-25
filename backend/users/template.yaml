@@ -28,7 +28,6 @@ Globals:
     Timeout: 60
     MemorySize: 512
 
-# TODO: Change S3 bucket
 Resources:
   # API Gateway
   UserServiceApi:
@@ -185,39 +184,6 @@ Resources:
             ApiId: !Ref UserServiceApi
 
   # Profile
-  # TODO: GetUsersPublicInfoFunction doesn't exists for now
-  GetUsersPublicInfoFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-                - "s3:*"
-              Resource: "*"
-      Events:
-        GetUsersPublicInfoEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /profile/info/public
-            Method: GET
-            ApiId: !Ref UserServiceApi
-
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Metadata:

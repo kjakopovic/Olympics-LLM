@@ -15,10 +15,8 @@ logger.setLevel(logging.INFO)
 
 _LAMBDA_USERS_TABLE_RESOURCE = {
     "resource": resource("dynamodb"),
-    "table_name": environ.get("USERS_TABLE_NAME", "test_table")
 }
 
-# TODO: view configuration for lambda_s3_resource
 lambda_s3_resource = {
     "client": boto3.client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
 }
