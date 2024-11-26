@@ -61,11 +61,9 @@ def login_user(dynamodb, email, password):
     return build_response(
         200,
         {
-            'message': 'User has been successfully logged in'
-        },
-        {
-            'x-access-token': access_token,
-            'x-refresh-token': refresh_token
+            'message': 'User has been successfully logged in',
+            'token': access_token,
+            'refresh-token': refresh_token
         }
     )
 
