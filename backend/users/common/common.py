@@ -17,20 +17,6 @@ _LAMBDA_USERS_TABLE_RESOURCE = {
     "resource": resource("dynamodb"),
 }
 
-lambda_s3_resource = {
-    "client": boto3.client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
-}
-
-class LambdaS3Class:
-    """
-    AWS S3 Resource Class
-    """
-    def __init__(self):
-        """
-        Initialize an S3 Resource
-        """
-        self.client = lambda_s3_resource["client"]
-
 
 class LambdaDynamoDBClass:
     """

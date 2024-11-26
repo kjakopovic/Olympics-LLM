@@ -28,6 +28,8 @@ Globals:
     Timeout: 60
     MemorySize: 512
 
+# TODO: Change CORS settings
+
 Resources:
   # API Gateway
   UserServiceApi:
