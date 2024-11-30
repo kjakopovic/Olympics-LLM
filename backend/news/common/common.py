@@ -49,7 +49,7 @@ class LambdaDynamoDBClass:
 
 # TODO: Test all picture related functions in order to see if the multipart form data is being passed correctly
 # Picture functions for news
-def save_news_pictures(pictures, news_id):
+def save_news_pictures(picture_count, news_id):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name
@@ -57,7 +57,7 @@ def save_news_pictures(pictures, news_id):
     pre_signed_urls = []
 
     try:
-        for i, picture in enumerate(pictures, start=1):
+        for i in range(1, picture_count + 1):
             file_name = f"{news_id}/{i}"
 
             pre_signed_urls = s3_client.generate_presigned_url(

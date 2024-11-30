@@ -21,7 +21,6 @@ Globals:
     MemorySize: 512
 
 Resources:
-  # TODO: Check what needs to be changed here if using multipart form data
   # S3 buckets
   NewsImagesBucket:
     Type: AWS::S3::Bucket

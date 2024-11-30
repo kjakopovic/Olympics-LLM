@@ -28,7 +28,7 @@ def lambda_handler (event, context):
         logger.error("Error decoding JSON: %s", e)
         return build_response(400, {"message": "Error decoding JSON"})
 
-    if "title" not in request_body or "content" not in request_body:
+    if "title" not in request_body or "content" not in request_body or "picture_count" not in request_body:
         return build_response(400, {"message": "Title and content are required"})
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
@@ -54,8 +54,8 @@ def lambda_handler (event, context):
 
     urls = []
     if "pictures" in request_body:
-        pictures = request_body["pictures"]
-        urls = save_news_pictures(pictures, news_id)
+        picture_count = request_body["picture_count"]
+        urls = save_news_pictures(picture_count, news_id)
 
     return build_response(
         200,
