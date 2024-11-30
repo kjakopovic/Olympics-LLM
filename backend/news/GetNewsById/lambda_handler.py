@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger("GetNewById")
+logger = logging.getLogger("GetNewsById")
 logger.setLevel(logging.INFO)
 
 from common.common import (

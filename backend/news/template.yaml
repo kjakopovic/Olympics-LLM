@@ -66,7 +66,7 @@ Resources:
         WriteCapacityUnits: 5
 
   # Lambda Functions
-  CreateNewsForCityFunction:
+  CreateNewsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -92,14 +92,14 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        CreateNewsForCityEndpoint:
+        CreateNewsEndpoint:
           Type: HttpApi
           Properties:
             Path: /news/{city}
             Method: POST
             ApiId: !Ref NewsServiceApi
 
-  DeleteNewsForCityFunction:
+  DeleteNewsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -125,14 +125,14 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        DeleteNewsForCityEndpoint:
+        DeleteNewsEndpoint:
           Type: HttpApi
           Properties:
             Path: /news/{news_id}
             Method: DELETE
             ApiId: !Ref NewsServiceApi
 
-  UpdateNewsForCityFunction:
+  UpdateNewsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -158,14 +158,14 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        UpdateNewsForCityEndpoint:
+        UpdateNewsEndpoint:
           Type: HttpApi
           Properties:
             Path: /news/{news_id}
             Method: PUT
             ApiId: !Ref NewsServiceApi
 
-  GetAllNewsForCityFunction:
+  GetAllNewsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -191,7 +191,7 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        GetAllNewsForCityEndpoint:
+        GetAllNewsEndpoint:
           Type: HttpApi
           Properties:
             Path: /news/{city}

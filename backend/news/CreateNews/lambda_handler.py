@@ -42,7 +42,7 @@ def lambda_handler (event, context):
     news_item = {
         "news_id": news_id,
         "title": news_title,
-        "content": news_content,
+        "description": news_content,
         "published_at": news_date
     }
 
