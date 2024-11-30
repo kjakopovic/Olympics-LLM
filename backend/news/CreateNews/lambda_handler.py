@@ -43,7 +43,7 @@ def lambda_handler (event, context):
         "news_id": news_id,
         "title": news_title,
         "content": news_content,
-        "date": news_date
+        "published_at": news_date
     }
 
     try:
