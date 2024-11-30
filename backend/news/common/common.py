@@ -47,51 +47,6 @@ class LambdaDynamoDBClass:
         self.table = self.resource.Table(self.table_name)
 
 
-def get_news_pictures(news_id):
-    s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
-    s3_client = s3_class.client
-    bucket_name = s3_class.bucket_name
-
-    prefix = f"{news_id}/"
-
-    try:
-        response = s3_client.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix=prefix
-        )
-        if 'Contents' not in response:
-            return json.dumps({
-                "statusCode": 404,
-                "message": "No pictures found for this news ID"
-            })
-
-        picture_urls = []
-        for obj in response['Contents']:
-            picture_url = s3_client.generate_presigned_url(
-                'get_object',
-                Params={
-                    'Bucket': bucket_name,
-                    'Key': obj['Key']},
-                ExpiresIn=3600
-            )
-            picture_urls.append({
-                "file_name": obj['Key'],
-                "url": picture_url
-            })
-
-        return json.dumps({
-            "statusCode": 200,
-            "picture_urls": picture_urls
-        })
-
-    except Exception as e:
-        logger.error(f"Error in getting news pictures from S3 for news_id {news_id}; {e}")
-        return json.dumps({
-            "statusCode": 500,
-            "message": "Failed to get news pictures"
-        })
-
-
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
     event_headers = event.get("headers")
