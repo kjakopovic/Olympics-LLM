@@ -48,9 +48,8 @@ class LambdaDynamoDBClass:
 
 
 # TODO: Test all picture related functions in order to see if the multipart form data is being passed correctly
-# TODO: Change maybe name of saved images so it is like {news_id}_{picture_id}.{extension}
 # Picture functions for news
-def generate_picture_urls(pictures, news_id):
+def save_news_pictures(pictures, news_id):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name
@@ -174,7 +173,7 @@ def delete_news_pictures(news_id):
 
 
 @lambda_handler_decorator
-def lambda_middlewares(handler, event, context):
+def lambda_middleware(handler, event, context):
     event_headers = event.get("headers")
     logger.info(f"Received Event Headers in middleware: {event_headers}")
 
