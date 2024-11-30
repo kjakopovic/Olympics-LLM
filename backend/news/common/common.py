@@ -50,31 +50,42 @@ class LambdaDynamoDBClass:
 # TODO: Test all picture related functions in order to see if the multipart form data is being passed correctly
 # TODO: Change maybe name of saved images so it is like {news_id}_{picture_id}.{extension}
 # Picture functions for news
-def save_news_pictures(pictures, news_id):
-    s3_client = _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES["client"]
-    bucket_name = _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES["bucket_name"]
+def generate_picture_urls(pictures, news_id):
+    s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
+    s3_client = s3_class.client
+    bucket_name = s3_class.bucket_name
 
-    for picture in pictures:
-        file_name = f"{news_id}/{picture['name']}"
-        try:
-            s3_client.upload_fileobj(
-                picture,
-                bucket_name,
-                file_name,
-                ExtraArgs={"ContentType": picture.content_type}
+    pre_signed_urls = []
+
+    try:
+        for i, picture in enumerate(pictures, start=1):
+            file_name = f"{news_id}/{i}"
+
+            pre_signed_urls = s3_client.generate_presigned_url(
+                'put_object',
+                Params={
+                    'Bucket': bucket_name,
+                    'Key': file_name
+                },
+                ExpiresIn=3600
             )
-            logger.info(f"Successfully saved news picture: {file_name}")
-        except Exception as e:
-            logger.error(f"Error in saving news picture as file {file_name}; {e}")
-            return {
-                "statusCode": 500,
-                "body": json.dumps({"message": "Failed to save news picture"})
-            }
+            pre_signed_urls.append({
+                "file_name": file_name,
+                "url": pre_signed_urls
+            })
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"message": "News picture saved successfully"})
-    }
+        return json.dumps({
+            "statusCode": 200,
+            "message": "Pre-signed URLs generated successfully",
+            "pre_signed_urls": pre_signed_urls
+        })
+
+    except Exception as e:
+        logger.error(f"Error in generating picutre urls for news {news_id}; {e}")
+        return json.dumps({
+            "statusCode": 500,
+            "message": "Failed to generate pre-signed URLs"
+        })
 
 
 def get_news_pictures(news_id):
@@ -90,31 +101,36 @@ def get_news_pictures(news_id):
             Prefix=prefix
         )
         if 'Contents' not in response:
-            return {
+            return json.dumps({
                 "statusCode": 404,
-                "body": json.dumps({"message": "News pictures not found"})
-            }
+                "message": "No pictures found for this news ID"
+            })
 
         picture_urls = []
         for obj in response['Contents']:
             picture_url = s3_client.generate_presigned_url(
                 'get_object',
-                Params={'Bucket': bucket_name, 'Key': obj['Key']},
+                Params={
+                    'Bucket': bucket_name,
+                    'Key': obj['Key']},
                 ExpiresIn=3600
             )
-            picture_urls.append(picture_url)
+            picture_urls.append({
+                "file_name": obj['Key'],
+                "url": picture_url
+            })
 
-        return {
+        return json.dumps({
             "statusCode": 200,
-            "body": json.dumps({"picture_urls": picture_urls})
-        }
+            "picture_urls": picture_urls
+        })
 
     except Exception as e:
         logger.error(f"Error in getting news pictures from S3 for news_id {news_id}; {e}")
-        return {
+        return json.dumps({
             "statusCode": 500,
-            "body": json.dumps({"message": "Failed to get news pictures"})
-        }
+            "message": "Failed to get news pictures"
+        })
 
 
 def delete_news_pictures(news_id):
@@ -129,12 +145,14 @@ def delete_news_pictures(news_id):
             Bucket=bucket_name,
             Prefix=prefix
         )
-        if 'Contents' not in response:
-            return {
-                "statusCode": 404,
-                "body": json.dumps({"message": "News pictures not found"})
-            }
 
+        if 'Contents' not in response:
+            return json.dumps({
+                "statusCode": 404,
+                "message": "No pictures found for this news ID"
+            })
+
+        # Delete each picture
         for obj in response['Contents']:
             s3_client.delete_object(
                 Bucket=bucket_name,
@@ -142,16 +160,17 @@ def delete_news_pictures(news_id):
             )
             logger.info(f"Successfully deleted news picture: {obj['Key']}")
 
-        return {
+        return json.dumps({
             "statusCode": 200,
-            "body": json.dumps({"message": "News pictures deleted successfully"})
-        }
+            "message": "News pictures deleted successfully"
+        })
+
     except Exception as e:
         logger.error(f"Error in deleting news pictures from S3 for news_id {news_id}; {e}")
-        return {
+        return json.dumps({
             "statusCode": 500,
-            "body": json.dumps({"message": "Failed to delete news pictures"})
-        }
+            "message": "Failed to delete news pictures"
+        })
 
 
 @lambda_handler_decorator
@@ -181,10 +200,10 @@ def lambda_middlewares(handler, event, context):
         return handler(event, context)
     except Exception as e:
         logger.error(f"Error in middleware: {e}")
-        return {
+        return json.dumps({
             "statusCode": 500,
             "body": json.dumps({"message": "Internal Server Error"})
-        }
+        })
 
 
 def validate_jwt_token(event_headers):
@@ -201,7 +220,7 @@ def validate_jwt_token(event_headers):
     )
 
     try:
-        jwt.decode(access_token.encode('utf-8'), secrets['jwt_secret'], algorithms=["HS256"])
+        jwt.decode(access_token, secrets['jwt_secret'], algorithms=["HS256"])
 
         logger.info("JWT Token verified successfully")
 
@@ -225,6 +244,10 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
     logger.info(f"Validating Refresh Token: {refresh_token}")
 
     try:
+        jwt.decode(refresh_token, refresh_secret, algorithms=["HS256"])
+
+        logger.info("Refresh token verified successfully, creating new JWT token")
+
         user_email = get_email_from_jwt_token(refresh_token)
         new_access_token = jwt.encode(
             {"email": user_email},
@@ -273,7 +296,7 @@ def get_email_from_jwt_token(token):
 
 
 def build_response(status_code, body, headers=None):
-    return{
+    return {
         'statusCode': status_code,
         headers if headers else 'headers': {
             'Content-Type': 'application/json'
