@@ -132,46 +132,6 @@ def get_news_pictures(news_id):
         })
 
 
-def delete_news_pictures(news_id):
-    s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
-    s3_client = s3_class.client
-    bucket_name = s3_class.bucket_name
-
-    prefix = f"{news_id}/"
-
-    try:
-        response = s3_client.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix=prefix
-        )
-
-        if 'Contents' not in response:
-            return json.dumps({
-                "statusCode": 404,
-                "message": "No pictures found for this news ID"
-            })
-
-        # Delete each picture
-        for obj in response['Contents']:
-            s3_client.delete_object(
-                Bucket=bucket_name,
-                Key=obj['Key']
-            )
-            logger.info(f"Successfully deleted news picture: {obj['Key']}")
-
-        return json.dumps({
-            "statusCode": 200,
-            "message": "News pictures deleted successfully"
-        })
-
-    except Exception as e:
-        logger.error(f"Error in deleting news pictures from S3 for news_id {news_id}; {e}")
-        return json.dumps({
-            "statusCode": 500,
-            "message": "Failed to delete news pictures"
-        })
-
-
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
     event_headers = event.get("headers")
