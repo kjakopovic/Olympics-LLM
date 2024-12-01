@@ -59,9 +59,11 @@ def lambda_handler(event, context):
 
     return build_response(
         200,
-        {"message": "News created successfully",
-         "picture_urls": urls
-         })
+        {
+            "message": "News created successfully",
+            "picture_urls": urls
+        }
+    )
 
 
 def save_news_pictures(picture_count, news_id):
@@ -78,7 +80,7 @@ def save_news_pictures(picture_count, news_id):
         for i in range(1, picture_count + 1):
             file_name = f"{news_id}/{i}"
 
-            pre_signed_urls = s3_client.generate_presigned_url(
+            pre_signed_url = s3_client.generate_presigned_url(
                 'put_object',
                 Params={
                     'Bucket': bucket_name,
@@ -88,7 +90,7 @@ def save_news_pictures(picture_count, news_id):
             )
             pre_signed_urls.append({
                 "file_name": file_name,
-                "url": pre_signed_urls
+                "url": pre_signed_url
             })
 
         logger.info(f"Pre-signed URLs generated successfully for news with id: {news_id}")
