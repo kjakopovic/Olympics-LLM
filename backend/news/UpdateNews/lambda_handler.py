@@ -13,7 +13,6 @@ from common.common import (
 )
 
 
-# TODO: Check how pictures can be updated
 @lambda_middleware
 def lambda_handler(event, context):
     """
