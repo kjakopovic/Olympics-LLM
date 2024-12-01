@@ -12,26 +12,10 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
-    LambdaDynamoDBClass
+    LambdaDynamoDBClass,
+    _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
+    LambdaS3Class
 )
-
-
-_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
-    "client": client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
-    "bucket_name": environ.get("NEWS_PICTURES_BUCKET_NAME", "iolap-project")
-}
-
-
-class LambdaS3Class:
-    """
-    AWS S3 Resource Class
-    """
-    def __init__(self, lambda_s3_client):
-        """
-        Initialize an S3 Resource
-        """
-        self.client = lambda_s3_client["client"]
-        self.bucket_name = lambda_s3_client["bucket_name"]
 
 
 @lambda_middleware
