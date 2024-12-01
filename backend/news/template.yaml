@@ -40,7 +40,7 @@ Resources:
   NewsServiceApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: api-v1
+      StageName: v1-news
       CorsConfiguration:
         AllowOrigins:
           - "*"
@@ -94,7 +94,7 @@ Resources:
         CreateNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news
+            Path: /
             Method: POST
             ApiId: !Ref NewsServiceApi
 
@@ -127,7 +127,7 @@ Resources:
         DeleteNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/{news_id}
+            Path: /{news_id}
             Method: DELETE
             ApiId: !Ref NewsServiceApi
 
@@ -160,7 +160,7 @@ Resources:
         UpdateNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/{news_id}
+            Path: /{news_id}
             Method: PUT
             ApiId: !Ref NewsServiceApi
 
@@ -193,7 +193,7 @@ Resources:
         GetAllNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news
+            Path: /
             Method: GET
             ApiId: !Ref NewsServiceApi
 
@@ -226,7 +226,7 @@ Resources:
         GetNewsByIdEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/{news_id}
+            Path: /{news_id}
             Method: GET
             ApiId: !Ref NewsServiceApi
 

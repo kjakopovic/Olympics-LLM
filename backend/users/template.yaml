@@ -30,7 +30,7 @@ Resources:
   UserServiceApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: api-v1
+      StageName: v1-users
       CorsConfiguration:
         AllowOrigins:
           - "*"
@@ -56,7 +56,6 @@ Resources:
 
   # Lambda Functions
 
-  # Authentication
   RegisterUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -82,7 +81,7 @@ Resources:
         RegisterUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/register
+            Path: /register
             Method: POST
             ApiId: !Ref UserServiceApi
 
@@ -113,7 +112,7 @@ Resources:
         LoginUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login
+            Path: /login
             Method: POST
             ApiId: !Ref UserServiceApi
 
@@ -143,7 +142,7 @@ Resources:
         ThirdPartyLoginRequestEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login/third-party
+            Path: /login/third-party
             Method: GET
             ApiId: !Ref UserServiceApi
 
@@ -176,7 +175,7 @@ Resources:
         ThirdPartyLoginValidateEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login/third-party/confirm
+            Path: /login/third-party/confirm
             Method: GET
             ApiId: !Ref UserServiceApi
 
@@ -208,7 +207,7 @@ Resources:
         DeleteUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: DELETE
             ApiId: !Ref UserServiceApi
 
