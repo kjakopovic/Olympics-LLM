@@ -14,9 +14,9 @@ logger = logging.getLogger("UserCommon")
 logger.setLevel(logging.INFO)
 
 _LAMBDA_USERS_TABLE_RESOURCE = {
-    "resource": resource("dynamodb"),
+    "resource" : resource('dynamodb'),
+    "table_name" : environ.get("USERS_TABLE_NAME", "test_table")
 }
-
 
 class LambdaDynamoDBClass:
     """

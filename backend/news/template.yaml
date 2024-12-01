@@ -245,6 +245,6 @@ Outputs:
 
   EndpointURI:
     Description: "API Endpoint URL"
-    Value: !Sub "https://${NewsServiceApi}.execute-api.${AWS::Region}.amazonaws.com/api-v1"
+    Value: !Sub "https://${NewsServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-news"
     Export:
       Name: NewsServiceApiUrl

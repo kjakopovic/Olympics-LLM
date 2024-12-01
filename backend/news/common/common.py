@@ -20,7 +20,6 @@ _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
     "bucket_name": environ.get("NEWS_PICTURES_BUCKET_NAME", "iolap-project")
 }
 
-
 class LambdaS3Class:
     """
     AWS S3 Resource Class
