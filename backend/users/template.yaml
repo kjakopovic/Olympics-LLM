@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   stack for managing user lambdas
-  CONTAINS:
-  - authentication
-  - profile
 
 Parameters:
   JwtSecretName:
@@ -27,8 +24,6 @@ Globals:
   Function:
     Timeout: 60
     MemorySize: 512
-
-# TODO: Change CORS settings
 
 Resources:
   # API Gateway
@@ -115,7 +110,7 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        RequestUserLoginEndpoint:
+        LoginUserEndpoint:
           Type: HttpApi
           Properties:
             Path: /authentication/login
@@ -185,7 +180,6 @@ Resources:
             Method: GET
             ApiId: !Ref UserServiceApi
 
-  # Profile
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -211,7 +205,7 @@ Resources:
                 - "s3:*"
               Resource: "*"
       Events:
-        DeleteProfileEndpoint:
+        DeleteUserEndpoint:
           Type: HttpApi
           Properties:
             Path: /profile
