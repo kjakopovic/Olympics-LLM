@@ -53,9 +53,8 @@ def lambda_handler(event, context):
         return build_response(500, {"message": "Error saving news to DynamoDB"})
 
     urls = []
-    if "pictures" in request_body:
-        picture_count = request_body["picture_count"]
-        urls = save_news_pictures(picture_count, news_id)
+    picture_count = request_body["picture_count"]
+    urls = save_news_pictures(picture_count, news_id)
 
     return build_response(
         200,
