@@ -1,4 +1,4 @@
-requests
-pyjwt
-aws-lambda-powertools-python
-bcrypt
+requests==2.32.3
+pyjwt==2.9.0
+aws-lambda-powertools==3.2.0
+bcrypt==4.1.3
