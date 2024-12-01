@@ -47,7 +47,7 @@ def lambda_handler(event, context):
     }
 
     try:
-        dynamodb.put_item(Item=news_item)
+        dynamodb.table.put_item(Item=news_item)
     except Exception as e:
         logger.error("Error saving news to DynamoDB: %s", e)
         return build_response(500, {"message": "Error saving news to DynamoDB"})
