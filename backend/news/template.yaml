@@ -1,18 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  stack for managing user lambdas
+  stack for managing news lambdas
 
 Parameters:
   JwtSecretName:
     Type: String
     Description: Name of the secret in Secrets Manager that contains the JWT secret
     Default: python-lambda-app/prod/jwt-secret
-
-  ThirdPartyClientsSecretName:
-    Type: String
-    Description: Name of the secret in Secrets Manager that contains the third party clients secrets
-    Default: python-lambda-app/prod/third-party-secrets
 
   SecretsRegionName:
     Type: String
@@ -26,11 +21,26 @@ Globals:
     MemorySize: 512
 
 Resources:
+  # S3 buckets
+  NewsImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+            AllowedOrigins:
+              - "*"
+
   # API Gateway
-  UserServiceApi:
+  NewsServiceApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: v1-users
+      StageName: v1-news
       CorsConfiguration:
         AllowOrigins:
           - "*"
@@ -40,23 +50,22 @@ Resources:
           - "*"
 
   # DynamoDB Table definition
-  UsersTable:
+  NewsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: users
+      TableName: news
       AttributeDefinitions:
-        - AttributeName: email
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: email
+        - AttributeName: id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
   # Lambda Functions
-
-  RegisterUserFunction:
+  CreateNewsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -66,36 +75,8 @@ Resources:
       Runtime: python3.12
       Environment:
         Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "s3:*"
-              Resource: "*"
-      Events:
-        RegisterUserEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /register
-            Method: POST
-            ApiId: !Ref UserServiceApi
-
-  LoginUserFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
+          NEWS_TABLE_NAME: !Ref NewsTable
+          NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
           JWT_SECRET_NAME: !Ref JwtSecretName
           SECRETS_REGION_NAME: !Ref SecretsRegionName
       Architectures:
@@ -106,126 +87,164 @@ Resources:
             - Effect: "Allow"
               Action:
                 - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-              Resource: "*"
-      Events:
-        LoginUserEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /login
-            Method: POST
-            ApiId: !Ref UserServiceApi
-
-  ThirdPartyLoginRequestFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          THIRD_PARTY_CLIENTS_SECRET_NAME: !Ref ThirdPartyClientsSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-              Resource: "*"
-      Events:
-        ThirdPartyLoginRequestEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /login/third-party
-            Method: GET
-            ApiId: !Ref UserServiceApi
-
-  ThirdPartyLoginValidateFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          THIRD_PARTY_CLIENTS_SECRET_NAME: !Ref ThirdPartyClientsSecretName
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
                 - "s3:*"
-              Resource: "*"
-      Events:
-        ThirdPartyLoginValidateEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /login/third-party/confirm
-            Method: GET
-            ApiId: !Ref UserServiceApi
-
-  DeleteUserFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
                 - "secretsmanager:GetSecretValue"
-                - "s3:*"
               Resource: "*"
       Events:
-        DeleteUserEndpoint:
+        CreateNewsEndpoint:
           Type: HttpApi
           Properties:
             Path: /
+            Method: POST
+            ApiId: !Ref NewsServiceApi
+
+  DeleteNewsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          NEWS_TABLE_NAME: !Ref NewsTable
+          NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "s3:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        DeleteNewsEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /{news_id}
             Method: DELETE
-            ApiId: !Ref UserServiceApi
+            ApiId: !Ref NewsServiceApi
+
+  UpdateNewsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          NEWS_TABLE_NAME: !Ref NewsTable
+          NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "s3:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        UpdateNewsEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /{news_id}
+            Method: PUT
+            ApiId: !Ref NewsServiceApi
+
+  GetAllNewsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          NEWS_TABLE_NAME: !Ref NewsTable
+          NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "s3:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        GetAllNewsEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: GET
+            ApiId: !Ref NewsServiceApi
+
+  GetNewsByIdFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          NEWS_TABLE_NAME: !Ref NewsTable
+          NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "s3:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        GetNewsByIdEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /{news_id}
+            Method: GET
+            ApiId: !Ref NewsServiceApi
 
 Outputs:
-  UsersTableArn:
-    Description: "Users table ARN"
-    Value: !GetAtt UsersTable.Arn
+  NewsTableArn:
+    Description: "News table ARN"
+    Value: !GetAtt NewsTable.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-UsersTableArn"
+      Name: !Sub "${AWS::StackName}-NewsTableArn"
 
-  UsersTableName:
-    Description: "Users table NAME"
-    Value: !Ref UsersTable
+  NewsTableName:
+    Description: "News table NAME"
+    Value: !Ref NewsTable
     Export:
-      Name: !Sub "${AWS::StackName}-UsersTableName"
+      Name: !Sub "${AWS::StackName}-NewsTableName"
 
   EndpointURI:
     Description: "API Endpoint URL"
-    Value: !Sub "https://${UserServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-users"
+    Value: !Sub "https://${NewsServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-news"
     Export:
-      Name: UserServiceApiUrl
+      Name: NewsServiceApiUrl

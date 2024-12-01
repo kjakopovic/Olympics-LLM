@@ -11,8 +11,6 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
-# TODO: Check if this for required and missing params is needed and if it is implemented correctly
 def lambda_handler(event, context):
     event = json.loads(event.get('body')) if 'body' in event else event
 
@@ -35,7 +33,6 @@ def lambda_handler(event, context):
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
     return register_user(dynamodb, email, password, first_name, last_name)
-
 
 def register_user(dynamodb, email, password, first_name, last_name):
     is_user_found = check_if_user_exists(dynamodb, email)
@@ -61,14 +58,12 @@ def register_user(dynamodb, email, password, first_name, last_name):
 
     return build_response(200, {'message': 'User has been successfully registered'})
 
-
 def check_if_user_exists(dynamodb, email):
     logger.info(f"Checking if user with email {email} exists")
 
     response = dynamodb.table.get_item(Key={'email': email})
 
     return 'Item' in response
-
 
 def add_user_to_the_table(dynamodb, user):
     logger.info(f"Adding user {user['email']} to the table")

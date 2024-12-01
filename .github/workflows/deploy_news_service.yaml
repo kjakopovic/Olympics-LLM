@@ -3,8 +3,7 @@ name: Deploy News Service Lambdas
 on:
   push:
     branches:
-      # - main TODO: will uncomment when news are merged
-      - non-existing-branch
+      - main
     paths:
       - "backend/news/**"
 
