@@ -8,8 +8,7 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
-    LambdaDynamoDBClass,
-    save_news_pictures
+    LambdaDynamoDBClass
 )
 
 

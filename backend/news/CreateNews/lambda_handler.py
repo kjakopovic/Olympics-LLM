@@ -2,8 +2,6 @@ import logging
 import json
 import uuid
 import datetime
-from boto3 import client
-from os import environ
 
 logger = logging.getLogger("CreateNews")
 logger.setLevel(logging.INFO)

@@ -1,7 +1,5 @@
 import logging
 import datetime
-from boto3 import client
-from os import environ
 
 logger = logging.getLogger("GetAllNews")
 logger.setLevel(logging.INFO)

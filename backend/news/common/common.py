@@ -4,7 +4,6 @@ import jwt
 import logging
 import boto3
 import json
-import requests
 
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 

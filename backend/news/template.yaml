@@ -94,7 +94,7 @@ Resources:
         CreateNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/{city}
+            Path: /news
             Method: POST
             ApiId: !Ref NewsServiceApi
 
@@ -193,7 +193,7 @@ Resources:
         GetAllNewsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/{city}
+            Path: /news
             Method: GET
             ApiId: !Ref NewsServiceApi
 
@@ -226,7 +226,7 @@ Resources:
         GetNewsByIdEndpoint:
           Type: HttpApi
           Properties:
-            Path: /news/id/{news_id}
+            Path: /news/{news_id}
             Method: GET
             ApiId: !Ref NewsServiceApi
 

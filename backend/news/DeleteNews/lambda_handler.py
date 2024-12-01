@@ -1,6 +1,4 @@
 import logging
-from os import environ
-from boto3 import client
 
 logger = logging.getLogger("DeleteNews")
 logger.setLevel(logging.INFO)
