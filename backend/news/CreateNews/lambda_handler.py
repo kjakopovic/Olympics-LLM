@@ -40,7 +40,7 @@ def lambda_handler(event, context):
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
     news_item = {
-        "news_id": news_id,
+        "id": news_id,
         "title": news_title,
         "description": news_content,
         "published_at": news_date

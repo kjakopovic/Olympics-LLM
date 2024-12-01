@@ -33,7 +33,7 @@ def lambda_handler(event, context):
 
     logger.info(f'Deleting news with id: {news_id}')
     dynamodb.table.delete_item(
-        Key={'news_id': news_id}
+        Key={'id': news_id}
     )
 
     logger.info(f'Deleting pictures related to the news with id: {news_id}')

@@ -17,7 +17,7 @@ def lambda_handler(event, context):
     """
     Lambda handler for updating news
     """
-    news_id = event.get('pathParameters', {}).get('news_id')
+    news_id = event.get('pathParameters', {}).get('id')
 
     if not news_id:
         return build_response(
