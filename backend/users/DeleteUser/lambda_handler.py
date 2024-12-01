@@ -11,7 +11,6 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
     # Getting email from JWT token

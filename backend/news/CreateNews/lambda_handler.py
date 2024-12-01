@@ -15,7 +15,6 @@ from common.common import (
     LambdaS3Class
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
     """
