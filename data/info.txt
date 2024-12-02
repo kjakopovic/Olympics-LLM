@@ -15,5 +15,5 @@ Foodex13.csv -> Acute Food Consumption Grams (g) in a single day - Consuming day
 Foodex14.csv -> Acute Food Consumption Grams (g) in a single day - All days with gender
 Foodex15.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - Consuming days only with gender
 Foodex16.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - All day with gender
-WorldWideDishes_2024_June.xlsx -> World Wide Dishes of different countries, with their ingredients, names and other information
 edible_food_2011.csv -> Consumption of edible food commodities in grams per person per day with different commodities by country
+dishes.csv -> CSV dataset of some traditional meals around the world
