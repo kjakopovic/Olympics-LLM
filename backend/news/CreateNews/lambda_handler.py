@@ -28,15 +28,15 @@ def lambda_handler(event, context):
         logger.error("Error decoding JSON: %s", e)
         return build_response(400, {"message": "Error decoding JSON"})
 
-    if "title" not in request_body or "content" not in request_body or "picture_count" not in request_body:
-        return build_response(400, {"message": "Title and content are required"})
+    if "title" not in request_body or "description" not in request_body or "picture_count" not in request_body:
+        return build_response(400, {"message": "Title and description are required"})
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     news_id = str(uuid.uuid4())
     news_title = request_body["title"]
-    news_content = request_body["content"]
+    news_content = request_body["description"]
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
     news_item = {
