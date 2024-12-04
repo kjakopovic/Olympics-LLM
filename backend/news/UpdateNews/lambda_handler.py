@@ -8,8 +8,7 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
-    LambdaDynamoDBClass,
-    save_news_pictures
+    LambdaDynamoDBClass
 )
 
 
@@ -39,6 +38,15 @@ def lambda_handler(event, context):
     logger.info(f'Updating news with id: {news_id}')
 
     update_news(dynamodb, news_id, title, description)
+
+    logger.info(f'Checking if pictures need to be updated')
+
+    new_pictures_count = body.get('new_pictures_count')
+    if new_pictures_count:
+        logger.info(f'Updating news pictures with for news with id: {news_id}')
+
+        pictures_to_delete = body.get('pictures_to_delete')
+        update_news_pictures(dynamodb, news_id, new_pictures_count, pictures_to_delete)
 
     return build_response(
         200,
@@ -70,3 +78,6 @@ def update_news(dynamodb, news_id, title, description):
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
+
+
+def update_news_pictures(dynamodb, news_id, new_pictures_count, pictures_to_delete):
