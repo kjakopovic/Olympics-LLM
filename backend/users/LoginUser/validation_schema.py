@@ -10,5 +10,6 @@ schema = {
             "minLength": 7
         }
     },
-    "required": ["email", "password"]
+    "required": ["email", "password"],
+    "additionalProperties": False
 }

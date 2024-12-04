@@ -1,6 +1,10 @@
 import logging
 import json
 
+from validation_schema import schema
+from dataclasses import dataclass
+from aws_lambda_powertools.utilities.validation import validator
+
 logger = logging.getLogger("UpdateNews")
 logger.setLevel(logging.INFO)
 
@@ -11,8 +15,15 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
+@dataclass
+class Request:
+    title: str
+    description: str
+    new_pictures_count: int
+    pictures_to_delete: list
 
 @lambda_middleware
+@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     """
     Lambda handler for updating news

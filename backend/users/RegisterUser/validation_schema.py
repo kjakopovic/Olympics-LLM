@@ -20,5 +20,6 @@ schema = {
             "maxLength": 50
         }
     },
-    "required": ["email", "password", "first_name", "last_name"]
+    "required": ["email", "password", "first_name", "last_name"],
+    "additionalProperties": False
 }
