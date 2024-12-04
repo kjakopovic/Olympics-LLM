@@ -57,6 +57,8 @@ def lambda_handler(event, context):
     logger.info(f'Updating news with id: {news_id}')
     update_news(dynamodb, news_id, title, description)
 
+    resigned_urls = []
+    
     logger.info(f'Checking if pictures need to be added')
     if new_pictures_count and new_pictures_count > 0:
         logger.info(f'Adding pictures to news')

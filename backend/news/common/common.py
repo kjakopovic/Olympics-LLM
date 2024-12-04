@@ -71,11 +71,14 @@ def lambda_middleware(handler, event, context):
 
         return handler(event, context)
     except Exception as e:
-        logger.error(f"Error in middleware: {e}")
-        return json.dumps({
-            "statusCode": 500,
-            "body": json.dumps({"message": "Internal Server Error"})
-        })
+        logger.error(f"{e}")
+
+        return build_response(
+            500,
+            {
+                "message": f"{e}"
+            }
+        )
 
 
 def validate_jwt_token(event_headers):
