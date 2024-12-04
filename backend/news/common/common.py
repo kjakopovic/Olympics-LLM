@@ -4,7 +4,6 @@ import jwt
 import logging
 import boto3
 import json
-import requests
 
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 
@@ -18,9 +17,8 @@ _LAMBDA_NEWS_TABLE_RESOURCE = {
 
 _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
     "client": client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
-    "bucket_name": environ.get("NEWS_PICTURES_BUCKET_NAME", "iolap-project")
+    "bucket_name": environ.get("NEWS_PICTURES_BUCKET", "iolap-project")
 }
-
 
 class LambdaS3Class:
     """

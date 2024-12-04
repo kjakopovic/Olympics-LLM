@@ -1,0 +1,19 @@
+Just to make it a bit easier to understand what is in which csv file
+Foodex1.csv -> Chronic Food Consumption Grams per Day (g/day) - Consumers only
+Foodex2.csv -> Chronic Food Consumption Grams per Day (g/day) - All subjects
+Foodex3.csv -> Chronic Food Consumption Grams per kilogram of body weight per day (g/kg bw per day) - Consumers only
+Foodex4.csv -> Chronic Food Consumption Grams per kilogram of body weight per day (g/kg bw per day) - All subjects
+Foodex5.csv -> Chronic Food Consumption Grams per Day (g/day) - Consumers only with gender
+Foodex6.csv -> Chronic Food Consumption Grams per Day (g/day) - All subjects with gender
+Foodex7.csv -> Chronic Food Consumption Grams per kilogram of body weight per day (g/kg bw per day) - Consumers only with gender
+Foodex8.csv -> Chronic Food Consumption Grams per kilogram of body weight per day (g/kg bw per day) - All subjects with gender
+Foodex9.csv -> Acute Food Consumption Grams (g) in a single day - Consuming days only
+Foodex10.csv -> Acute Food Consumption Grams (g) in a single day - All days
+Foodex11.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - Consuming days only
+Foodex12.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - All days
+Foodex13.csv -> Acute Food Consumption Grams (g) in a single day - Consuming days with gender
+Foodex14.csv -> Acute Food Consumption Grams (g) in a single day - All days with gender
+Foodex15.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - Consuming days only with gender
+Foodex16.csv -> Acute Food Consumption Grams per kilogram of body weight (g/kg bw) in a single day - All day with gender
+edible_food_2011.csv -> Consumption of edible food commodities in grams per person per day with different commodities by country
+dishes.csv -> CSV dataset of some traditional meals around the world

@@ -1,0 +1,54 @@
+name: Deploy User Service Lambdas
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/users/**"
+
+env:
+  AWS_REGION: "eu-central-1"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install SAM CLI
+        run: |
+          pip install aws-sam-cli
+
+      # TODO: Uncomment the following lines when you have tests
+      # - name: Install dependencies for tests
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r backend/tests/requirements.txt
+
+      # - name: Run tests
+      #   working-directory: backend/users/tests
+      #   run: |
+      #     pytest .
+
+      - name: Build service
+        working-directory: backend/users
+        run: sam build --parallel --cached
+
+      - name: Deploy service
+        working-directory: backend/users
+        run: sam deploy --no-confirm-changeset

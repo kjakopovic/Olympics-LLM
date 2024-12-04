@@ -1,7 +1,5 @@
 import logging
 import datetime
-from boto3 import client
-from os import environ
 
 logger = logging.getLogger("GetAllNews")
 logger.setLevel(logging.INFO)
@@ -33,7 +31,7 @@ def lambda_handler(event, context):
 
     logger.info(f"Fetching pictures for news")
     for item in sorted_news:
-        news_id = item.get('news_id')
+        news_id = item.get('id')
         if news_id:
             item['pictures_urls'] = fetch_pictures(news_id)
         else:

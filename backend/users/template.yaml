@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   stack for managing user lambdas
-  CONTAINS:
-  - authentication
-  - profile
 
 Parameters:
   JwtSecretName:
@@ -28,14 +25,12 @@ Globals:
     Timeout: 60
     MemorySize: 512
 
-# TODO: Change CORS settings
-
 Resources:
   # API Gateway
   UserServiceApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: api-v1
+      StageName: v1-users
       CorsConfiguration:
         AllowOrigins:
           - "*"
@@ -61,7 +56,6 @@ Resources:
 
   # Lambda Functions
 
-  # Authentication
   RegisterUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -87,7 +81,7 @@ Resources:
         RegisterUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/register
+            Path: /register
             Method: POST
             ApiId: !Ref UserServiceApi
 
@@ -115,10 +109,10 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        RequestUserLoginEndpoint:
+        LoginUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login
+            Path: /login
             Method: POST
             ApiId: !Ref UserServiceApi
 
@@ -148,7 +142,7 @@ Resources:
         ThirdPartyLoginRequestEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login/third-party
+            Path: /login/third-party
             Method: GET
             ApiId: !Ref UserServiceApi
 
@@ -181,11 +175,10 @@ Resources:
         ThirdPartyLoginValidateEndpoint:
           Type: HttpApi
           Properties:
-            Path: /authentication/login/third-party/confirm
+            Path: /login/third-party/confirm
             Method: GET
             ApiId: !Ref UserServiceApi
 
-  # Profile
   DeleteUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -211,10 +204,10 @@ Resources:
                 - "s3:*"
               Resource: "*"
       Events:
-        DeleteProfileEndpoint:
+        DeleteUserEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: DELETE
             ApiId: !Ref UserServiceApi
 
@@ -233,6 +226,6 @@ Outputs:
 
   EndpointURI:
     Description: "API Endpoint URL"
-    Value: !Sub "https://${UserServiceApi}.execute-api.${AWS::Region}.amazonaws.com/api-v1"
+    Value: !Sub "https://${UserServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-users"
     Export:
       Name: UserServiceApiUrl

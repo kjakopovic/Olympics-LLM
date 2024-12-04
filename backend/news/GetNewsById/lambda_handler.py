@@ -1,6 +1,4 @@
 import logging
-from boto3 import client
-from os import environ
 
 logger = logging.getLogger("GetNewsById")
 logger.setLevel(logging.INFO)

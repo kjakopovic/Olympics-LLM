@@ -2,8 +2,6 @@ import logging
 import json
 import uuid
 import datetime
-from boto3 import client
-from os import environ
 
 logger = logging.getLogger("CreateNews")
 logger.setLevel(logging.INFO)
@@ -16,7 +14,6 @@ from common.common import (
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
 )
-
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -31,40 +28,41 @@ def lambda_handler(event, context):
         logger.error("Error decoding JSON: %s", e)
         return build_response(400, {"message": "Error decoding JSON"})
 
-    if "title" not in request_body or "content" not in request_body or "picture_count" not in request_body:
-        return build_response(400, {"message": "Title and content are required"})
+    if "title" not in request_body or "description" not in request_body or "picture_count" not in request_body:
+        return build_response(400, {"message": "Title and description are required"})
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     news_id = str(uuid.uuid4())
     news_title = request_body["title"]
-    news_content = request_body["content"]
+    news_content = request_body["description"]
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
     news_item = {
-        "news_id": news_id,
+        "id": news_id,
         "title": news_title,
         "description": news_content,
         "published_at": news_date
     }
 
     try:
-        dynamodb.put_item(Item=news_item)
+        dynamodb.table.put_item(Item=news_item)
     except Exception as e:
         logger.error("Error saving news to DynamoDB: %s", e)
         return build_response(500, {"message": "Error saving news to DynamoDB"})
 
     urls = []
-    if "pictures" in request_body:
-        picture_count = request_body["picture_count"]
-        urls = save_news_pictures(picture_count, news_id)
+    picture_count = request_body["picture_count"]
+    urls = save_news_pictures(picture_count, news_id)
 
     return build_response(
         200,
-        {"message": "News created successfully",
-         "picture_urls": urls
-         })
+        {
+            "message": "News created successfully",
+            "picture_urls": urls
+        }
+    )
 
 
 def save_news_pictures(picture_count, news_id):
@@ -79,20 +77,15 @@ def save_news_pictures(picture_count, news_id):
 
     try:
         for i in range(1, picture_count + 1):
-            file_name = f"{news_id}/{i}"
-
-            pre_signed_urls = s3_client.generate_presigned_url(
+            pre_signed_url = s3_client.generate_presigned_url(
                 'put_object',
                 Params={
                     'Bucket': bucket_name,
-                    'Key': file_name
+                    'Key': f"{news_id}/{i}"
                 },
                 ExpiresIn=3600
             )
-            pre_signed_urls.append({
-                "file_name": file_name,
-                "url": pre_signed_urls
-            })
+            pre_signed_urls.append(pre_signed_url)
 
         logger.info(f"Pre-signed URLs generated successfully for news with id: {news_id}")
         return pre_signed_urls
