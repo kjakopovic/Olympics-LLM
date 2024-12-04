@@ -3,7 +3,7 @@ import logging
 
 from validation_schema import schema
 from dataclasses import dataclass
-from aws_lambda_powertools.utilities.validation import validator
+from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("RegisterUser")
 logger.setLevel(logging.INFO)
@@ -22,11 +22,15 @@ class Request:
     first_name: str
     last_name: str
 
-@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     request_body = json.loads(event.get('body')) if 'body' in event else event
 
     logger.info(f"Checking if every required attribute is found: {request_body}")
+
+    try:
+        validate(event=request_body, schema=schema)
+    except SchemaValidationError as e:
+        return build_response(400, {'message': str(e)})
 
     email = request_body.get('email')
     password = request_body.get('password')
