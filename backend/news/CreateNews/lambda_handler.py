@@ -5,7 +5,7 @@ import datetime
 
 from validation_schema import schema
 from dataclasses import dataclass
-from aws_lambda_powertools.utilities.validation import validator
+from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("CreateNews")
 logger.setLevel(logging.INFO)
@@ -26,7 +26,6 @@ class Request:
     picture_count: int
 
 @lambda_middleware
-@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     """
     Lambda handler for creating news
@@ -41,6 +40,11 @@ def lambda_handler(event, context):
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
+
+    try:
+        validate(event=request_body, schema=schema)
+    except SchemaValidationError as e:
+        return build_response(400, {'message': str(e)})
 
     news_id = str(uuid.uuid4())
     news_title = request_body.get("title")

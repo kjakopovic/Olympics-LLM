@@ -3,7 +3,7 @@ import json
 
 from validation_schema import schema
 from dataclasses import dataclass
-from aws_lambda_powertools.utilities.validation import validator
+from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("UpdateNews")
 logger.setLevel(logging.INFO)
@@ -25,7 +25,6 @@ class Request:
     pictures_to_delete: list
 
 @lambda_middleware
-@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     """
     Lambda handler for updating news
@@ -44,6 +43,11 @@ def lambda_handler(event, context):
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     request_body = json.loads(event.get('body', '{}'))
+
+    try:
+        validate(event=request_body, schema=schema)
+    except SchemaValidationError as e:
+        return build_response(400, {'message': str(e)})
 
     title = request_body.get('title')
     description = request_body.get('description')
