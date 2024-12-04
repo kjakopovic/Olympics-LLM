@@ -81,7 +81,7 @@ def get_news_pictures(news_id):
                 ExpiresIn=3600
             )
             picture_urls.append({
-                "file_name": obj['Key'],
+                "key": obj['Key'],
                 "url": picture_url
             })
 
