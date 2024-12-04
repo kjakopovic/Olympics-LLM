@@ -3,6 +3,10 @@ import json
 import uuid
 import datetime
 
+from validation_schema import schema
+from dataclasses import dataclass
+from aws_lambda_powertools.utilities.validation import validator
+
 logger = logging.getLogger("CreateNews")
 logger.setLevel(logging.INFO)
 
@@ -15,7 +19,14 @@ from common.common import (
     LambdaS3Class
 )
 
+@dataclass
+class Request:
+    title: str
+    description: str
+    picture_count: int
+
 @lambda_middleware
+@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     """
     Lambda handler for creating news
@@ -28,15 +39,13 @@ def lambda_handler(event, context):
         logger.error("Error decoding JSON: %s", e)
         return build_response(400, {"message": "Error decoding JSON"})
 
-    if "title" not in request_body or "description" not in request_body or "picture_count" not in request_body:
-        return build_response(400, {"message": "Title and description are required"})
-
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     news_id = str(uuid.uuid4())
-    news_title = request_body["title"]
-    news_content = request_body["description"]
+    news_title = request_body.get("title")
+    news_content = request_body.get("description")
+    picture_count = request_body.get("picture_count")
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
     news_item = {
@@ -53,7 +62,6 @@ def lambda_handler(event, context):
         return build_response(500, {"message": "Error saving news to DynamoDB"})
 
     urls = []
-    picture_count = request_body["picture_count"]
     urls = save_news_pictures(picture_count, news_id)
 
     return build_response(

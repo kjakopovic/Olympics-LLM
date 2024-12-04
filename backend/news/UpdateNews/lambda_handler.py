@@ -1,6 +1,10 @@
 import logging
 import json
 
+from validation_schema import schema
+from dataclasses import dataclass
+from aws_lambda_powertools.utilities.validation import validator
+
 logger = logging.getLogger("UpdateNews")
 logger.setLevel(logging.INFO)
 
@@ -13,8 +17,15 @@ from common.common import (
     LambdaS3Class
 )
 
+@dataclass
+class Request:
+    title: str
+    description: str
+    new_pictures_count: int
+    pictures_to_delete: list
 
 @lambda_middleware
+@validator(inbound_schema=schema)
 def lambda_handler(event, context):
     """
     Lambda handler for updating news
@@ -32,23 +43,28 @@ def lambda_handler(event, context):
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
-    body = json.loads(event.get('body', '{}'))
+    request_body = json.loads(event.get('body', '{}'))
 
-    title = body.get('title')
-    description = body.get('description')
+    title = request_body.get('title')
+    description = request_body.get('description')
+    new_pictures_count = request_body.get('new_pictures_count')
+    pictures_to_delete = request_body.get('pictures_to_delete')
 
     logger.info(f'Updating news with id: {news_id}')
-
     update_news(dynamodb, news_id, title, description)
 
-    logger.info(f'Checking if pictures need to be updated')
+    logger.info(f'Checking if pictures need to be added')
+    if new_pictures_count and new_pictures_count > 0:
+        logger.info(f'Adding pictures to news')
+        resigned_urls = save_news_pictures(new_pictures_count, news_id)
 
-    new_pictures_count = body.get('new_pictures_count')
-    if new_pictures_count:
-        logger.info(f'Updating news pictures with for news with id: {news_id}')
+    logger.info(f'Checking if pictures need to be deleted')
+    if pictures_to_delete and len(pictures_to_delete) > 0:
+        logger.info(f'Deleting pictures from news')
 
-        pictures_to_delete = body.get('pictures_to_delete')
-        resigned_urls = update_news_pictures(news_id, new_pictures_count, pictures_to_delete)
+        for key in pictures_to_delete:
+            if delete_news_pictures(key):
+                logger.info(f"Deleted picture with key: {key}")
 
     return build_response(
         200,
@@ -80,19 +96,6 @@ def update_news(dynamodb, news_id, title, description):
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
-
-
-def update_news_pictures(news_id, new_pictures_count, pictures_to_delete):
-    try:
-        for key in pictures_to_delete:
-            if delete_news_pictures(key):
-                logger.info(f"Deleted picture with key: {key}")
-
-        return save_news_pictures(new_pictures_count, news_id)
-
-    except Exception as e:
-        logger.error(f"Error in deleting news pictures from S3: {e}")
-        return False
 
 
 def delete_news_pictures(key):
