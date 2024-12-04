@@ -2,6 +2,10 @@ import json
 import bcrypt
 import logging
 
+from validation_schema import schema
+from dataclasses import dataclass
+from aws_lambda_powertools.utilities.validation import validator
+
 logger = logging.getLogger("LoginUser")
 logger.setLevel(logging.INFO)
 
@@ -13,22 +17,19 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
+@dataclass
+class Request:
+    email: str
+    password: str
 
+@validator(inbound_schema=schema)
 def lambda_handler(event, context):
-    event = json.loads(event.get('body')) if 'body' in event else event
+    request_body = json.loads(event.get('body')) if 'body' in event else event
 
-    logger.info(f'Checking if every required attribute is found in body: {event}')
+    logger.info(f'Checking if every required attribute is found in body: {request_body}')
 
-    try:
-        email = event['email']
-        password = event['password']
-    except Exception as e:
-        return build_response(
-            400,
-            {
-                'message': f'{e} is missing, please check and try again'
-            }
-        )
+    email = request_body.get('email')
+    password = request_body.get('password')
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
