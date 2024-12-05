@@ -1,5 +1,4 @@
 from datetime import datetime, timezone, timedelta
-from boto3 import client, resource
 from os import environ
 import jwt
 import logging
@@ -10,26 +9,8 @@ import json
 
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 
-logger = logging.getLogger("UserCommon")
+logger = logging.getLogger("SportsCommon")
 logger.setLevel(logging.INFO)
-
-_LAMBDA_ACHIEVEMENTS_TABLE_RESOURCE = {
-    "resource" : resource('dynamodb'),
-    "table_name" : environ.get("ACHIEVEMENTS_TABLE_NAME", "test_table")
-}
-
-class LambdaDynamoDBClass:
-    """
-    AWS DynamoDB Resource Class
-    """
-    def __init__(self, lambda_dynamodb_resource):
-        """
-        Initialize a DynamoDB Resource
-        """
-        self.resource = lambda_dynamodb_resource["resource"]
-        self.table_name = lambda_dynamodb_resource["table_name"]
-        self.table = self.resource.Table(self.table_name)
-
 
 def generate_jwt_token(email):
     secrets = get_secrets_from_aws_secrets_manager(
@@ -41,7 +22,6 @@ def generate_jwt_token(email):
 
     return jwt.encode({"email": email, "exp": expiration_time}, secrets['jwt_secret'], algorithm="HS256")
 
-
 def generate_refresh_token(email):
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
@@ -51,7 +31,6 @@ def generate_refresh_token(email):
     expiration_time = int((datetime.now(timezone.utc) + timedelta(days=1)).timestamp())
 
     return jwt.encode({"email": email, "exp": expiration_time}, secrets['refresh_secret'], algorithm="HS256")
-
 
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
@@ -88,7 +67,6 @@ def lambda_middleware(handler, event, context):
             }
         )
 
-
 def validate_jwt_token(event_headers):
     authorization = event_headers.get('Authorization') or event_headers.get('authorization')
 
@@ -124,7 +102,6 @@ def validate_jwt_token(event_headers):
             }
         )
 
-
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
     try:
         jwt.decode(refresh_token, refresh_secret, algorithms=["HS256"])
@@ -154,7 +131,6 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
             }
         )
 
-
 def get_email_from_jwt_token(provided_jwt_token):
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
@@ -164,7 +140,6 @@ def get_email_from_jwt_token(provided_jwt_token):
     decoded_jwt = jwt.decode(provided_jwt_token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
 
     return decoded_jwt.get('email')
-
 
 def get_secrets_from_aws_secrets_manager(secret_id, region_name):
     try:
@@ -182,7 +157,6 @@ def get_secrets_from_aws_secrets_manager(secret_id, region_name):
         logger.error(f'Failed to retrieve secrets: {str(e)}')
         return None
 
-
 def build_response(status_code, body, headers=None):
     return {
         'statusCode': status_code,
@@ -191,7 +165,6 @@ def build_response(status_code, body, headers=None):
         },
         'body': json.dumps(body)
     }
-
 
 def hash_password(password, salt_rounds=5):
     salt = bcrypt.gensalt(rounds=salt_rounds)

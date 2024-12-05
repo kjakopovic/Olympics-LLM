@@ -34,116 +34,6 @@ Resources:
         AllowMethods:
           - "*"
 
-  # DynamoDB Table definition
-  SportsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: sport_achievements
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-
-  # Lambda Functions
-
-  AddSportsAchievementsFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-              Resource: "*"
-      Events:
-        AddSportsAchievementsEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /
-            Method: POST
-            ApiId: !Ref SportServiceApi
-
-  DeleteSportsAchievementsFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-              Resource: "*"
-      Events:
-        DeleteSportsAchievementsEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /{sports_id}
-            Method: DELETE
-            ApiId: !Ref SportServiceApi
-
-  UpdateSportsAchievementsFunction:
-    Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      CodeUri: ./
-      Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
-      Environment:
-        Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
-          JWT_SECRET_NAME: !Ref JwtSecretName
-          SECRETS_REGION_NAME: !Ref SecretsRegionName
-      Architectures:
-        - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "dynamodb:*"
-                - "secretsmanager:GetSecretValue"
-              Resource: "*"
-      Events:
-        UpdateSportsAchievementsEndpoint:
-          Type: HttpApi
-          Properties:
-            Path: /{sports_id}
-            Method: PUT
-            ApiId: !Ref SportServiceApi
-
   GetAllSportsAchievementsFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -154,7 +44,6 @@ Resources:
       Runtime: python3.12
       Environment:
         Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
           JWT_SECRET_NAME: !Ref JwtSecretName
           SECRETS_REGION_NAME: !Ref SecretsRegionName
       Architectures:
@@ -175,7 +64,7 @@ Resources:
             Method: GET
             ApiId: !Ref SportServiceApi
 
-  GetSportsAchievementByIdFunction:
+  GetAllCountriesAchievementsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
@@ -185,7 +74,6 @@ Resources:
       Runtime: python3.12
       Environment:
         Variables:
-          USERS_TABLE_NAME: !Ref UsersTable
           JWT_SECRET_NAME: !Ref JwtSecretName
           SECRETS_REGION_NAME: !Ref SecretsRegionName
       Architectures:
@@ -199,10 +87,10 @@ Resources:
                 - "secretsmanager:GetSecretValue"
               Resource: "*"
       Events:
-        GetSportsAchievementByIdEndpoint:
+        GetAllCountriesAchievementsEndpoint:
           Type: HttpApi
           Properties:
-            Path: /{sports_id}
+            Path: /countries
             Method: GET
             ApiId: !Ref SportServiceApi
 
