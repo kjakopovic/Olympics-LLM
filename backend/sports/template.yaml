@@ -95,18 +95,6 @@ Resources:
             ApiId: !Ref SportServiceApi
 
 Outputs:
-  SportsTableArn:
-    Description: "Sports table ARN"
-    Value: !GetAtt SportsTable.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-SportsTableArn"
-
-  SportsTableName:
-    Description: "Sports table NAME"
-    Value: !Ref SportsTable
-    Export:
-      Name: !Sub "${AWS::StackName}-SportsTableName"
-
   EndpointURI:
     Description: "API Endpoint URL"
     Value: !Sub "https://${SportServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-sports"
