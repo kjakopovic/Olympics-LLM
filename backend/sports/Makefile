@@ -13,4 +13,3 @@ build-GetAllSportsAchievementsFunction:
 
 build-GetAllCountriesAchievementsFunction:
 	$(MAKE) build LAMBDA_FILE=GetAllCountriesAchievements/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
-	
