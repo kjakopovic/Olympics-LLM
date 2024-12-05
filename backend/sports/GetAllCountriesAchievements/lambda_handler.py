@@ -21,11 +21,27 @@ def lambda_handler(event, context):
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
     
-    page = int(query_params.get("page", 1))
-    limit = int(query_params.get("limit", 50))
-    min_year = int(query_params.get("min_year", 1800))
-    max_year = int(query_params.get("max_year", 9999))
+    page = int(query_params.get("page", "1"))
+    limit = int(query_params.get("limit", "50"))
+    min_year = int(query_params.get("min_year", "1800"))
+    max_year = int(query_params.get("max_year", "9999"))
     list_of_sports = query_params.get("list_of_sports", "").split(",")
+
+    if page < 1 or limit < 1:
+        return build_response(
+            400,
+            {
+                'message': "Page and limit should be greater than 0."
+            }
+        )
+    
+    if min_year < 1800 or max_year > 9999:
+        return build_response(
+            400,
+            {
+                'message': "min_year should be greater than 1800 and max_year should be less than 9999."
+            }
+        )
 
     if min_year > max_year:
         return build_response(
@@ -43,7 +59,9 @@ def lambda_handler(event, context):
         200,
         {
             'message': "List of countries with medals returned successfully",
-            'data': paginated_list
+            'data': paginated_list,
+            'page': page,
+            'item_count': len(paginated_list)
         }
     )
 
@@ -89,6 +107,9 @@ def paginate_list(data, page_number, limit_per_page):
     # It's page_number - 1 because the minimum page is 1 not 0
     start_index = (page_number - 1) * limit_per_page
     end_index = page_number * limit_per_page
+
+    if len(data) < start_index or len(data) < end_index:
+        return data[-limit_per_page:]
 
     # Slice the list to get the items for the current page
     page_data = data[start_index:end_index]

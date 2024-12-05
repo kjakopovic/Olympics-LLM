@@ -2,23 +2,20 @@ schema = {
     "type": "object",
     "properties": {
         "page": {
-            "type": "number",
-            "minimum": 1
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "limit": {
-            "type": "number",
-            "minimum": 5,
-            "maximum": 50
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "min_year": {
-            "type": "number",
-            "minimum": 1800,
-            "maximum": 9999
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "max_year": {
-            "type": "number",
-            "minimum": 1800,
-            "maximum": 9999
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "list_of_sports": {
             "type": "string"
@@ -27,3 +24,5 @@ schema = {
     "required": ["page", "limit"],
     "additionalProperties": False
 }
+
+# TODO: also check if the page * limit is greater than size of the list, if so return last limit items

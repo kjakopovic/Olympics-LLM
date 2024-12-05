@@ -30,6 +30,14 @@ def lambda_handler(event, context):
     event_name = query_params.get("event", None)
     country = query_params.get("country", None)
 
+    if page < 1 or limit < 1:
+        return build_response(
+            400,
+            {
+                'message': "Page and limit should be greater than 0."
+            }
+        )
+
     sorted_list = get_sorted_list_of_sportsmen(
         medal,
         name,
@@ -45,7 +53,9 @@ def lambda_handler(event, context):
         200,
         {
             'message': "List of countries with medals returned successfully",
-            'data': paginated_list
+            'data': paginated_list,
+            'page': page,
+            'item_count': len(paginated_list)
         }
     )
 
@@ -93,6 +103,9 @@ def paginate_list(data, page_number, limit_per_page):
     # It's page_number - 1 because the minimum page is 1 not 0
     start_index = (page_number - 1) * limit_per_page
     end_index = page_number * limit_per_page
+
+    if len(data) < start_index or len(data) < end_index:
+        return data[-limit_per_page:]
 
     # Slice the list to get the items for the current page
     page_data = data[start_index:end_index]
