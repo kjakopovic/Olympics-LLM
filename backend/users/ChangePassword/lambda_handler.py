@@ -1,5 +1,6 @@
 import json
 import logging
+import bcrypt
 
 from validation_schema import schema
 from dataclasses import dataclass
@@ -83,7 +84,7 @@ def check_if_user_exists(dynamodb, email):
 
 def verify_password(password, saved_password):
     logger.info(f"Verifying password")
-    return hash_password(password) == saved_password
+    return bcrypt.checkpw(password.encode('utf-8'), saved_password.encode('utf-8'))
 
 
 def update_password(dynamodb, email, new_password):
