@@ -1,51 +1,95 @@
 import logging
-import json
+import pandas as pd
 
 from validation_schema import schema
-from dataclasses import dataclass
 from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
-logger = logging.getLogger("GetSportsAchievementById")
+logger = logging.getLogger("GetAllCountriesAchievements")
 logger.setLevel(logging.INFO)
 
 from common.common import (
-    _LAMBDA_ACHIEVEMENTS_TABLE_RESOURCE,
     lambda_middleware,
-    get_email_from_jwt_token,
-    build_response,
-    LambdaDynamoDBClass
+    build_response
 )
-
-@dataclass
-class Request:
-    email: str
-    password: str
-    first_name: str
-    last_name: str
 
 @lambda_middleware
 def lambda_handler(event, context):
-    # Getting email from JWT token
-    jwt_token = event.get('headers').get('x-access-token')
-    email = get_email_from_jwt_token(jwt_token)
-    
-    # Setting up table
-    global _LAMBDA_ACHIEVEMENTS_TABLE_RESOURCE
-    dynamodb = LambdaDynamoDBClass(_LAMBDA_ACHIEVEMENTS_TABLE_RESOURCE)
-
-    # Fetch and validate request body
-    request_body = json.loads(event.get('body')) if 'body' in event else event
+    query_params = event.get("queryStringParameters", {})
 
     try:
-        validate(event=request_body, schema=schema)
+        validate(event=query_params, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
     
-    # Get items from the request body here
+    page = int(query_params.get("page", 1))
+    limit = int(query_params.get("limit", 50))
+    min_year = int(query_params.get("min_year", 1800))
+    max_year = int(query_params.get("max_year", 9999))
+    list_of_sports = query_params.get("list_of_sports", "").split(",")
+
+    if min_year > max_year:
+        return build_response(
+            400,
+            {
+                'message': "min_year should be less than max_year."
+            }
+        )
+
+    sorted_list = get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
     
+    paginated_list = paginate_list(sorted_list, page, limit)
+
     return build_response(
-        404,
+        200,
         {
-            'message': "To be implemented."
+            'message': "List of countries with medals returned successfully",
+            'data': paginated_list
         }
     )
+
+def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports):
+    dataset = pd.read_csv("common/dataset.csv")
+
+    dataset = dataset[dataset['Medal'] != 'No medal']
+    
+    filtered_dataset = apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports)
+
+    # Group by "Team" and count the medals
+    team_medals = filtered_dataset.groupby('Team')['Medal'].value_counts().unstack(fill_value=0)
+
+    # Reset index to include the team in the result
+    team_medals = team_medals.reset_index()
+
+    # Convert the result into a list of objects (dictionaries)
+    result = []
+    for _, row in team_medals.iterrows():
+        team_info = {
+            'country': row.get('Team', 'N/A'),
+            'gold': row.get('Gold', 0),
+            'silver': row.get('Silver', 0),
+            'bronze': row.get('Bronze', 0)
+        }
+        result.append(team_info)
+
+    return sorted(result, key=lambda x: (-x['gold'], -x['silver'], -x['bronze']))
+
+def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
+    if min_year > 1800:
+        dataset = dataset[dataset['Year'] >= min_year]
+
+    if max_year < 9999:
+        dataset = dataset[dataset['Year'] <= max_year]
+
+    if list_of_sports and len(list_of_sports) > 0:
+        dataset = dataset[dataset['Sport'].isin(list_of_sports)]
+
+    return dataset
+
+def paginate_list(data, page_number, limit_per_page):
+    # It's page_number - 1 because the minimum page is 1 not 0
+    start_index = (page_number - 1) * limit_per_page
+    end_index = page_number * limit_per_page
+
+    # Slice the list to get the items for the current page
+    page_data = data[start_index:end_index]
+    return page_data

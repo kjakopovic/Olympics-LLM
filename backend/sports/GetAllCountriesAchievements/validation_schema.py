@@ -1,26 +1,29 @@
-# TODO:
 schema = {
     "type": "object",
     "properties": {
-        "email": {
-            "type": "string",
-            "format": "email"
+        "page": {
+            "type": "number",
+            "minimum": 1
         },
-        "password": {
-            "type": "string",
-            "minLength": 7
+        "limit": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 50
         },
-        "first_name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
+        "min_year": {
+            "type": "number",
+            "minimum": 1800,
+            "maximum": 9999
         },
-        "last_name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
+        "max_year": {
+            "type": "number",
+            "minimum": 1800,
+            "maximum": 9999
+        },
+        "list_of_sports": {
+            "type": "string"
         }
     },
-    "required": ["email", "password", "first_name", "last_name"],
+    "required": ["page", "limit"],
     "additionalProperties": False
 }

@@ -1,26 +1,40 @@
-# TODO:
 schema = {
     "type": "object",
     "properties": {
-        "email": {
-            "type": "string",
-            "format": "email"
+        "page": {
+            "type": "number",
+            "minimum": 1
         },
-        "password": {
-            "type": "string",
-            "minLength": 7
+        "limit": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 50
         },
-        "first_name": {
+        "medal": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 50
+            "minLength": 1
         },
-        "last_name": {
+        "sportsman_name": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 50
+            "minLength": 1
+        },
+        "sex": {
+            "type": "string",
+            "enum": ["M", "F"]
+        },
+        "sport": {
+            "type": "string",
+            "minLength": 1
+        },
+        "event": {
+            "type": "string",
+            "minLength": 1
+        },
+        "country": {
+            "type": "string",
+            "minLength": 1
         }
     },
-    "required": ["email", "password", "first_name", "last_name"],
+    "required": ["page", "limit"],
     "additionalProperties": False
 }
