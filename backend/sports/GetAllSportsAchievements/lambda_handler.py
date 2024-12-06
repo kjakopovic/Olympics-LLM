@@ -5,7 +5,7 @@ from validation_schema import schema
 from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("GetAllSportsAchievements")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
@@ -23,12 +23,20 @@ def lambda_handler(event, context):
     
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 50))
-    medal = int(query_params.get("medal", None))
-    name = int(query_params.get("sportsman_name", None))
+    medal = query_params.get("medal", None)
+    name = query_params.get("sportsman_name", None)
     sex = query_params.get("sex", None)
     sport = query_params.get("sport", None)
     event_name = query_params.get("event", None)
     country = query_params.get("country", None)
+
+    if page < 1 or limit < 1:
+        return build_response(
+            400,
+            {
+                'message': "Page and limit should be greater than 0."
+            }
+        )
 
     sorted_list = get_sorted_list_of_sportsmen(
         medal,
@@ -44,7 +52,10 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': "List of countries with medals returned successfully",
+            'message': "List of sportsmen returned successfully",
+            'page': page,
+            'total_records_found': len(sorted_list),
+            'item_count': len(paginated_list),
             'data': paginated_list
         }
     )
@@ -93,6 +104,9 @@ def paginate_list(data, page_number, limit_per_page):
     # It's page_number - 1 because the minimum page is 1 not 0
     start_index = (page_number - 1) * limit_per_page
     end_index = page_number * limit_per_page
+
+    if len(data) < start_index or len(data) < end_index:
+        return data[-limit_per_page:]
 
     # Slice the list to get the items for the current page
     page_data = data[start_index:end_index]

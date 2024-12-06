@@ -2,13 +2,12 @@ schema = {
     "type": "object",
     "properties": {
         "page": {
-            "type": "number",
-            "minimum": 1
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "limit": {
-            "type": "number",
-            "minimum": 5,
-            "maximum": 50
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "medal": {
             "type": "string",

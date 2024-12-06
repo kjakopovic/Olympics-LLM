@@ -2,7 +2,7 @@ import os
 import logging
 
 logger = logging.getLogger("RequestThirdPartyLogin")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from constants import (
     GOOGLE_AUTHENTICATION_URL,

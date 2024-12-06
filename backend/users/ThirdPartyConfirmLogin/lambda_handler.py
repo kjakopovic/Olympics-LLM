@@ -3,7 +3,7 @@ import requests
 import logging
 
 logger = logging.getLogger("ConfirmThirdPartyLogin")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from constants import (
     GOOGLE_TOKEN_URL,

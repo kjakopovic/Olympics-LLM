@@ -1,7 +1,7 @@
 import logging
 
 logger = logging.getLogger("GetNewsById")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
