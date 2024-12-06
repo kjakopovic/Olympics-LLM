@@ -67,16 +67,24 @@ def lambda_handler(event, context):
 
 def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports):
     dataset = pd.read_csv("common/dataset.csv")
+    
+    logger.info(f"Dataset length: {len(dataset)}")
 
     dataset = dataset[dataset['Medal'] != 'No medal']
+
+    logger.info(f"Dataset length: {len(dataset)}")
     
     filtered_dataset = apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports)
+
+    logger.info(f"Dataset length: {len(filtered_dataset)}")
 
     # Group by "Team" and count the medals
     team_medals = filtered_dataset.groupby('Team')['Medal'].value_counts().unstack(fill_value=0)
 
     # Reset index to include the team in the result
     team_medals = team_medals.reset_index()
+
+    logger.info(f"Dataset length: {len(team_medals)}")
 
     # Convert the result into a list of objects (dictionaries)
     result = []
@@ -88,6 +96,8 @@ def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
             'bronze': row.get('Bronze', 0)
         }
         result.append(team_info)
+
+    logger.info(f"Dataset length: {len(result)}")
 
     return sorted(result, key=lambda x: (-x['gold'], -x['silver'], -x['bronze']))
 

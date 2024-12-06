@@ -62,26 +62,18 @@ def lambda_handler(event, context):
 def get_sorted_list_of_sportsmen(medal, name, sex, sport, event_name, country):
     dataset = pd.read_csv("common/dataset.csv")
 
-    logger.info(f"Dataset length: {len(dataset)}")
-
     dataset = dataset[['Name', 'Sex', 'Sport', 'Event', 'Medal', 'Team', 'Year']]
     medal_order = {'Gold': 1, 'Silver': 2, 'Bronze': 3}
-
-    logger.info(f"Dataset length: {len(dataset)}")
 
     dataset.columns = dataset.columns.str.lower()
 
     filtered_df = apply_filters_to_dataset(dataset, medal, name, sex, sport, event_name, country)
-
-    logger.info(f"Dataset length: {len(filtered_df)}")
 
     # Add a temporary column for sorting
     filtered_df['Medal_Order'] = filtered_df['medal'].map(medal_order)
 
     # Sort by the 'Medal_Order' column and then drop the temporary column
     sorted_df = filtered_df.sort_values(by='Medal_Order').drop(columns=['Medal_Order'])
-
-    logger.info(f"Dataset length: {len(sorted_df)}")
 
     # Convert the sorted DataFrame into a list of dictionaries
     return sorted_df.to_dict(orient='records')
