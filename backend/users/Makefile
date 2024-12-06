@@ -22,3 +22,6 @@ build-ThirdPartyLoginValidateFunction:
 
 build-DeleteUserFunction:
 	$(MAKE) build LAMBDA_FILE=DeleteUser/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-ChangePasswordFunction:
+	$(MAKE) build LAMBDA_FILE=ChangePassword/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)

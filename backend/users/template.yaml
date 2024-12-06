@@ -211,6 +211,38 @@ Resources:
             Method: DELETE
             ApiId: !Ref UserServiceApi
 
+  ChangePasswordFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+                - "s3:*"
+              Resource: "*"
+      Events:
+        ChangePasswordEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /password/change
+            Method: POST
+            ApiId: !Ref UserServiceApi
+
 Outputs:
   UsersTableArn:
     Description: "Users table ARN"
