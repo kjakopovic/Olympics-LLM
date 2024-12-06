@@ -1,0 +1,263 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  stack for managing user lambdas
+
+Parameters:
+  JwtSecretName:
+    Type: String
+    Description: Name of the secret in Secrets Manager that contains the JWT secret
+    Default: python-lambda-app/prod/jwt-secret
+
+  ThirdPartyClientsSecretName:
+    Type: String
+    Description: Name of the secret in Secrets Manager that contains the third party clients secrets
+    Default: python-lambda-app/prod/third-party-secrets
+
+  SecretsRegionName:
+    Type: String
+    Description: Region name where the secrets are stored
+    Default: eu-central-1
+
+# Global Settings
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+
+Resources:
+  # API Gateway
+  UserServiceApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: v1-users
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - "*"
+
+  # DynamoDB Table definition
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: users
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # Lambda Functions
+
+  RegisterUserFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "s3:*"
+              Resource: "*"
+      Events:
+        RegisterUserEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /register
+            Method: POST
+            ApiId: !Ref UserServiceApi
+
+  LoginUserFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        LoginUserEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /login
+            Method: POST
+            ApiId: !Ref UserServiceApi
+
+  ThirdPartyLoginRequestFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          THIRD_PARTY_CLIENTS_SECRET_NAME: !Ref ThirdPartyClientsSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        ThirdPartyLoginRequestEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /login/third-party
+            Method: GET
+            ApiId: !Ref UserServiceApi
+
+  ThirdPartyLoginValidateFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+          THIRD_PARTY_CLIENTS_SECRET_NAME: !Ref ThirdPartyClientsSecretName
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+                - "s3:*"
+              Resource: "*"
+      Events:
+        ThirdPartyLoginValidateEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /login/third-party/confirm
+            Method: GET
+            ApiId: !Ref UserServiceApi
+
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+                - "s3:*"
+              Resource: "*"
+      Events:
+        DeleteUserEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: DELETE
+            ApiId: !Ref UserServiceApi
+
+  ChangePasswordFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          USERS_TABLE_NAME: !Ref UsersTable
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+                - "s3:*"
+              Resource: "*"
+      Events:
+        ChangePasswordEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /password/change
+            Method: POST
+            ApiId: !Ref UserServiceApi
+
+Outputs:
+  UsersTableArn:
+    Description: "Users table ARN"
+    Value: !GetAtt UsersTable.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-UsersTableArn"
+
+  UsersTableName:
+    Description: "Users table NAME"
+    Value: !Ref UsersTable
+    Export:
+      Name: !Sub "${AWS::StackName}-UsersTableName"
+
+  EndpointURI:
+    Description: "API Endpoint URL"
+    Value: !Sub "https://${UserServiceApi}.execute-api.${AWS::Region}.amazonaws.com/v1-users"
+    Export:
+      Name: UserServiceApiUrl
