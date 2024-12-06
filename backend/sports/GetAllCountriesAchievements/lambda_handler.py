@@ -59,9 +59,9 @@ def lambda_handler(event, context):
         200,
         {
             'message': "List of countries with medals returned successfully",
-            'data': paginated_list,
             'page': page,
-            'item_count': len(paginated_list)
+            'item_count': len(paginated_list),
+            'data': paginated_list
         }
     )
 

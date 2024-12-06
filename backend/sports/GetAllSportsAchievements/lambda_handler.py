@@ -23,8 +23,8 @@ def lambda_handler(event, context):
     
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 50))
-    medal = int(query_params.get("medal", None))
-    name = int(query_params.get("sportsman_name", None))
+    medal = query_params.get("medal", None)
+    name = query_params.get("sportsman_name", None)
     sex = query_params.get("sex", None)
     sport = query_params.get("sport", None)
     event_name = query_params.get("event", None)
@@ -53,27 +53,35 @@ def lambda_handler(event, context):
         200,
         {
             'message': "List of countries with medals returned successfully",
-            'data': paginated_list,
             'page': page,
-            'item_count': len(paginated_list)
+            'item_count': len(paginated_list),
+            'data': paginated_list
         }
     )
 
 def get_sorted_list_of_sportsmen(medal, name, sex, sport, event_name, country):
     dataset = pd.read_csv("common/dataset.csv")
 
+    logger.info(f"Dataset length: {len(dataset)}")
+
     dataset = dataset[['Name', 'Sex', 'Sport', 'Event', 'Medal', 'Team', 'Year']]
     medal_order = {'Gold': 1, 'Silver': 2, 'Bronze': 3}
+
+    logger.info(f"Dataset length: {len(dataset)}")
 
     dataset.columns = dataset.columns.str.lower()
 
     filtered_df = apply_filters_to_dataset(dataset, medal, name, sex, sport, event_name, country)
+
+    logger.info(f"Dataset length: {len(filtered_df)}")
 
     # Add a temporary column for sorting
     filtered_df['Medal_Order'] = filtered_df['medal'].map(medal_order)
 
     # Sort by the 'Medal_Order' column and then drop the temporary column
     sorted_df = filtered_df.sort_values(by='Medal_Order').drop(columns=['Medal_Order'])
+
+    logger.info(f"Dataset length: {len(sorted_df)}")
 
     # Convert the sorted DataFrame into a list of dictionaries
     return sorted_df.to_dict(orient='records')
