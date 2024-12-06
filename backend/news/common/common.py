@@ -8,7 +8,7 @@ import json
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 
 logger = logging.getLogger("NewsCommon")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 _LAMBDA_NEWS_TABLE_RESOURCE = {
     "resource": resource("dynamodb"),

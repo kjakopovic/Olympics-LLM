@@ -5,7 +5,7 @@ from validation_schema import schema
 from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("GetAllCountriesAchievements")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
@@ -103,7 +103,7 @@ def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
     return sorted(result, key=lambda x: (-x['gold'], -x['silver'], -x['bronze']))
 
 def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
-    logger.info(f"min year and max year: {min_year} {max_year}")
+    logger.debug(f"min year and max year: {min_year} {max_year}")
     
     if min_year > 1800:
         dataset = dataset[dataset['Year'] >= min_year]
@@ -111,9 +111,9 @@ def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
     if max_year < 9999:
         dataset = dataset[dataset['Year'] <= max_year]
 
-    logger.info(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
+    logger.debug(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
 
-    if list_of_sports and len(list_of_sports) > 0:
+    if list_of_sports and len(list_of_sports) > 0 and list_of_sports[0] != '':
         dataset = dataset[dataset['Sport'].isin(list_of_sports)]
 
     return dataset

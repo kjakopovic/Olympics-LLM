@@ -5,7 +5,7 @@ from validation_schema import schema
 from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("GetAllSportsAchievements")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
