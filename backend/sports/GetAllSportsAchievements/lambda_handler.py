@@ -54,7 +54,7 @@ def lambda_handler(event, context):
         {
             'message': "List of sportsmen returned successfully",
             'page': page,
-            'total_record_found': len(sorted_list),
+            'total_records_found': len(sorted_list),
             'item_count': len(paginated_list),
             'data': paginated_list
         }

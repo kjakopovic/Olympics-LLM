@@ -60,7 +60,7 @@ def lambda_handler(event, context):
         {
             'message': "List of countries with medals returned successfully",
             'page': page,
-            'total_record_found': len(sorted_list),
+            'total_records_found': len(sorted_list),
             'item_count': len(paginated_list),
             'data': paginated_list
         }
@@ -103,7 +103,7 @@ def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
     return sorted(result, key=lambda x: (-x['gold'], -x['silver'], -x['bronze']))
 
 def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
-    logger.debug(f"min year and max year: {min_year} {max_year}")
+    logger.info(f"min year and max year: {min_year} {max_year}")
     
     if min_year > 1800:
         dataset = dataset[dataset['Year'] >= min_year]
@@ -111,7 +111,7 @@ def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
     if max_year < 9999:
         dataset = dataset[dataset['Year'] <= max_year]
 
-    logger.debug(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
+    logger.info(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
 
     if list_of_sports and len(list_of_sports) > 0:
         dataset = dataset[dataset['Sport'].isin(list_of_sports)]
