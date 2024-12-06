@@ -60,6 +60,7 @@ def lambda_handler(event, context):
         {
             'message': "List of countries with medals returned successfully",
             'page': page,
+            'total_record_found': len(sorted_list),
             'item_count': len(paginated_list),
             'data': paginated_list
         }
@@ -68,15 +69,15 @@ def lambda_handler(event, context):
 def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports):
     dataset = pd.read_csv("common/dataset.csv")
     
-    logger.info(f"Dataset length: {len(dataset)}")
+    logger.debug(f"Dataset length: {len(dataset)}")
 
     dataset = dataset[dataset['Medal'] != 'No medal']
 
-    logger.info(f"Dataset length: {len(dataset)}")
+    logger.debug(f"Dataset length: {len(dataset)}")
     
     filtered_dataset = apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports)
 
-    logger.info(f"Dataset length: {len(filtered_dataset)}")
+    logger.debug(f"Dataset length: {len(filtered_dataset)}")
 
     # Group by "Team" and count the medals
     team_medals = filtered_dataset.groupby('Team')['Medal'].value_counts().unstack(fill_value=0)
@@ -84,7 +85,7 @@ def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
     # Reset index to include the team in the result
     team_medals = team_medals.reset_index()
 
-    logger.info(f"Dataset length: {len(team_medals)}")
+    logger.debug(f"Dataset length: {len(team_medals)}")
 
     # Convert the result into a list of objects (dictionaries)
     result = []
@@ -97,16 +98,20 @@ def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports)
         }
         result.append(team_info)
 
-    logger.info(f"Dataset length: {len(result)}")
+    logger.debug(f"Dataset length: {len(result)}")
 
     return sorted(result, key=lambda x: (-x['gold'], -x['silver'], -x['bronze']))
 
 def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
+    logger.debug(f"min year and max year: {min_year} {max_year}")
+    
     if min_year > 1800:
         dataset = dataset[dataset['Year'] >= min_year]
 
     if max_year < 9999:
         dataset = dataset[dataset['Year'] <= max_year]
+
+    logger.debug(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
 
     if list_of_sports and len(list_of_sports) > 0:
         dataset = dataset[dataset['Sport'].isin(list_of_sports)]

@@ -18,7 +18,7 @@ Parameters:
 Globals:
   Function:
     Timeout: 60
-    MemorySize: 1536
+    MemorySize: 2048
 
 Resources:
   # API Gateway
