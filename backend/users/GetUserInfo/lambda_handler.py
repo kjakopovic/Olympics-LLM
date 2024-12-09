@@ -1,5 +1,4 @@
 import json
-import bcrypt
 import logging
 
 logger = logging.getLogger("GetUserInfo")
@@ -9,6 +8,7 @@ from common.common import (
     _LAMBDA_USERS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_email_from_jwt_token,
     LambdaDynamoDBClass
 )
 
@@ -18,7 +18,8 @@ def lambda_handler(event, context):
     """
     Lambda handler for getting user by email
     """
-    email = event.get('pathParameters', {}).get('email')
+    jwt_token = event.get('headers').get('x-access-token')
+    email = get_email_from_jwt_token(jwt_token)
 
     if not email:
         return build_response(
