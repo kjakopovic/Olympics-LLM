@@ -1,0 +1,55 @@
+import json
+import bcrypt
+import logging
+
+logger = logging.getLogger("GetUserInfo")
+logger.setLevel(logging.DEBUG)
+
+from common.common import (
+    _LAMBDA_USERS_TABLE_RESOURCE,
+    lambda_middleware,
+    build_response,
+    LambdaDynamoDBClass
+)
+
+
+@lambda_middleware
+def lambda_handler(event, context):
+    """
+    Lambda handler for getting user by email
+    """
+    email = event.get('pathParameters', {}).get('email')
+
+    if not email:
+        return build_response(
+            400,
+            {
+                'message': 'Email is required'
+            }
+        )
+
+    global _LAMBDA_USERS_TABLE_RESOURCE
+    dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
+
+    user = dynamodb.table.get_item(Key={'email': email}).get('Item')
+
+    if not user:
+        return build_response(
+            404,
+            {
+                'message': 'User not found'
+            }
+        )
+
+    legal_name = user.get('first_name') + ' ' + user.get('last_name')
+    phone_number = user.get('phone_number') or 'N/A'
+
+    return build_response(
+        200,
+        {
+            'message': f'Getting user for email: {email}',
+            'legal_name': legal_name,
+            'email': user.get('email'),
+            phone_number: phone_number
+        }
+    )
