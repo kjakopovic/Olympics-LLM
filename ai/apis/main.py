@@ -16,6 +16,8 @@ app.add_middleware(
 # Include routes from other files
 app.include_router(chat_bot.router, prefix="/api/v1/chat-bot")
 
-# TODO:
-# kada budem radio dockerfile, moram runnat prvo pip install requirementsa
-# pip install -r requirements.txt
+@app.get("/")
+def healthcheck():
+    return {
+        "message": "Backend is running!"
+    }

@@ -1,2 +1,5 @@
-transformers
-python-dotenv
+fastapi==0.115.6
+uvicorn==0.32.1
+transformers==4.47.0
+torch==2.5.1
+python-dotenv==1.0.1
