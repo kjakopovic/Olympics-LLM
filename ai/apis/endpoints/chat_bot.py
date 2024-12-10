@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Query
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from huggingface_hub import login # TODO: jel mogu ovo napraviti u middlewareu?
+from huggingface_hub import login
 from dotenv import load_dotenv
 
 import os
 
 router = APIRouter()
 
-# output_dir = "../model/gpt-v1"
 output_dir = os.path.join(os.path.dirname(__file__), "..", "model", "gpt-v1")
 
 @router.get("/")
