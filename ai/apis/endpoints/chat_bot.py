@@ -5,6 +5,7 @@ from huggingface_hub import login
 from dotenv import load_dotenv
 
 import os
+import torch
 
 router = APIRouter()
 
@@ -16,6 +17,8 @@ def generate_chatbot_response(question: str = Query(...)):
     token = os.getenv("HUGGINGFACE_API_TOKEN")
     login(token)
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model = AutoModelForCausalLM.from_pretrained(output_dir)
     tokenizer = AutoTokenizer.from_pretrained(output_dir)
 
@@ -23,7 +26,8 @@ def generate_chatbot_response(question: str = Query(...)):
         "text-generation", 
         model=model,
         tokenizer=tokenizer,
-        max_length=100
+        max_length=100,
+        device=device
     )
 
     response = pipe(question)
