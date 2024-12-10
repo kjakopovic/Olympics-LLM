@@ -3,5 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file: ".env"
+    # environment:
+    #   - JWT_SECRET_NAME="python-lambda-app/prod/jwt-secret"
     ports:
       - "8000:8000"
