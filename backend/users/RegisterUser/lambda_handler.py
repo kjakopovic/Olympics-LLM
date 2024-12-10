@@ -1,8 +1,12 @@
 import json
 import logging
 
+from validation_schema import schema
+from dataclasses import dataclass
+from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
+
 logger = logging.getLogger("RegisterUser")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_USERS_TABLE_RESOURCE,
@@ -11,23 +15,27 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-def lambda_handler(event, context):
-    event = json.loads(event.get('body')) if 'body' in event else event
+@dataclass
+class Request:
+    email: str
+    password: str
+    first_name: str
+    last_name: str
 
-    logger.info(f"Checking if every required attribute is found: {event}")
+def lambda_handler(event, context):
+    request_body = json.loads(event.get('body')) if 'body' in event else event
+
+    logger.info(f"Checking if every required attribute is found: {request_body}")
 
     try:
-        email = event['email']
-        password = event['password']
-        first_name = event['first_name']
-        last_name = event['last_name']
-    except Exception as e:
-        return build_response(
-            400,
-            {
-                'message': f'{e} is missing, please check and try again'
-            }
-        )
+        validate(event=request_body, schema=schema)
+    except SchemaValidationError as e:
+        return build_response(400, {'message': str(e)})
+
+    email = request_body.get('email')
+    password = request_body.get('password')
+    first_name = request_body.get('first_name')
+    last_name = request_body.get('last_name')
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)

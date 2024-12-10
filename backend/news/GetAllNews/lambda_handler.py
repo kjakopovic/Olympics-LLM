@@ -2,7 +2,7 @@ import logging
 import datetime
 
 logger = logging.getLogger("GetAllNews")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,

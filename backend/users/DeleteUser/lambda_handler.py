@@ -1,7 +1,7 @@
 import logging
 
 logger = logging.getLogger("DeleteProfile")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_USERS_TABLE_RESOURCE,

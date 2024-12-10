@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from boto3 import client, resource
+from boto3 import resource
 from os import environ
 import jwt
 import logging
@@ -11,7 +11,7 @@ import json
 from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 
 logger = logging.getLogger("UserCommon")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 _LAMBDA_USERS_TABLE_RESOURCE = {
     "resource" : resource('dynamodb'),
