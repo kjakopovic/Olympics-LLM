@@ -24,9 +24,6 @@ build-DeleteUserFunction:
 	$(MAKE) build LAMBDA_FILE=DeleteUser/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
 
 build-ChangePasswordFunction:
-<<<<<<< Updated upstream
-	$(MAKE) build LAMBDA_FILE=ChangePassword/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
-=======
 	$(MAKE) build LAMBDA_FILE=ChangePassword/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
 
 build-GetUserInfoFunction:
@@ -34,4 +31,3 @@ build-GetUserInfoFunction:
 
 build-UpdateUserInfoFunction:
 	$(MAKE) build LAMBDA_FILE=UpdateUserInfo/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
->>>>>>> Stashed changes

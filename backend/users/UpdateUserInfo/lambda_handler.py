@@ -47,23 +47,61 @@ def lambda_handler(event, context):
 
     request_body = json.loads(event.get('body', '{}'))
 
+    # TODO: Check if this is needed since not all fields are required
     try:
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
 
-    password = request_body.get('password') or None
+    user = dynamodb.table.get_item(Key={'email': email})
+    if not user:
+        return build_response(
+            400,
+            {
+                'message': 'User not found'
+            }
+        )
+
     first_name = request_body.get('first_name') or None
     last_name = request_body.get('last_name') or None
     phone_number = request_body.get('phone_number') or None
     tags = request_body.get('tags') or None
 
-    logger.info(f'Updating user with email: {email}')
-    update_user(dynamodb, email, password, first_name, last_name, phone_number, tags)
+    update_user(dynamodb, email, first_name, last_name, phone_number, tags)
 
     return build_response(
         200,
         {
             'message': f'User with email: {email} has been updated'
         }
+    )
+
+
+# TODO: Check if this implementation works
+def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
+    logger.info(f'Updating user with email: {email}')
+
+    update_expression = 'SET '
+    expression_attribute_values = {}
+
+    if first_name:
+        update_expression += 'first_name = :first_name, '
+        expression_attribute_values[':first_name'] = first_name
+    if last_name:
+        update_expression += 'last_name = :last_name, '
+        expression_attribute_values[':last_name'] = last_name
+    if phone_number:
+        update_expression += 'phone_number = :phone_number, '
+        expression_attribute_values[':phone_number'] = phone_number
+    if tags:
+        update_expression += 'tags = :tags, '
+        expression_attribute_values[':tags'] = tags
+    if email:
+        update_expression += 'email = :email, '
+        expression_attribute_values[':email'] = email
+
+    dynamodb.table.update_item(
+        Key={'email': email},
+        UpdateExpression=update_expression.rstrip(', '),
+        ExpressionAttributeValues=expression_attribute_values
     )

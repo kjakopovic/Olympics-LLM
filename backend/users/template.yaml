@@ -243,8 +243,6 @@ Resources:
             Method: POST
             ApiId: !Ref UserServiceApi
 
-<<<<<<< Updated upstream
-=======
   GetUserInfoFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -309,7 +307,6 @@ Resources:
             Method: PUT
             ApiId: !Ref UserServiceApi
 
->>>>>>> Stashed changes
 Outputs:
   UsersTableArn:
     Description: "Users table ARN"
