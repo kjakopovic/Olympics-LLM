@@ -8,6 +8,11 @@ export default {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        goldglow: "0 0 20px #E0B472",
+        bronzeglow: "0 0 20px #D7B494",
+        silverglow: "0 0 20px #EBECEE",
+      },
       colors: {
         primary: {
           50: "#0D0F10",
