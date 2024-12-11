@@ -98,7 +98,7 @@ def update_news(dynamodb, news_id, title, description, tags):
         update_expression += "description = :description, "
         expression_attribute_values[':description'] = description
 
-    if tags:
+    if len(tags) <= 0:
         update_expression += "tags = :tags, "
         expression_attribute_values[':tags'] = tags
 

@@ -43,7 +43,7 @@ def lambda_handler(event, context):
     if tags:
         logger.info(f"Querying news by tags")
         user_tags = fetch_user_tags(dynamodb, email)
-        if not user_tags:
+        if len(user_tags) <= 0:
             return build_response(
                 400,
                 {
