@@ -1,4 +1,5 @@
 import logging
+import json
 import datetime
 
 logger = logging.getLogger("GetAllNews")
@@ -35,18 +36,31 @@ def lambda_handler(event, context):
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
-    tags = fetch_user_tags(dynamodb, email)
+    request_body = json.loads(event.get('body', '{}'))
+    filters = request_body.get('filters', {})
 
-    news = dynamodb.table.scan().get('Items', [])
+    if 'tags' in filters:
+        logger.info(f"Querying news by tags")
+        tags = fetch_user_tags(dynamodb, email)
+        if not tags:
+            return build_response(
+                400,
+                {
+                    'message': 'No tags found for user'
+                }
+            )
+        news = get_news_by_tags(dynamodb, tags)
+    else:
+        logger.info(f"Querying all news")
+        news = dynamodb.table.scan().get('Items', [])
 
     logger.info(f'Found {len(news)} news')
 
-    logger.info("Sorting and filtering news by tags")
+    logger.info("Sorting news")
     sorted_news = sort_news(news)
-    filtered_news = filter_news(sorted_news, tags)
 
     logger.info(f"Fetching pictures for news")
-    for item in filtered_news:
+    for item in sorted_news:
         news_id = item.get('id')
         if news_id:
             item['pictures_urls'] = fetch_pictures(news_id)
@@ -59,7 +73,7 @@ def lambda_handler(event, context):
         200,
         {
             'message': f'Fetched all news',
-            'news': filtered_news
+            'news': sorted_news
         }
     )
 
@@ -77,21 +91,31 @@ def sort_news(news):
     return sorted_news
 
 
-def filter_news(news, tags):
+def get_news_by_tags(dynamodb, tags):
     """
-    Filter news by tags
+    Get news by tags
     """
-    logger.info(f"Filtering news")
-    filtered_news = []
-    for item in news:
-        news_tags = item.get('tags', [])
-        if not news_tags:
-            continue
+    try:
+        filter_expressions = [f"contains(tags, :tag{i})" for i in range(len(tags))]
+        filter_expression = " OR ".join(filter_expressions)
 
-        if any(tag in news_tags for tag in tags):
-            filtered_news.append(item)
+        # Construct ExpressionAttributeValues dynamically
+        expression_attribute_values = {f":tag{i}": tag for i, tag in enumerate(tags)}
 
-    return filtered_news
+        logger.info(f"FilterExpression: {filter_expression}")
+        logger.info(f"ExpressionAttributeValues: {expression_attribute_values}")
+
+        # Query the DynamoDB table with the constructed filter
+        response = dynamodb.table.scan(
+            FilterExpression=filter_expression,
+            ExpressionAttributeValues=expression_attribute_values
+        )
+
+        # Return the items from the response
+        return response.get('Items', [])
+    except Exception as e:
+        logger.error(f"Error fetching news by tags: {e}")
+        return []
 
 
 def fetch_pictures(news_id):
