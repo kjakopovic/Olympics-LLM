@@ -1,5 +1,7 @@
 import json
 import logging
+import phonenumbers
+from phonenumbers import NumberParseException
 
 from validation_schema import schema
 from dataclasses import dataclass
@@ -15,6 +17,7 @@ from common.common import (
     get_email_from_jwt_token,
     LambdaDynamoDBClass
 )
+
 
 @dataclass
 class Request:
@@ -65,7 +68,19 @@ def lambda_handler(event, context):
     phone_number = request_body.get('phone_number')
     tags = request_body.get('tags')
 
-    update_user(dynamodb, email, first_name, last_name, phone_number, tags)
+    valid_phone_number = validate_phone_number(phone_number)
+
+    if not valid_phone_number.get('valid'):
+        return build_response(
+            400,
+            {
+                'message': 'Invalid phone number'
+            }
+        )
+
+    formatted_phone_number = valid_phone_number.get('formatted')
+
+    update_user(dynamodb, email, first_name, last_name, formatted_phone_number, tags)
 
     return build_response(
         200,
@@ -99,3 +114,37 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
         UpdateExpression=update_expression.rstrip(', '),
         ExpressionAttributeValues=expression_attribute_values
     )
+
+
+# TODO: Check if phone number needs to be both valid and possible
+def validate_phone_number(phone_number):
+    """
+    Function that checks if phone number is valid and possible
+    """
+    try:
+        # Parse phone number without a default region
+        parsed_number = phonenumbers.parse(phone_number, None)
+
+        # Check if phone number is valid globally
+        is_valid = phonenumbers.is_valid_number(parsed_number)
+
+        # Check if phone number is possible globally
+        is_possible = phonenumbers.is_possible_number(parsed_number)
+
+        if not is_valid:
+            return {
+                "valid": False,
+                "possible": is_possible
+            }
+
+        # Format phone number in international format
+        formatted = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+        return {
+            "valid": True,
+            "possible": is_possible,
+            "formatted": formatted
+        }
+    except Exception as e:
+        logger.error(f"Error parsing phone number: {e}")
+        return {"valid": False, "possible": False}
