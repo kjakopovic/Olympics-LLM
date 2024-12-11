@@ -1,5 +1,4 @@
 import logging
-import json
 import datetime
 
 logger = logging.getLogger("GetAllNews")
@@ -36,10 +35,20 @@ def lambda_handler(event, context):
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
-    request_body = json.loads(event.get('body', '{}'))
-    filters = request_body.get('filters', {})
+    query_params = event.get("queryStringParameters", {})
+    tags = query_params.get("tags", None)
+    page = int(query_params.get("page", 1))
+    limit = int(query_params.get("limit", 10))
 
-    if 'tags' in filters:
+    if page < 1 or limit < 1:
+        return build_response(
+            400,
+            {
+                'message': "Page and limit should be greater than 0."
+            }
+        )
+
+    if tags is not None:
         logger.info(f"Querying news by tags")
         tags = fetch_user_tags(dynamodb, email)
         if not tags:
@@ -55,7 +64,6 @@ def lambda_handler(event, context):
         news = dynamodb.table.scan().get('Items', [])
 
     logger.info(f'Found {len(news)} news')
-
     logger.info("Sorting news")
     sorted_news = sort_news(news)
 
@@ -67,13 +75,15 @@ def lambda_handler(event, context):
         else:
             item['pictures_urls'] = []
 
-    logger.info(f"Returning filtered news and pictures")
+    logger.info(f"Paginating news")
+    paginated_news = paginate_list(sorted_news, page, limit)
 
+    logger.info(f"Returning filtered news and pictures")
     return build_response(
         200,
         {
             'message': f'Fetched all news',
-            'news': sorted_news
+            'news': paginated_news
         }
     )
 
@@ -85,7 +95,7 @@ def sort_news(news):
     logger.info(f"Sorting news")
     sorted_news = sorted(
         news,
-        key=lambda x: datetime.datetime.strptime(x['published_at'],"%d-%m-%Y %H:%M:%S"),
+        key=lambda x: datetime.datetime.strptime(x['published_at'], "%d-%m-%Y %H:%M:%S"),
         reverse=True)
 
     return sorted_news
@@ -171,3 +181,17 @@ def fetch_user_tags(dynamodb, email):
     logger.info(f'Fetching tags for user with email: {email}')
     tags = user.get('Item', {}).get('tags', [])
     return tags
+
+
+def paginate_list(data, page, limit):
+    """
+    Paginate list of items
+    """
+    start = (page - 1) * limit
+    end = start * limit
+
+    if len(data) < start or len(data) < end:
+        return data[-limit:]
+
+    page_data = data[start:end]
+    return page_data
