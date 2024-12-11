@@ -17,12 +17,15 @@ from common.common import (
     LambdaS3Class
 )
 
+
 @dataclass
 class Request:
     title: str
     description: str
     new_pictures_count: int
     pictures_to_delete: list
+    tags: list
+
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -53,9 +56,18 @@ def lambda_handler(event, context):
     description = request_body.get('description')
     new_pictures_count = request_body.get('new_pictures_count')
     pictures_to_delete = request_body.get('pictures_to_delete')
+    tags = request_body.get('tags') or []
+
+    if len(tags) > 3:
+        return build_response(
+            400,
+            {
+                'message': 'Maximum of 3 tags are allowed per news'
+            }
+        )
 
     logger.info(f'Updating news with id: {news_id}')
-    update_news(dynamodb, news_id, title, description)
+    update_news(dynamodb, news_id, title, description, tags)
 
     resigned_urls = []
     
@@ -81,8 +93,8 @@ def lambda_handler(event, context):
     )
 
 
-def update_news(dynamodb, news_id, title, description):
-    # Update user's public info
+def update_news(dynamodb, news_id, title, description, tags):
+    # Update news info
     update_expression = "SET "
     expression_attribute_values = {}
 
@@ -93,6 +105,10 @@ def update_news(dynamodb, news_id, title, description):
     if description is not None:
         update_expression += "description = :description, "
         expression_attribute_values[':description'] = description
+
+    if tags:
+        update_expression += "tags = :tags, "
+        expression_attribute_values[':tags'] = tags
 
     if expression_attribute_values:
         update_expression = update_expression.rstrip(', ')
