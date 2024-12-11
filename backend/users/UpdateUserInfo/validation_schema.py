@@ -32,6 +32,6 @@ schema = {
             "uniqueItems": True
         }
     },
-    "required": ["email", "password", "first_name", "last_name"],
+    "required": ["email", "first_name", "last_name"],
     "additionalProperties": False
 }
