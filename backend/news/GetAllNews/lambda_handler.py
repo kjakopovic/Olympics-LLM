@@ -8,6 +8,7 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_email_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
@@ -20,30 +21,45 @@ def lambda_handler(event, context):
     """
     Lambda handler for getting all news
     """
+    jwt_token = event.get('headers').get('x-access-token')
+    email = get_email_from_jwt_token(jwt_token)
+
+    if not email:
+        return build_response(
+            400,
+            {
+                'message': 'Invalid email in jwt token'
+            }
+        )
+
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
+
+    tags = fetch_user_tags(dynamodb, email)
 
     news = dynamodb.table.scan().get('Items', [])
 
     logger.info(f'Found {len(news)} news')
 
+    logger.info("Sorting and filtering news by tags")
     sorted_news = sort_news(news)
+    filtered_news = filter_news(sorted_news, tags)
 
     logger.info(f"Fetching pictures for news")
-    for item in sorted_news:
+    for item in filtered_news:
         news_id = item.get('id')
         if news_id:
             item['pictures_urls'] = fetch_pictures(news_id)
         else:
             item['pictures_urls'] = []
 
-    logger.info(f"Returning news and pictures")
+    logger.info(f"Returning filtered news and pictures")
 
     return build_response(
         200,
         {
             'message': f'Fetched all news',
-            'news': sorted_news
+            'news': filtered_news
         }
     )
 
@@ -59,6 +75,23 @@ def sort_news(news):
         reverse=True)
 
     return sorted_news
+
+
+def filter_news(news, tags):
+    """
+    Filter news by tags
+    """
+    logger.info(f"Filtering news")
+    filtered_news = []
+    for item in news:
+        news_tags = item.get('tags', [])
+        if not news_tags:
+            continue
+
+        if any(tag in news_tags for tag in tags):
+            filtered_news.append(item)
+
+    return filtered_news
 
 
 def fetch_pictures(news_id):
@@ -103,3 +136,14 @@ def fetch_pictures(news_id):
         return []
 
 
+def fetch_user_tags(dynamodb, email):
+    """
+    Fetch user tags
+    """
+    user = dynamodb.table.get_item(Key={'email': email})
+    if not user:
+        return []
+
+    logger.info(f'Fetching tags for user with email: {email}')
+    tags = user.get('Item', {}).get('tags', [])
+    return tags

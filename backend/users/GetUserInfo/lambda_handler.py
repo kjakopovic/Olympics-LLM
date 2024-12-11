@@ -25,7 +25,7 @@ def lambda_handler(event, context):
         return build_response(
             400,
             {
-                'message': 'Email is required'
+                'message': 'Invalid email in jwt token'
             }
         )
 
