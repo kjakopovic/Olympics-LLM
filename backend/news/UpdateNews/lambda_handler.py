@@ -56,15 +56,7 @@ def lambda_handler(event, context):
     description = request_body.get('description')
     new_pictures_count = request_body.get('new_pictures_count')
     pictures_to_delete = request_body.get('pictures_to_delete')
-    tags = request_body.get('tags') or []
-
-    if len(tags) > 3:
-        return build_response(
-            400,
-            {
-                'message': 'Maximum of 3 tags are allowed per news'
-            }
-        )
+    tags = request_body.get('tags', [])
 
     logger.info(f'Updating news with id: {news_id}')
     update_news(dynamodb, news_id, title, description, tags)
@@ -98,11 +90,11 @@ def update_news(dynamodb, news_id, title, description, tags):
     update_expression = "SET "
     expression_attribute_values = {}
 
-    if title is not None:
+    if title:
         update_expression += "title = :title, "
         expression_attribute_values[':title'] = title
 
-    if description is not None:
+    if description:
         update_expression += "description = :description, "
         expression_attribute_values[':description'] = description
 

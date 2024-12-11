@@ -36,29 +36,21 @@ def lambda_handler(event, context):
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     query_params = event.get("queryStringParameters", {})
-    filter_by_tags = query_params.get("filter_by_tags", False)
+    tags = query_params.get("tags", False)
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 10))
 
-    if page < 1 or limit < 1:
-        return build_response(
-            400,
-            {
-                'message': "Page and limit should be greater than 0."
-            }
-        )
-
-    if filter_by_tags:
+    if tags:
         logger.info(f"Querying news by tags")
-        tags = fetch_user_tags(dynamodb, email)
-        if not tags:
+        user_tags = fetch_user_tags(dynamodb, email)
+        if not user_tags:
             return build_response(
                 400,
                 {
                     'message': 'No tags found for user'
                 }
             )
-        news = get_news_by_tags(dynamodb, tags)
+        news = get_news_by_tags(dynamodb, user_tags)
     else:
         logger.info(f"Querying all news")
         news = dynamodb.table.scan().get('Items', [])

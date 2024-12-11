@@ -1,14 +1,6 @@
 schema = {
     "type": "object",
     "properties": {
-        "email": {
-            "type": "string",
-            "format": "email"
-        },
-        "password": {
-            "type": "string",
-            "minLength": 7
-        },
         "first_name": {
             "type": "string",
             "minLength": 1,
@@ -32,6 +24,5 @@ schema = {
             "uniqueItems": True
         }
     },
-    "required": ["email", "first_name", "last_name"],
     "additionalProperties": False
 }

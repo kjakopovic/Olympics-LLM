@@ -54,23 +54,7 @@ def lambda_handler(event, context):
     news_content = request_body.get("description")
     picture_count = request_body.get("picture_count")
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    tags = request_body.get("tags") or []
-
-    if not tags:
-        return build_response(
-            400,
-            {
-                "message": "At least 1 tag is required to create news"
-            }
-        )
-
-    if len(tags) > 3:
-        return build_response(
-            400,
-            {
-                "message": "Maximum of 3 tags are allowed per news"
-            }
-        )
+    tags = request_body.get("tags", [])
 
     news_item = {
         "id": news_id,
