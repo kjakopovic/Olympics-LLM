@@ -1,1 +1,7 @@
 **/.env
+**/logs
+**/trainer
+**/model
+
+# Fast Api ignores
+**/__pycache__

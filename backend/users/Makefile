@@ -25,3 +25,6 @@ build-DeleteUserFunction:
 
 build-ChangePasswordFunction:
 	$(MAKE) build LAMBDA_FILE=ChangePassword/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-GetUserInfoFunction:
+	$(MAKE) build LAMBDA_FILE=GetUserInfo/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
