@@ -12,8 +12,17 @@ schema = {
         "picture_count": {
             "type": "integer",
             "minimum": 1
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "maxLength": 255
+            },
+            "minimum": 1,
+            "maximum": 3
         }
     },
-    "required": ["title", "description", "picture_count"],
+    "required": ["title", "description", "picture_count", "tags"],
     "additionalProperties": False
 }
