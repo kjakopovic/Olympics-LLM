@@ -31,3 +31,6 @@ build-GetUserInfoFunction:
 
 build-UpdateUserInfoFunction:
 	$(MAKE) build LAMBDA_FILE=UpdateUserInfo/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-GetUserTagsFunction:
+	$(MAKE) build LAMBDA_FILE=GetUserTags/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
