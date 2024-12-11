@@ -28,7 +28,7 @@ function Login() {
             <h1 className="text-3xl font-jakarta text-white font-bold flex-row">
               Welcome to{" "}
             </h1>
-            <p className="ml-2 text-3xl font-jakarta text-transparent bg-clip-text bg-gradient-to-tr from-gradientBlue-100 via-gradientBlue-200 to-gradientBlue-300 font-bold">
+            <p className="ml-2 text-3xl font-jakarta text-transparent bg-clip-text bg-gradient-to-tr from-gradientGreen-100 to-gradientGreen-200 font-bold">
               {" "}
               Olympus!
             </p>
