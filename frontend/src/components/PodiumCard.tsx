@@ -17,8 +17,8 @@ function PodiumCard(data: any) {
         <Image
           src={data.data.image}
           alt="Country Flag"
-          width={72}
-          height={72}
+          width={70}
+          height={70}
           className="absolute top-11 z-50"
         />
         <div className="flex flex-col items-center justify-center w-full mx-5 mt-16">
@@ -41,6 +41,26 @@ function PodiumCard(data: any) {
           data.data.position === 2 ? "shadow-silverglow" : "shadow-bronzeglow"
         } flex items-center justify-center`}
       >
+        <Image
+          src={data.data.position === 2 ? images.silverGlow : images.bronzeGlow}
+          alt="Silver Medal"
+          width={data.data.position === 2 ? 262 : 214}
+          height={data.data.position === 2 ? 270 : 224}
+          className={`absolute ${
+            data.data.position === 2 ? "top-10" : "top-12"
+          }`}
+        />
+        <Image
+          src={data.data.image}
+          alt="Country Flag"
+          width={54}
+          height={54}
+          className={`absolute ${
+            data.data.position === 2
+              ? "top-[117px] right-[132px]"
+              : "top-[118px] left-[412px]"
+          }`}
+        />
         <div className="flex flex-col items-center">
           <h1 className="text-xl font-bold font-jakarta text-primary-600 mt-8">
             {data.data.name}
