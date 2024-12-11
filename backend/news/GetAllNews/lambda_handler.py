@@ -36,7 +36,7 @@ def lambda_handler(event, context):
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     query_params = event.get("queryStringParameters", {})
-    tags = query_params.get("tags", None)
+    filter_by_tags = query_params.get("filter_by_tags", False)
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 10))
 
@@ -48,7 +48,7 @@ def lambda_handler(event, context):
             }
         )
 
-    if tags is not None:
+    if filter_by_tags:
         logger.info(f"Querying news by tags")
         tags = fetch_user_tags(dynamodb, email)
         if not tags:
