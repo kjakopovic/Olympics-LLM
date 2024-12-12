@@ -1,14 +1,6 @@
 schema = {
     "type": "object",
     "properties": {
-        "email": {
-            "type": "string",
-            "format": "email"
-        },
-        "password": {
-            "type": "string",
-            "minLength": 7
-        },
         "first_name": {
             "type": "string",
             "minLength": 1,
@@ -22,7 +14,8 @@ schema = {
         "phone_number": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 50
+            "maxLength": 50,
+            "pattern": r"^\+?[1-9]\d{1,14}$"     # E.164 format regex for phone numbers
         },
         "tags": {
             "type": "array",
@@ -32,6 +25,5 @@ schema = {
             "uniqueItems": True
         }
     },
-    "required": ["email", "first_name", "last_name"],
     "additionalProperties": False
 }

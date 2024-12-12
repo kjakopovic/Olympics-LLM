@@ -51,6 +51,7 @@ def lambda_handler(event, context):
             'message': f'Getting user for email: {email}',
             'legal_name': legal_name,
             'email': user.get('email'),
-            'phone_number': phone_number
+            'phone_number': phone_number,
+            'tags': user.get('tags', [])
         }
     )

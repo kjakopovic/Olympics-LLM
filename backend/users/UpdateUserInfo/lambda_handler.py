@@ -16,10 +16,9 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
+
 @dataclass
 class Request:
-    email: str
-    password: str
     first_name: str
     last_name: str
     phone_number: str
@@ -62,10 +61,10 @@ def lambda_handler(event, context):
             }
         )
 
-    first_name = request_body.get('first_name') or None
-    last_name = request_body.get('last_name') or None
-    phone_number = request_body.get('phone_number') or None
-    tags = request_body.get('tags') or None
+    first_name = request_body.get('first_name')
+    last_name = request_body.get('last_name')
+    phone_number = request_body.get('phone_number')
+    tags = request_body.get('tags')
 
     update_user(dynamodb, email, first_name, last_name, phone_number, tags)
 
@@ -77,7 +76,6 @@ def lambda_handler(event, context):
     )
 
 
-# TODO: Check if this implementation works
 def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     logger.info(f'Updating user with email: {email}')
 
@@ -96,9 +94,6 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     if tags:
         update_expression += 'tags = :tags, '
         expression_attribute_values[':tags'] = tags
-    if email:
-        update_expression += 'email = :email, '
-        expression_attribute_values[':email'] = email
 
     dynamodb.table.update_item(
         Key={'email': email},
