@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: "100px",
+      },
       boxShadow: {
         goldglow: "0 0 20px #E0B472",
         bronzeglow: "0 0 20px #D7B494",
