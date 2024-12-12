@@ -46,7 +46,6 @@ def lambda_handler(event, context):
 
     request_body = json.loads(event.get('body', '{}'))
 
-    # TODO: Check if this is needed since not all fields are required
     try:
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:

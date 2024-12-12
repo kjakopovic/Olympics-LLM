@@ -300,7 +300,7 @@ Resources:
                 - "s3:*"
               Resource: "*"
       Events:
-        GetUserInfoEndpoint:
+        UpdateUserInfoEndpoint:
           Type: HttpApi
           Properties:
             Path: /profile
