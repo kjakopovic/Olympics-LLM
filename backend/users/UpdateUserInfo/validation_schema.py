@@ -14,7 +14,8 @@ schema = {
         "phone_number": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 50
+            "maxLength": 50,
+            "pattern": r"^\+?[1-9]\d{1,14}$"     # E.164 format regex for phone numbers
         },
         "tags": {
             "type": "array",
