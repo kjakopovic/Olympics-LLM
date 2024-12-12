@@ -39,27 +39,25 @@ function PodiumCard(data: any) {
       <div
         className={`bg-primary-50/50 w-52 h-60 rounded-lg ${
           data.data.position === 2 ? "shadow-silverglow" : "shadow-bronzeglow"
-        } flex items-center justify-center`}
+        } flex items-center justify-center relative`}
       >
         <Image
           src={data.data.position === 2 ? images.silverGlow : images.bronzeGlow}
           alt="Silver Medal"
-          width={data.data.position === 2 ? 262 : 214}
-          height={data.data.position === 2 ? 270 : 224}
+          width={data.data.position === 2 ? 272 : 184}
+          height={data.data.position === 2 ? 280 : 194}
           className={`absolute ${
-            data.data.position === 2 ? "top-10" : "top-12"
-          }`}
+            data.data.position === 2 ? "top-[-75px]" : "top-[-80px]"
+          } z-40`}
         />
         <Image
           src={data.data.image}
           alt="Country Flag"
-          width={54}
-          height={54}
+          width={data.data.position === 2 ? 45 : 45}
+          height={data.data.position === 2 ? 45 : 45}
           className={`absolute ${
-            data.data.position === 2
-              ? "top-[117px] right-[132px]"
-              : "top-[118px] left-[412px]"
-          }`}
+            data.data.position === 2 ? "top-[-15px]" : "top-[-19px]"
+          } z-50`}
         />
         <div className="flex flex-col items-center">
           <h1 className="text-xl font-bold font-jakarta text-primary-600 mt-8">

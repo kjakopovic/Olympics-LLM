@@ -12,6 +12,8 @@ export default {
         goldglow: "0 0 20px #E0B472",
         bronzeglow: "0 0 20px #D7B494",
         silverglow: "0 0 20px #EBECEE",
+        silver2glow: "0 0 15px #EBECEE",
+        accentglow: "0 0 20px #B6F09C",
       },
       colors: {
         primary: {

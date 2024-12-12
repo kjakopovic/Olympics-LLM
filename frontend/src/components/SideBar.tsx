@@ -7,9 +7,8 @@ import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
 
 function SideBar() {
-  const [selected, setSelected] = React.useState("Chat Bot");
-  const [selectedLeaderboard, setSelectedLeaderboard] =
-    React.useState("Country");
+  const [selected, setSelected] = React.useState("");
+  const [selectedLeaderboard, setSelectedLeaderboard] = React.useState("");
   const [dropdown, setDropdown] = React.useState(true);
   const router = useRouter();
 
@@ -149,7 +148,12 @@ function SideBar() {
             </div>
           )}
         </div>
-        <div className="w-[18%] absolute h-auto flex flex-row items-center justify-between bottom-7 left-6 p-2 hover:cursor-pointer">
+        <div
+          onClick={() => {
+            router.push("/profile");
+          }}
+          className="w-[18%] absolute h-auto flex flex-row items-center justify-between bottom-7 left-6 p-2 hover:cursor-pointer"
+        >
           {/* Background Overlay */}
           <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-glass-100 to-glass-200/0 opacity-16 pointer-events-none"></div>
 
