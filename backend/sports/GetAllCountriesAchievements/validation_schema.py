@@ -24,5 +24,3 @@ schema = {
     "required": ["page", "limit"],
     "additionalProperties": False
 }
-
-# TODO: also check if the page * limit is greater than size of the list, if so return last limit items
