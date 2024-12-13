@@ -53,9 +53,7 @@ def lambda_handler(event, context):
     pictures_to_delete = request_body.get('pictures_to_delete', [])
     tags = request_body.get('tags', [])
 
-    is_found = check_if_news_exist(dynamodb, news_id)
-
-    if not is_found:
+    if not check_if_news_exist(dynamodb, news_id):
         logger.error(f'News with id {news_id} not found')
 
         return build_response(

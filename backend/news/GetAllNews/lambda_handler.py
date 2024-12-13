@@ -14,31 +14,22 @@ from common.common import (
     LambdaS3Class
 )
 
-
 # TODO: Check if only image with id 1 is enough to be returned for each news, or all images need to be
 @lambda_middleware
 def lambda_handler(event, context):
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
-    if not email:
-        return build_response(
-            400,
-            {
-                'message': 'Invalid email in jwt token'
-            }
-        )
-
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     query_params = event.get("queryStringParameters", {})
-    tags = query_params.get("tags", False)
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 10))
 
-    if tags:
-        logger.info(f"Querying news by tags")
+    if email:
+        logger.info("Querying news by tags")
+
         user_tags = fetch_user_tags(dynamodb, email)
         if len(user_tags) <= 0:
             return build_response(
@@ -47,16 +38,17 @@ def lambda_handler(event, context):
                     'message': 'No tags found for user'
                 }
             )
+        
         news = get_news_by_tags(dynamodb, user_tags)
     else:
         logger.info(f"Querying all news")
         news = dynamodb.table.scan().get('Items', [])
 
-    logger.info(f'Found {len(news)} news')
-    logger.info("Sorting news")
+    logger.debug(f'Found {len(news)} news')
+
     sorted_news = sort_news(news)
 
-    logger.info(f"Fetching pictures for news")
+    logger.info("Fetching pictures for news")
     for item in sorted_news:
         news_id = item.get('id')
         if news_id:
@@ -64,31 +56,33 @@ def lambda_handler(event, context):
         else:
             item['pictures_urls'] = []
 
-    logger.info(f"Paginating news")
+    logger.info("Paginating news")
     paginated_news = paginate_list(sorted_news, page, limit)
 
-    logger.info(f"Returning filtered news and pictures")
+    logger.info("Returning filtered news and pictures")
     return build_response(
         200,
         {
-            'message': f'Fetched all news',
-            'news': paginated_news
+            'message': 'Fetched news successfully',
+            'total_records_found': len(sorted_news),
+            'item_count': len(paginated_news),
+            'data': paginated_news
         }
     )
-
 
 def sort_news(news):
     """
     Sort news by published date in descending order
     """
-    logger.info(f"Sorting news")
+    logger.info("Sorting news")
+
     sorted_news = sorted(
         news,
         key=lambda x: datetime.datetime.strptime(x['published_at'], "%d-%m-%Y %H:%M:%S"),
-        reverse=True)
+        reverse=True
+    )
 
     return sorted_news
-
 
 def get_news_by_tags(dynamodb, tags):
     try:
@@ -112,7 +106,6 @@ def get_news_by_tags(dynamodb, tags):
     except Exception as e:
         logger.error(f"Error fetching news by tags: {e}")
         return []
-
 
 def fetch_pictures(news_id):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
@@ -152,16 +145,15 @@ def fetch_pictures(news_id):
         logger.error(f"Error fetching pictures for news {news_id}: {e}")
         return []
 
-
 def fetch_user_tags(dynamodb, email):
     user = dynamodb.table.get_item(Key={'email': email})
     if not user:
         return []
 
     logger.info(f'Fetching tags for user with email: {email}')
+
     tags = user.get('Item', {}).get('tags', [])
     return tags
-
 
 def paginate_list(data, page, limit):
     start = (page - 1) * limit

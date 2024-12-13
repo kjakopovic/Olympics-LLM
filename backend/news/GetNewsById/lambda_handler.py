@@ -41,7 +41,7 @@ def lambda_handler(event, context):
         200,
         {
             'message': f'Retrieved news successfully',
-            'news': news
+            'info': news
         }
     )
 

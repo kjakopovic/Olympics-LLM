@@ -12,7 +12,6 @@ from common.common import (
     LambdaS3Class
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
     news_id = event.get('pathParameters', {}).get('news_id')
@@ -28,10 +27,17 @@ def lambda_handler(event, context):
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
-    logger.info(f'Deleting news with id: {news_id}')
-    dynamodb.table.delete_item(
-        Key={'id': news_id}
-    )
+    if not check_if_news_exist(dynamodb, news_id):
+        logger.error(f'News with id {news_id} not found')
+
+        return build_response(
+            404,
+            {
+                'message': 'News not found'
+            }
+        )
+
+    delete_news_by_id(dynamodb, news_id)
 
     logger.info(f'Deleting pictures related to the news with id: {news_id}')
     result = delete_news_pictures(news_id)
@@ -50,7 +56,6 @@ def lambda_handler(event, context):
                 'message': f'News deleted successfully alongside related pictures: {news_id}'
             }
         )
-
 
 def delete_news_pictures(news_id):
     """
@@ -86,3 +91,20 @@ def delete_news_pictures(news_id):
     except Exception as e:
         logger.error(f"Error in deleting news pictures from S3 for news_id {news_id}: {e}")
         return False
+
+def check_if_news_exist(dynamodb, news_id):
+    news = dynamodb.table.get_item(
+        Key={'id': news_id}
+    ).get('Item')
+
+    if not news:
+        return False
+
+    return True
+
+def delete_news_by_id(dynamodb, news_id):
+    logger.debug(f'Deleting news with id: {news_id}')
+
+    dynamodb.table.delete_item(
+        Key={'id': news_id}
+    )
