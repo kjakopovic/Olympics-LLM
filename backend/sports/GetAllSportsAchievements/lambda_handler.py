@@ -56,7 +56,7 @@ def lambda_handler(event, context):
             'page': page,
             'total_records_found': len(sorted_list),
             'item_count': len(paginated_list),
-            'data': paginated_list
+            'items': paginated_list
         }
     )
 

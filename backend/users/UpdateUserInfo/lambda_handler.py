@@ -93,6 +93,7 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
         update_expression += 'phone_number = :phone_number, '
         expression_attribute_values[':phone_number'] = phone_number
     if tags:
+        tags = move_tags_to_lowercase(tags)
         update_expression += 'tags = :tags, '
         expression_attribute_values[':tags'] = tags
 
@@ -101,3 +102,6 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
         UpdateExpression=update_expression.rstrip(', '),
         ExpressionAttributeValues=expression_attribute_values
     )
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]

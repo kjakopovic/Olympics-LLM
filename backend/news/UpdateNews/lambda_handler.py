@@ -103,6 +103,7 @@ def update_news(dynamodb, news_id, title, description, tags):
         expression_attribute_values[':description'] = description
 
     if len(tags) > 0:
+        tags = move_tags_to_lowercase(tags)
         update_expression += "tags = :tags, "
         expression_attribute_values[':tags'] = tags
 
@@ -188,3 +189,6 @@ def check_if_news_exist(dynamodb, news_id):
         return False
 
     return True
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]

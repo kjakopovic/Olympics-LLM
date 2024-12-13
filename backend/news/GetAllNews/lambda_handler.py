@@ -64,7 +64,7 @@ def lambda_handler(event, context):
             'message': 'Fetched news successfully',
             'total_records_found': len(sorted_news),
             'item_count': len(paginated_news),
-            'data': paginated_news
+            'items': paginated_news
         }
     )
 

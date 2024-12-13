@@ -54,6 +54,9 @@ def lambda_handler(event, context):
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     tags = request_body.get("tags", [])
 
+    if len(tags) > 0:
+        tags = move_tags_to_lowercase(tags)
+
     news_item = {
         "id": news_id,
         "title": news_title,
@@ -107,3 +110,6 @@ def save_news_pictures(picture_count, news_id):
     except Exception as e:
         logger.error(f"Error in generating picture urls for news {news_id}; {e}")
         return []
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]
