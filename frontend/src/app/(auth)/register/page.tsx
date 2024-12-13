@@ -9,9 +9,47 @@ import { useRouter } from "next/navigation";
 
 function Register() {
   const router = useRouter();
-  const handleSubmit = (e: any) => {
+
+  const [isChecked, setIsChecked] = React.useState(false);
+
+  const [userCredentials, setUserCredentials] = React.useState({
+    email: "",
+    password: "",
+    first_name: "",
+    last_name: "",
+  });
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("Submitted");
+    console.log(userCredentials);
+    if (!isChecked) {
+      alert("Please agree to the terms and conditions");
+      return;
+    }
+
+    const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
+
+    const response = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userCredentials),
+    });
+
+    if (!response.ok) {
+      alert("An error occurred. Please try again.");
+      return;
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
     router.push("/chat");
   };
 
@@ -39,8 +77,14 @@ function Register() {
                 </label>
                 <input
                   type="text"
+                  onChange={(e) => {
+                    setUserCredentials({
+                      ...userCredentials,
+                      first_name: e.target.value,
+                    });
+                  }}
                   placeholder="First Name"
-                  className="w-full border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
+                  className="w-full border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
                 />
               </div>
               <div className="flex flex-col items-start justify-center w-3/4 mt-5">
@@ -49,8 +93,14 @@ function Register() {
                 </label>
                 <input
                   type="text"
+                  onChange={(e) => {
+                    setUserCredentials({
+                      ...userCredentials,
+                      last_name: e.target.value,
+                    });
+                  }}
                   placeholder="Last Name"
-                  className="w-full border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
+                  className="w-full border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
                 />
               </div>
             </div>
@@ -61,8 +111,14 @@ function Register() {
                 </label>
                 <input
                   type="text"
+                  onChange={(e) => {
+                    setUserCredentials({
+                      ...userCredentials,
+                      email: e.target.value,
+                    });
+                  }}
                   placeholder="Email"
-                  className="w-full border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
+                  className="w-full border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
                 />
               </div>
               <div className="flex flex-col items-start justify-center w-3/4 mt-5">
@@ -71,19 +127,27 @@ function Register() {
                 </label>
                 <input
                   type="password"
+                  onChange={(e) => {
+                    setUserCredentials({
+                      ...userCredentials,
+                      password: e.target.value,
+                    });
+                  }}
                   placeholder="Password"
-                  className="w-full border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
+                  className="w-full border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
                 />
               </div>
             </div>
             <div className="flex flex-row items-center w-full justify-start gap-x-2 mt-4">
               <input
                 type="checkbox"
-                className="w-6 h-6 rounded-md bg-primary-200 appearance-none checked:bg-primary-200 checked:content-['✔'] checked:text-white checked:border-transparent border border-primary-500"
+                className="w-5 h-5 text-primary-500 border-primary-500 rounded"
+                checked={isChecked}
+                onChange={() => setIsChecked(!isChecked)}
               />
               <div className="flex flex-row items-center justify-start">
                 <p className="text-white">I agree to the </p>
-                <p className="ml-1 text-transparent bg-clip-text bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200">
+                <p className="ml-1 text-transparent bg-clip-text bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 hover:cursor-pointer">
                   terms and conditions
                 </p>
               </div>

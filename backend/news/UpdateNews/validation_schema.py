@@ -19,6 +19,15 @@ schema = {
                 "type": "string"
             },
             "uniqueItems": True
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "maxLength": 255
+            },
+            "minimum": 1,
+            "maximum": 3
         }
     },
     "additionalProperties": False

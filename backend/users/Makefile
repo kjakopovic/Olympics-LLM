@@ -28,3 +28,6 @@ build-ChangePasswordFunction:
 
 build-GetUserInfoFunction:
 	$(MAKE) build LAMBDA_FILE=GetUserInfo/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-UpdateUserInfoFunction:
+	$(MAKE) build LAMBDA_FILE=UpdateUserInfo/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)

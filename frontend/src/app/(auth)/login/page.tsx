@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import React from "react";
+import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
@@ -9,6 +10,43 @@ import { useRouter } from "next/navigation";
 
 function Login() {
   const router = useRouter();
+
+  const [userCredentials, setUserCredentials] = React.useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
+
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userCredentials),
+    });
+
+    if (!response.ok) {
+      alert("An error occurred. Please try again.");
+      return;
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    Cookies.set("token", data.token);
+    //Cookies.set("refresh-token", data.refreshtoken);
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    router.push("/chat");
+  };
 
   const handleGoogleLogin = () => {
     console.log("Google Login");
@@ -39,13 +77,25 @@ function Login() {
           <form className="w-full flex flex-col mt-8">
             <input
               type="text"
+              onChange={(e) => {
+                setUserCredentials({
+                  ...userCredentials,
+                  email: e.target.value,
+                });
+              }}
               placeholder="Username"
-              className="border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
+              className="border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md"
             />
             <input
               type="password"
+              onChange={(e) => {
+                setUserCredentials({
+                  ...userCredentials,
+                  password: e.target.value,
+                });
+              }}
               placeholder="Password"
-              className="border border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md mt-4"
+              className="border text-white border-primary-500 focus:border-accent focus:outline-none focus:shadow-md shadow-accent/70 bg-primary-200 p-2 rounded-md mt-4"
             />
             <div className="flex flex-row justify-between items-center mt-4">
               <div className="flex flex-row items-center justify-center gap-x-2">
@@ -62,7 +112,10 @@ function Login() {
                 Forgot Password?
               </a>
             </div>
-            <button className="bg-accent font-jakarta font-semibold text-base text-secondary-100 p-2 rounded-md mt-4">
+            <button
+              onClick={handleSubmit}
+              className="bg-accent font-jakarta font-semibold text-base text-secondary-100 p-2 rounded-md mt-4"
+            >
               Log in
             </button>
           </form>

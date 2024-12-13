@@ -1,4 +1,3 @@
-import json
 import logging
 
 logger = logging.getLogger("GetUserInfo")
@@ -25,7 +24,7 @@ def lambda_handler(event, context):
         return build_response(
             400,
             {
-                'message': 'Email is required'
+                'message': 'Invalid email in jwt token'
             }
         )
 
@@ -48,9 +47,12 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': f'Getting user for email: {email}',
-            'legal_name': legal_name,
-            'email': user.get('email'),
-            phone_number: phone_number
+            'message': 'Info retrieved successfully',
+            'data': {
+                'legal_name': legal_name,
+                'email': user.get('email'),
+                'phone_number': phone_number,
+                'tags': user.get('tags', [])
+            }
         }
     )

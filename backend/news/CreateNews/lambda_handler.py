@@ -19,11 +19,14 @@ from common.common import (
     LambdaS3Class
 )
 
+
 @dataclass
 class Request:
     title: str
     description: str
     picture_count: int
+    tags: list
+
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -51,12 +54,14 @@ def lambda_handler(event, context):
     news_content = request_body.get("description")
     picture_count = request_body.get("picture_count")
     news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    tags = request_body.get("tags", [])
 
     news_item = {
         "id": news_id,
         "title": news_title,
         "description": news_content,
-        "published_at": news_date
+        "published_at": news_date,
+        "tags": tags
     }
 
     try:
@@ -65,7 +70,6 @@ def lambda_handler(event, context):
         logger.error("Error saving news to DynamoDB: %s", e)
         return build_response(500, {"message": "Error saving news to DynamoDB"})
 
-    urls = []
     urls = save_news_pictures(picture_count, news_id)
 
     return build_response(
