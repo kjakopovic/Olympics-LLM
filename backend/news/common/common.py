@@ -67,6 +67,8 @@ def lambda_middleware(handler, event, context):
     try:
         authorization = event_headers.get("Authorization") or event_headers.get("authorization")
 
+        logger.debug(f"Authorization header: {authorization}")
+
         if authorization:
             access_token = authorization.split(' ')[1] if ' ' in authorization else authorization
             event['headers']['x-access-token'] = access_token
@@ -170,7 +172,10 @@ def get_email_from_jwt_token(token):
         environ.get('SECRETS_REGION_NAME')
     )
 
-    decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
 
     return decoded_jwt.get('email')
 
