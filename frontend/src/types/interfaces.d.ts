@@ -13,3 +13,14 @@ interface PodiumCardProps {
 interface LeaderBoardProps {
   data: CountryLeaderboardProps[];
 }
+
+interface Message {
+  id: string;
+  sender: "user" | "bot";
+  text: string;
+  timestamp: Date;
+}
+
+interface ChatBarProps {
+  onSend: (text: string) => void;
+}

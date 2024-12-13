@@ -1,5 +1,3 @@
-// CountryLeaderboard.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -31,6 +29,7 @@ function CountryLeaderboard() {
 
       const API_URL = process.env.NEXT_PUBLIC_SPORTS_API_URL || "";
       const token = Cookies.get("token");
+      const refreshToken = Cookies.get("refresh-token");
 
       try {
         const response = await fetch(
@@ -40,6 +39,7 @@ function CountryLeaderboard() {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
+              "x-refresh-token": refreshToken || "",
             },
           }
         );

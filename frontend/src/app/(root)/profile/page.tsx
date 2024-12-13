@@ -37,6 +37,7 @@ function Profile() {
   useEffect(() => {
     const fetchUser = async () => {
       const token = Cookies.get("token");
+      const refreshToken = Cookies.get("refresh-token");
       if (!token) {
         alert("No token found. Please log in.");
         return;
@@ -48,6 +49,7 @@ function Profile() {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "x-refresh-token": refreshToken || "",
           },
         });
 
@@ -106,6 +108,7 @@ function Profile() {
 
   const handleSave = async () => {
     const token = Cookies.get("token");
+    const refreshToken = Cookies.get("refresh-token");
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -129,6 +132,7 @@ function Profile() {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "x-refresh-token": refreshToken || "",
         },
         body: JSON.stringify(apiBody),
       });
