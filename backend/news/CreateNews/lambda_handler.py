@@ -51,7 +51,7 @@ def lambda_handler(event, context):
     news_title = request_body.get("title")
     news_content = request_body.get("description")
     picture_count = request_body.get("picture_count")
-    news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    news_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     tags = request_body.get("tags", [])
 
     if len(tags) > 0:
