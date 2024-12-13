@@ -16,13 +16,11 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
 @dataclass
 class Request:
     email: str
     password: str
     new_password: str
-
 
 def lambda_handler(event, context):
     request_body = json.loads(event.get('body')) if 'body' in event else event
@@ -42,7 +40,6 @@ def lambda_handler(event, context):
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
     return change_password(dynamodb, email, password, new_password)
-
 
 def change_password(dynamodb, email, old_password, new_password):
 
@@ -74,18 +71,15 @@ def change_password(dynamodb, email, old_password, new_password):
         logger.error(f"Error changing password for user {email}: {e}")
         return build_response(500, {'message': 'Error changing password'})
 
-
 def check_if_user_exists(dynamodb, email):
     logger.info(f"Checking if user with email {email} exists")
     response = dynamodb.table.get_item(Key={'email': email})
 
     return response.get('Item')
 
-
 def verify_password(password, saved_password):
     logger.info(f"Verifying password")
     return bcrypt.checkpw(password.encode('utf-8'), saved_password.encode('utf-8'))
-
 
 def update_password(dynamodb, email, new_password):
     logger.info(f"Updating password for user {email}")
