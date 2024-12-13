@@ -35,17 +35,12 @@ def lambda_handler(event, context):
 
         user_tags = fetch_user_tags(users_table, email)
         if len(user_tags) <= 0:
-            return build_response(
-                400,
-                {
-                    'message': 'No tags found for user'
-                }
-            )
+            news = get_all_news(news_table)
         
         news = get_news_by_tags(news_table, user_tags)
     else:
         logger.info(f"Querying all news")
-        news = news_table.table.scan().get('Items', [])
+        news = get_all_news(news_table)
 
     logger.debug(f'Found {len(news)} news')
 
@@ -167,3 +162,6 @@ def paginate_list(data, page, limit):
 
     page_data = data[start:end]
     return page_data
+
+def get_all_news(news_table):
+    return news_table.table.scan().get('Items', [])
