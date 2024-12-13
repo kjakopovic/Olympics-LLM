@@ -160,7 +160,7 @@ def fetch_user_tags(users_table, email):
 
 def paginate_list(data, page, limit):
     start = (page - 1) * limit
-    end = start * limit
+    end = page * limit
 
     if len(data) < start or len(data) < end:
         return data[-limit:]
