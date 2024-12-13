@@ -36,8 +36,8 @@ def lambda_handler(event, context):
         user_tags = fetch_user_tags(users_table, email)
         if len(user_tags) <= 0:
             news = get_all_news(news_table)
-        
-        news = get_news_by_tags(news_table, user_tags)
+        else:
+            news = get_news_by_tags(news_table, user_tags)
     else:
         logger.info(f"Querying all news")
         news = get_all_news(news_table)
