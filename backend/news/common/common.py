@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 from boto3 import client, resource
 from os import environ
 import jwt
@@ -119,19 +120,15 @@ def validate_jwt_token(event_headers):
         )
 
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
-    logger.info(f"Validating Refresh Token: {refresh_token}")
-
     try:
         jwt.decode(refresh_token, refresh_secret, algorithms=["HS256"])
 
         logger.info("Refresh token verified successfully, creating new JWT token")
 
+        expiration_time = int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
         user_email = get_email_from_jwt_token(refresh_token)
-        new_access_token = jwt.encode(
-            {"email": user_email},
-            jwt_secret,
-            algorithm='HS256'
-        )
+        user_permissions = get_role_from_jwt_token(refresh_token)
+        new_jwt_token = jwt.encode({"email": user_email, "role": user_permissions, "exp": expiration_time}, jwt_secret, algorithm="HS256")
 
         return build_response(
             200,
@@ -139,25 +136,17 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
                 "message": "JWT token verified successfully"
             },
             {
-                'x-access-token': new_access_token,
+                'x-access-token': new_jwt_token,
                 'Content-Type': 'application/json'
             }
         )
-
-    except jwt.ExpiredSignatureError:
-        return build_response(
-            401,
-            {
-                "error": "Refresh Token has expired, please login again"
-            }
-        )
-
     except Exception as e:
-        logger.error(f"Error in validating Refresh Token: {e}")
+        logger.error(f"Error verifying refresh token: {e}")
+
         return build_response(
             401,
             {
-                "error": "Invalid Refresh Token, please login again"
+                "error": "Token expired"
             }
         )
 
@@ -176,6 +165,28 @@ def get_email_from_jwt_token(token):
         return None
 
     return decoded_jwt.get('email')
+
+def get_role_from_jwt_token(token):
+    if not token:
+        return None
+
+    secrets = get_secrets_from_aws_secrets_manager(
+        environ.get('JWT_SECRET_NAME'),
+        environ.get('SECRETS_REGION_NAME')
+    )
+
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
+
+    return decoded_jwt.get('role')
+
+def get_user_permissions_for_role(user_role):
+    if user_role == 'admin':
+        return 100
+    
+    return 1
 
 def build_response(status_code, body, headers=None):
     return {

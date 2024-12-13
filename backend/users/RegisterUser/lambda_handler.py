@@ -59,7 +59,8 @@ def register_user(dynamodb, email, password, first_name, last_name):
         'email': email,
         'password': hashed_password,
         'first_name': first_name,
-        'last_name': last_name
+        'last_name': last_name,
+        'role': 'user'
     })
 
     logger.info(f"User {email} has been successfully registered")

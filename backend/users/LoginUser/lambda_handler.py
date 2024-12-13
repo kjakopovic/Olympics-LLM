@@ -14,6 +14,7 @@ from common.common import (
     generate_jwt_token,
     generate_refresh_token,
     build_response,
+    get_user_permissions_for_role,
     LambdaDynamoDBClass
 )
 
@@ -50,9 +51,12 @@ def login_user(dynamodb, email, password):
                 'message': 'Wrong email or password. Please try again.'
             }
         )
+    
+    user_role = user.get('role', 'user')
+    user_permissions = get_user_permissions_for_role(user_role)
 
-    access_token = generate_jwt_token(email)
-    refresh_token = generate_refresh_token(email)
+    access_token = generate_jwt_token(email, user_permissions)
+    refresh_token = generate_refresh_token(email, user_permissions)
 
     if not access_token or not refresh_token:
         return build_response(

@@ -12,6 +12,7 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
@@ -34,6 +35,17 @@ def lambda_handler(event, context):
             400,
             {
                 'message': 'News id is required'
+            }
+        )
+    
+    token = event.get("headers", {}).get("x-access-token")
+    user_permissions = get_role_from_jwt_token(token)
+
+    if user_permissions < 100:
+        return build_response(
+            403,
+            {
+                "message": "You do not have permission to create news"
             }
         )
 

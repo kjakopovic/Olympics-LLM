@@ -30,7 +30,7 @@ class LambdaDynamoDBClass:
         self.table_name = lambda_dynamodb_resource["table_name"]
         self.table = self.resource.Table(self.table_name)
 
-def generate_jwt_token(email):
+def generate_jwt_token(email, user_permissions=1):
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
@@ -38,9 +38,9 @@ def generate_jwt_token(email):
 
     expiration_time = int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
 
-    return jwt.encode({"email": email, "exp": expiration_time}, secrets['jwt_secret'], algorithm="HS256")
+    return jwt.encode({"email": email, "role": user_permissions, "exp": expiration_time}, secrets['jwt_secret'], algorithm="HS256")
 
-def generate_refresh_token(email):
+def generate_refresh_token(email, user_permissions=1):
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
@@ -48,7 +48,7 @@ def generate_refresh_token(email):
 
     expiration_time = int((datetime.now(timezone.utc) + timedelta(days=1)).timestamp())
 
-    return jwt.encode({"email": email, "exp": expiration_time}, secrets['refresh_secret'], algorithm="HS256")
+    return jwt.encode({"email": email, "role": user_permissions, "exp": expiration_time}, secrets['refresh_secret'], algorithm="HS256")
 
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
@@ -126,8 +126,10 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
 
         logger.info("Refresh token verified successfully, creating new JWT token")
 
+        expiration_time = int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
         user_email = get_email_from_jwt_token(refresh_token)
-        new_jwt_token = jwt.encode({"email": user_email}, jwt_secret, algorithm="HS256")
+        user_permissions = get_role_from_jwt_token(refresh_token)
+        new_jwt_token = jwt.encode({"email": user_email, "role": user_permissions, "exp": expiration_time}, jwt_secret, algorithm="HS256")
 
         return build_response(
             200,
@@ -164,6 +166,28 @@ def get_email_from_jwt_token(token):
         return None
 
     return decoded_jwt.get('email')
+
+def get_role_from_jwt_token(token):
+    if not token:
+        return None
+
+    secrets = get_secrets_from_aws_secrets_manager(
+        environ.get('JWT_SECRET_NAME'),
+        environ.get('SECRETS_REGION_NAME')
+    )
+
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
+
+    return decoded_jwt.get('role')
+
+def get_user_permissions_for_role(user_role):
+    if user_role == 'admin':
+        return 100
+    
+    return 1
 
 def get_secrets_from_aws_secrets_manager(secret_id, region_name):
     try:
