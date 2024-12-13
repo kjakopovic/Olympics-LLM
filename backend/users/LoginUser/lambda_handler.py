@@ -40,7 +40,6 @@ def lambda_handler(event, context):
 
     return login_user(dynamodb, email, password)
 
-
 def login_user(dynamodb, email, password):
     user = get_user_by_email(dynamodb, email)
 
@@ -72,7 +71,6 @@ def login_user(dynamodb, email, password):
         }
     )
 
-
 def update_refresh_token(dynamodb, email, refresh_token):
     logger.info('Updating refresh token in the database')
 
@@ -86,7 +84,6 @@ def update_refresh_token(dynamodb, email, refresh_token):
         }
     )
 
-
 def get_user_by_email(dynamodb, email):
     logger.info('Getting user by email')
 
@@ -97,7 +94,6 @@ def get_user_by_email(dynamodb, email):
     )
 
     return user.get('Item')
-
 
 def verify_password(user_password, stored_password):
     logger.info('Verifying password')

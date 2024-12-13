@@ -13,16 +13,19 @@ schema = {
         },
         "phone_number": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 50,
-            "pattern": r"^\+?[1-9]\d{1,14}$"     # E.164 format regex for phone numbers
+            "minLength": 8,
+            "maxLength": 15,
+            "pattern": r"^\+?[1-9]\d{1,14}$"
         },
         "tags": {
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
             },
-            "uniqueItems": True
+            "uniqueItems": True,
+            "minimum": 1,
+            "maximum": 3
         }
     },
     "additionalProperties": False

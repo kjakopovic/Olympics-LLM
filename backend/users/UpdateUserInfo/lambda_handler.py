@@ -16,14 +16,12 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
 @dataclass
 class Request:
     first_name: str
     last_name: str
     phone_number: str
     tags: list
-
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -70,10 +68,9 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': f'User with email: {email} has been updated'
+            'message': 'User has been updated'
         }
     )
-
 
 def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     logger.info(f'Updating user with email: {email}')

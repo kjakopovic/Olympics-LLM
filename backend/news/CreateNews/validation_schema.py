@@ -19,6 +19,7 @@ schema = {
                 "type": "string",
                 "maxLength": 255
             },
+            "uniqueItems": True,
             "minimum": 1,
             "maximum": 3
         }
