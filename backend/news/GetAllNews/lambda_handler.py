@@ -6,6 +6,7 @@ logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
+    _LAMBDA_USERS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
     get_email_from_jwt_token,
@@ -21,7 +22,9 @@ def lambda_handler(event, context):
     email = get_email_from_jwt_token(jwt_token)
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
-    dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
+    global _LAMBDA_USERS_TABLE_RESOURCE
+    news_table = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
+    users_table = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
     query_params = event.get("queryStringParameters", {})
     page = int(query_params.get("page", 1))
@@ -30,7 +33,7 @@ def lambda_handler(event, context):
     if email:
         logger.info("Querying news by tags")
 
-        user_tags = fetch_user_tags(dynamodb, email)
+        user_tags = fetch_user_tags(users_table, email)
         if len(user_tags) <= 0:
             return build_response(
                 400,
@@ -39,10 +42,10 @@ def lambda_handler(event, context):
                 }
             )
         
-        news = get_news_by_tags(dynamodb, user_tags)
+        news = get_news_by_tags(news_table, user_tags)
     else:
         logger.info(f"Querying all news")
-        news = dynamodb.table.scan().get('Items', [])
+        news = news_table.table.scan().get('Items', [])
 
     logger.debug(f'Found {len(news)} news')
 
@@ -84,7 +87,7 @@ def sort_news(news):
 
     return sorted_news
 
-def get_news_by_tags(dynamodb, tags):
+def get_news_by_tags(news_table, tags):
     try:
         filter_expressions = [f"contains(tags, :tag{i})" for i in range(len(tags))]
         filter_expression = " OR ".join(filter_expressions)
@@ -96,7 +99,7 @@ def get_news_by_tags(dynamodb, tags):
         logger.info(f"ExpressionAttributeValues: {expression_attribute_values}")
 
         # Query the DynamoDB table with the constructed filter
-        response = dynamodb.table.scan(
+        response = news_table.table.scan(
             FilterExpression=filter_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
@@ -145,8 +148,8 @@ def fetch_pictures(news_id):
         logger.error(f"Error fetching pictures for news {news_id}: {e}")
         return []
 
-def fetch_user_tags(dynamodb, email):
-    user = dynamodb.table.get_item(Key={'email': email})
+def fetch_user_tags(users_table, email):
+    user = users_table.table.get_item(Key={'email': email})
     if not user:
         return []
 

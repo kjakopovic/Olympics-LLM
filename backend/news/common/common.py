@@ -15,6 +15,11 @@ _LAMBDA_NEWS_TABLE_RESOURCE = {
     "table_name": environ.get("NEWS_TABLE_NAME", "test_news_table")
 }
 
+_LAMBDA_USERS_TABLE_RESOURCE = {
+    "resource": resource("dynamodb"),
+    "table_name": environ.get("USERS_TABLE_NAME", "test_users_table")
+}
+
 _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
     "client": client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
     "bucket_name": environ.get("NEWS_PICTURES_BUCKET", "iolap-project")
