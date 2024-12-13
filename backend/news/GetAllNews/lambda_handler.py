@@ -7,7 +7,6 @@ logger.setLevel(logging.DEBUG)
 from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     _LAMBDA_USERS_TABLE_RESOURCE,
-    lambda_middleware,
     build_response,
     get_email_from_jwt_token,
     LambdaDynamoDBClass,
@@ -16,9 +15,8 @@ from common.common import (
 )
 
 # TODO: Check if only image with id 1 is enough to be returned for each news, or all images need to be
-@lambda_middleware
 def lambda_handler(event, context):
-    jwt_token = event.get('headers').get('x-access-token')
+    jwt_token = event.get('headers').get('x-access-token') or event.get('headers').get('Authorization') or event.get('headers').get('authorization')
     email = get_email_from_jwt_token(jwt_token)
 
     global _LAMBDA_NEWS_TABLE_RESOURCE

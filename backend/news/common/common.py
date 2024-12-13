@@ -167,6 +167,9 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
 
 
 def get_email_from_jwt_token(token):
+    if not token:
+        return None
+
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
