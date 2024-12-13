@@ -2,15 +2,48 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
 
 function SideBar() {
+  const [user, setUser] = React.useState({
+    name: "",
+    email: "",
+  });
   const [selected, setSelected] = React.useState("");
   const [selectedLeaderboard, setSelectedLeaderboard] = React.useState("");
   const [dropdown, setDropdown] = React.useState(true);
   const router = useRouter();
+
+  React.useEffect(() => {
+    (async () => {
+      const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
+      const token = Cookies.get("token");
+      const refreshToken = Cookies.get("refresh-token");
+
+      try {
+        const response = await fetch(`${API_URL}/profile`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "x-refresh-token": refreshToken || "",
+          },
+        });
+
+        const data = await response.json();
+
+        setUser({
+          name: data.info.legal_name,
+          email: data.info.email,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, []);
 
   const pages = [
     {
@@ -167,10 +200,10 @@ function SideBar() {
             />
             <div className="w-full h-auto flex flex-col items-start justify-start ml-1">
               <h1 className="text-base font-semibold font-jakarta text-white">
-                Jon Doe
+                {user.name}
               </h1>
-              <span className="text-xs font-medium font-jakarta text-accent">
-                jon@doe.com
+              <span className="text-[10px] font-medium font-jakarta text-accent">
+                {user.email}
               </span>
             </div>
           </div>
