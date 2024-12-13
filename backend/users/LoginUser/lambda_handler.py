@@ -67,7 +67,7 @@ def login_user(dynamodb, email, password):
         {
             'message': 'User has been successfully logged in',
             'token': access_token,
-            'refresh-token': refresh_token
+            'refresh_token': refresh_token
         }
     )
 
