@@ -18,7 +18,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
   }, [messages]);
 
   return (
-    <div className="flex-1 w-[98%] mr-4 overflow-auto p-4 bg-primary-50 rounded-lg">
+    <div className="flex-1 w-[98%] mr-4 overflow-auto p-4 bg-primary-50 rounded-xl">
       {messages.map((msg) => (
         <div
           key={msg.id}
