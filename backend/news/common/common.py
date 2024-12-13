@@ -36,7 +36,6 @@ class LambdaS3Class:
         self.client = lambda_s3_client["client"]
         self.bucket_name = lambda_s3_client["bucket_name"]
 
-
 class LambdaDynamoDBClass:
     """
     AWS DynamoDB Resource Class
@@ -48,7 +47,6 @@ class LambdaDynamoDBClass:
         self.resource = lambda_dynamodb_resource["resource"]
         self.table_name = lambda_dynamodb_resource["table_name"]
         self.table = self.resource.Table(self.table_name)
-
 
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
@@ -87,7 +85,6 @@ def lambda_middleware(handler, event, context):
             }
         )
 
-
 def validate_jwt_token(event_headers):
     authorization = event_headers.get('Authorization') or event_headers.get('authorization')
 
@@ -120,7 +117,6 @@ def validate_jwt_token(event_headers):
                 "error": "Invalid JWT Token, please login again"
              }
         )
-
 
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
     logger.info(f"Validating Refresh Token: {refresh_token}")
@@ -165,7 +161,6 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
             }
         )
 
-
 def get_email_from_jwt_token(token):
     if not token:
         return None
@@ -182,7 +177,6 @@ def get_email_from_jwt_token(token):
 
     return decoded_jwt.get('email')
 
-
 def build_response(status_code, body, headers=None):
     return {
         'statusCode': status_code,
@@ -191,7 +185,6 @@ def build_response(status_code, body, headers=None):
         },
         'body': json.dumps(body)
     }
-
 
 def get_secrets_from_aws_secrets_manager(secret_name, region_name):
     try:
@@ -205,4 +198,3 @@ def get_secrets_from_aws_secrets_manager(secret_name, region_name):
     except Exception as e:
         logger.error(f"Error in getting secrets from AWS Secrets Manager: {e}")
         return None
-

@@ -9,6 +9,7 @@ from common.common import (
     _LAMBDA_USERS_TABLE_RESOURCE,
     build_response,
     get_email_from_jwt_token,
+    validate_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
@@ -16,7 +17,20 @@ from common.common import (
 
 # TODO: Check if only image with id 1 is enough to be returned for each news, or all images need to be
 def lambda_handler(event, context):
-    jwt_token = event.get('headers').get('x-access-token') or event.get('headers').get('Authorization') or event.get('headers').get('authorization')
+    headers = event.get("headers")
+    logger.debug(f"Received Event Headers: {headers}")
+
+    jwt_auth = headers.get('Authorization') or headers.get('authorization')
+    jwt_token = None
+
+    if jwt_auth:
+        jwt_token = jwt_auth.split(' ')[1] if ' ' in jwt_auth else jwt_auth
+
+        response = validate_jwt_token(jwt_token)
+
+        if response['statusCode'] != 200:
+            return response
+
     email = get_email_from_jwt_token(jwt_token)
 
     global _LAMBDA_NEWS_TABLE_RESOURCE

@@ -131,13 +131,19 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
             }
         )
 
-def get_email_from_jwt_token(provided_jwt_token):
+def get_email_from_jwt_token(token):
+    if not token:
+        return None
+
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
     )
 
-    decoded_jwt = jwt.decode(provided_jwt_token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
 
     return decoded_jwt.get('email')
 
