@@ -48,7 +48,7 @@ def lambda_handler(event, context):
         200,
         {
             'message': 'Info retrieved successfully',
-            'user_data': {
+            'data': {
                 'legal_name': legal_name,
                 'email': user.get('email'),
                 'phone_number': phone_number,
