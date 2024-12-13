@@ -50,7 +50,7 @@ function Register() {
       return;
     }
 
-    router.push("/chat");
+    router.push("/login");
   };
 
   return (

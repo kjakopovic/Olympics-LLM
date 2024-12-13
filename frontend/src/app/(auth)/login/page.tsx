@@ -38,7 +38,7 @@ function Login() {
     console.log(data);
 
     Cookies.set("token", data.token);
-    //Cookies.set("refresh-token", data.refreshtoken);
+    Cookies.set("refresh-token", data.refresh_token);
 
     if (data.error) {
       alert(data.error);

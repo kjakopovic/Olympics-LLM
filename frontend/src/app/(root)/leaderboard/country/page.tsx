@@ -1,10 +1,81 @@
+// CountryLeaderboard.tsx
+
 "use client";
+
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+
 import LeaderBoard from "@/components/LeaderBoard";
 import Podium from "@/components/Podium";
 import SideBar from "@/components/SideBar";
-import React from "react";
+import FiltersModal, { Filters } from "@/components/FilterModal";
+import LoadingSpinner from "@/components/LoadingSpinner"; // Import the spinner
 
 function CountryLeaderboard() {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [filters, setFilters] = useState<Filters>({
+    startYear: 2000,
+    endYear: 2024,
+    sport: "",
+  });
+
+  const [countries, setCountries] = useState<CountryLeaderboardProps[]>([]);
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true); // Start Loading
+      setError(""); // Reset Previous Errors
+
+      const API_URL = process.env.NEXT_PUBLIC_SPORTS_API_URL || "";
+      const token = Cookies.get("token");
+
+      try {
+        const response = await fetch(
+          `${API_URL}/countries?page=1&limit=100&min_year=${filters.startYear}&max_year=${filters.endYear}&list_of_sports=${filters.sport}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch data.");
+        }
+
+        const data = await response.json();
+        console.log(data);
+        console.log("main", data.items);
+        setCountries(data.items);
+      } catch (err: any) {
+        console.error("Error fetching data:", err);
+        setError(err.message || "An unexpected error occurred.");
+      } finally {
+        setLoading(false); // End Loading
+      }
+    };
+
+    fetchData();
+  }, [filters]);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleApplyFilters = async (selectedFilters: Filters) => {
+    setFilters(selectedFilters);
+  };
+
   return (
     <div className="h-screen bg-gradient-to-tr from-primary-200 via-primary-200 to-primary-100 flex overflow-hidden">
       {/* SideBar */}
@@ -13,16 +84,43 @@ function CountryLeaderboard() {
       {/* Main Content Area */}
       <div className="flex flex-col w-4/5 p-5 overflow-hidden">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-accent mb-4">Leaderboard</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-accent mb-4">Leaderboard</h1>
+          <button
+            onClick={handleOpenModal}
+            className="bg-gradient-to-r from-primary-500 to-primary-500/80 text-white px-6 py-2 mx-5 rounded-lg hover:from-primary-600 hover:to-primary-600/80 transition-colors duration-300"
+          >
+            Filters
+          </button>
+        </div>
 
         {/* Podium */}
-        <Podium />
+        {!loading && countries.length > 0 && <Podium data={countries} />}
+
+        {/* Loading Indicator */}
+        {loading && <LoadingSpinner />}
+
+        {/* Error Message */}
+        {error && (
+          <div className="flex justify-center items-center mt-4">
+            <p className="text-red-500 text-lg font-jakarta">{error}</p>
+          </div>
+        )}
 
         {/* Scrollable LeaderBoard */}
-        <div className="flex-1 overflow-auto mt-4">
-          <LeaderBoard />
-        </div>
+        {!loading && !error && (
+          <div className="flex-1 overflow-auto mt-4">
+            <LeaderBoard data={countries} />
+          </div>
+        )}
       </div>
+
+      {/* Filters Modal */}
+      <FiltersModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onApply={handleApplyFilters}
+      />
     </div>
   );
 }
