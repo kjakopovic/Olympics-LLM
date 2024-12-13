@@ -17,7 +17,6 @@ from common.common import (
     LambdaS3Class
 )
 
-
 @dataclass
 class Request:
     title: str
@@ -26,12 +25,8 @@ class Request:
     pictures_to_delete: list
     tags: list
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for updating news
-    """
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
@@ -54,9 +49,21 @@ def lambda_handler(event, context):
 
     title = request_body.get('title')
     description = request_body.get('description')
-    new_pictures_count = request_body.get('new_pictures_count')
-    pictures_to_delete = request_body.get('pictures_to_delete')
+    new_pictures_count = request_body.get('new_pictures_count', 0)
+    pictures_to_delete = request_body.get('pictures_to_delete', [])
     tags = request_body.get('tags', [])
+
+    is_found = check_if_news_exist(dynamodb, news_id)
+
+    if not is_found:
+        logger.error(f'News with id {news_id} not found')
+
+        return build_response(
+            404,
+            {
+                'message': 'News not found'
+            }
+        )
 
     logger.info(f'Updating news with id: {news_id}')
     update_news(dynamodb, news_id, title, description, tags)
@@ -64,12 +71,12 @@ def lambda_handler(event, context):
     resigned_urls = []
     
     logger.info(f'Checking if pictures need to be added')
-    if new_pictures_count and new_pictures_count > 0:
+    if new_pictures_count > 0:
         logger.info(f'Adding pictures to news')
         resigned_urls = save_news_pictures(new_pictures_count, news_id)
 
     logger.info(f'Checking if pictures need to be deleted')
-    if pictures_to_delete and len(pictures_to_delete) > 0:
+    if len(pictures_to_delete) > 0:
         logger.info(f'Deleting pictures from news')
 
         for key in pictures_to_delete:
@@ -83,7 +90,6 @@ def lambda_handler(event, context):
             'urls': resigned_urls
         }
     )
-
 
 def update_news(dynamodb, news_id, title, description, tags):
     # Update news info
@@ -111,14 +117,13 @@ def update_news(dynamodb, news_id, title, description, tags):
             ExpressionAttributeValues=expression_attribute_values
         )
 
-
 def delete_news_pictures(key):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name
 
     try:
-        response = s3_client.delete_object(
+        s3_client.delete_object(
             Bucket=bucket_name,
             Key=key
         )
@@ -127,7 +132,6 @@ def delete_news_pictures(key):
     except Exception as e:
         logger.error(f"Error in deleting news pictures from S3 for key {key}: {e}")
         return False
-
 
 def save_news_pictures(picture_count, news_id):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
@@ -176,3 +180,13 @@ def save_news_pictures(picture_count, news_id):
     except Exception as e:
         logger.error(f"Error in generating picture urls for news {news_id}; {e}")
         return []
+
+def check_if_news_exist(dynamodb, news_id):
+    news = dynamodb.table.get_item(
+        Key={'id': news_id}
+    ).get('Item')
+
+    if not news:
+        return False
+
+    return True

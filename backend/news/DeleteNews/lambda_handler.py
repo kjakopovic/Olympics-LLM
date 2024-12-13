@@ -15,9 +15,6 @@ from common.common import (
 
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for deleting news
-    """
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:

@@ -19,14 +19,12 @@ from common.common import (
     LambdaS3Class
 )
 
-
 @dataclass
 class Request:
     title: str
     description: str
     picture_count: int
     tags: list
-
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -76,10 +74,10 @@ def lambda_handler(event, context):
         200,
         {
             "message": "News created successfully",
+            "id": news_id,
             "picture_urls": urls
         }
     )
-
 
 def save_news_pictures(picture_count, news_id):
     """

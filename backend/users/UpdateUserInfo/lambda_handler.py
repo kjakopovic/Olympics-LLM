@@ -25,9 +25,6 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for updating user info
-    """
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 

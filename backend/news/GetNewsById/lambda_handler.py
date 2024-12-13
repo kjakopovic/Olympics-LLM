@@ -12,12 +12,8 @@ from common.common import (
     LambdaS3Class
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for getting news by id
-    """
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
@@ -44,16 +40,12 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': f'Getting news for id: {news_id}',
+            'message': f'Retrieved news successfully',
             'news': news
         }
     )
 
-
 def get_news_pictures(news_id):
-    """
-    Get news picture urls
-    """
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name

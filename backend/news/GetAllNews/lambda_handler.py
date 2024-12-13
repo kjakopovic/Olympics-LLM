@@ -18,9 +18,6 @@ from common.common import (
 # TODO: Check if only image with id 1 is enough to be returned for each news, or all images need to be
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for getting all news
-    """
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -94,9 +91,6 @@ def sort_news(news):
 
 
 def get_news_by_tags(dynamodb, tags):
-    """
-    Get news by tags
-    """
     try:
         filter_expressions = [f"contains(tags, :tag{i})" for i in range(len(tags))]
         filter_expression = " OR ".join(filter_expressions)
@@ -121,9 +115,6 @@ def get_news_by_tags(dynamodb, tags):
 
 
 def fetch_pictures(news_id):
-    """
-    Fetch pictures for news
-    """
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name
@@ -163,9 +154,6 @@ def fetch_pictures(news_id):
 
 
 def fetch_user_tags(dynamodb, email):
-    """
-    Fetch user tags
-    """
     user = dynamodb.table.get_item(Key={'email': email})
     if not user:
         return []
@@ -176,9 +164,6 @@ def fetch_user_tags(dynamodb, email):
 
 
 def paginate_list(data, page, limit):
-    """
-    Paginate list of items
-    """
     start = (page - 1) * limit
     end = start * limit
 

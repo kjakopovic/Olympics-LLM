@@ -176,6 +176,7 @@ Resources:
         Variables:
           NEWS_TABLE_NAME: !Ref NewsTable
           NEWS_PICTURES_BUCKET: !Ref NewsImagesBucket
+          USERS_TABLE_NAME: !ImportValue users-UsersTableName
           JWT_SECRET_NAME: !Ref JwtSecretName
           SECRETS_REGION_NAME: !Ref SecretsRegionName
       Architectures:

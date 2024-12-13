@@ -13,9 +13,6 @@ from common.common import (
 
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for getting user by email
-    """
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
