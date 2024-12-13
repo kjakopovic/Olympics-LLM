@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     if jwt_auth:
         jwt_token = jwt_auth.split(' ')[1] if ' ' in jwt_auth else jwt_auth
 
-        response = validate_jwt_token(jwt_token)
+        response = validate_jwt_token(headers)
 
         if response['statusCode'] != 200:
             return response
