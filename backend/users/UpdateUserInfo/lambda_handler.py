@@ -42,7 +42,15 @@ def lambda_handler(event, context):
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    request_body = json.loads(event.get('body', '{}'))
+    request_body = json.loads(event.get('body'))
+
+    if not request_body:
+        return build_response(
+            400,
+            {
+                'message': 'Request body is empty'
+            }
+        )
 
     try:
         validate(event=request_body, schema=schema)
