@@ -5,7 +5,7 @@ build-lambda-common:
 	printf "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
 	npm run build -- --build tsconfig-only-handler.json
 	cp -r dist "$(ARTIFACTS_DIR)/"
-	cp docs/docs.yaml $(ARTIFACTS_DIR)/
+	cp docs.yaml $(ARTIFACTS_DIR)/
 
 build-RuntimeDependenciesLayer:
 	mkdir -p "$(ARTIFACTS_DIR)/nodejs"
