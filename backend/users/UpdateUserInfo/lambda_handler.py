@@ -64,8 +64,11 @@ def lambda_handler(event, context):
         )
 
     first_name = request_body.get('first_name')
+    logger.info(f'First name: {first_name}')
     last_name = request_body.get('last_name')
+    logger.info(f'Last name: {last_name}')
     phone_number = request_body.get('phone_number')
+    logger.info(f'Phone number: {phone_number}')
     tags = request_body.get('tags')
 
     update_user(dynamodb, email, first_name, last_name, phone_number, tags)
