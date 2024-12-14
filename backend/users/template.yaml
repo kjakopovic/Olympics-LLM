@@ -55,7 +55,6 @@ Resources:
         WriteCapacityUnits: 5
 
   # Lambda Functions
-
   RegisterUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
