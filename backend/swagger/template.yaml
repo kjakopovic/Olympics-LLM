@@ -27,7 +27,7 @@ Resources:
   SwaggerDocsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: docs/
+      CodeUri: ./
       Handler: app.lambdaHandler
       Runtime: nodejs20.x
       Architectures:
