@@ -1,4 +1,4 @@
-name: Deploy News Service Lambdas
+name: Deploy Swagger Service Lambdas
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - swagger-implementation
     paths:
       - "backend/swagger/**"
+      - ".github/workflows/deploy_swagger_service.yaml"
 
 env:
   AWS_REGION: "eu-central-1"
@@ -30,12 +31,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Install SAM CLI
-        run: |
-          curl -Lo sam-cli.deb https://github.com/aws/aws-sam-cli/releases/download/v2.0.0/aws-sam-cli-linux-x86_64.deb
-          sudo dpkg -i sam-cli.deb
-          sudo apt-get install -f  # Fix any missing dependencies
 
       # TODO: Uncomment the following lines when you have tests
       # - name: Install dependencies for tests
