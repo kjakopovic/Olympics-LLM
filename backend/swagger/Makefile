@@ -8,6 +8,7 @@ build-lambda-common:
 	cp docs.yaml $(ARTIFACTS_DIR)/
 
 build-RuntimeDependenciesLayer:
+	cd docs
 	mkdir -p "$(ARTIFACTS_DIR)/nodejs"
 	cp package.json package-lock.json "$(ARTIFACTS_DIR)/nodejs/"
 	npm install --production --prefix "$(ARTIFACTS_DIR)/nodejs/"
