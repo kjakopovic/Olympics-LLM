@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 import SideBar from "@/components/SideBar";
+import TagInput from "@/components/TagInput";
 import * as icons from "@/constants/icons";
 import Image from "next/image";
 
 function Profile() {
   const [activeSetting, setActiveSetting] = useState("Personal info");
+  const [tagsSaving, setTagsSaving] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
@@ -16,14 +18,14 @@ function Profile() {
     legal_name: "",
     email: "",
     phone_number: "",
-    tags: [],
+    tags: [] as string[],
   });
 
   const [editedUser, setEditedUser] = useState({
     legal_name: "",
     email: "",
     phone_number: "",
-    tags: [],
+    tags: [] as string[],
   });
 
   const [editingFields, setEditingFields] = useState({
@@ -76,7 +78,8 @@ function Profile() {
     const isChanged =
       user.legal_name !== editedUser.legal_name ||
       user.email !== editedUser.email ||
-      user.phone_number !== editedUser.phone_number;
+      user.phone_number !== editedUser.phone_number ||
+      JSON.stringify(user.tags) !== JSON.stringify(editedUser.tags);
     setHasChanges(isChanged);
   }, [user, editedUser]);
 
@@ -118,11 +121,13 @@ function Profile() {
     const first_name = parts[0];
     const last_name = parts.slice(1).join(" ");
 
-    const apiBody = {
-      first_name,
-      last_name,
-      phone_number: editedUser.phone_number,
-    };
+    const apiBody = tagsSaving
+      ? { tags: editedUser.tags }
+      : {
+          first_name,
+          last_name,
+          phone_number: editedUser.phone_number,
+        };
 
     console.log("Saving profile:", apiBody);
 
@@ -138,7 +143,9 @@ function Profile() {
       });
 
       if (!response.ok) {
-        console.error("Error saving profile:", response);
+        const errorData = await response.json();
+        console.error("Error saving profile:", errorData);
+        alert(errorData.message || "An error occurred while saving changes.");
         return;
       }
 
@@ -172,7 +179,7 @@ function Profile() {
       <div className="flex flex-col w-4/5 p-5 overflow-hidden">
         <h1 className="text-4xl font-bold text-accent mt-4">Your Profile</h1>
 
-        <div className="flex flex-row items-start justify-between w-full flex-1 mt-10">
+        <div className="flex flex-row items-start justify-between w-full flex-1 mt-10 relative">
           {/* Settings Sidebar */}
           <div className="flex flex-col w-1/3 items-start justify-start">
             {settings.map((setting, index) => (
@@ -196,12 +203,14 @@ function Profile() {
             ))}
           </div>
 
+          {/* Settings Content */}
           {activeSetting === "Personal info" && (
             <div className="flex flex-col w-2/3 rounded-xl p-5 ml-10">
               <h1 className="text-2xl font-semibold text-white">
                 {activeSetting}
               </h1>
 
+              {/* Legal Name */}
               <div className="flex flex-row items-center justify-between mt-5">
                 <p className="text-base font-jakarta text-white">Legal Name</p>
                 <button
@@ -225,6 +234,7 @@ function Profile() {
                 } transition-all duration-200 mt-1`}
               />
 
+              {/* Email Address */}
               <div className="flex flex-row items-center justify-between mt-5">
                 <p className="text-base font-jakarta text-white">
                   Email Address
@@ -248,6 +258,7 @@ function Profile() {
                 } transition-all duration-200 mt-1`}
               />
 
+              {/* Phone Number */}
               <div className="flex flex-row items-center justify-between mt-5">
                 <p className="text-base font-jakarta text-white">
                   Phone Number
@@ -273,6 +284,7 @@ function Profile() {
                 } transition-all duration-200 mt-1`}
               />
 
+              {/* Save and Cancel Buttons */}
               <div className="flex flex-row items-center justify-end mt-5 gap-x-4">
                 <button
                   onClick={handleCancel}
@@ -301,7 +313,7 @@ function Profile() {
           )}
 
           {activeSetting === "Login & Security" && (
-            <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10 bg-primary-50">
+            <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10">
               <h1 className="text-2xl font-semibold text-white">
                 {activeSetting}
               </h1>
@@ -311,16 +323,36 @@ function Profile() {
             </div>
           )}
           {activeSetting === "Global Preferences" && (
-            <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10 bg-primary-50">
+            <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10">
               <h1 className="text-2xl font-semibold text-white">
                 {activeSetting}
               </h1>
               <p className="text-sm font-normal text-primary-300 mt-2">
-                {
-                  settings.find((setting) => setting.title === activeSetting)
-                    ?.description
-                }
+                Personalize your feed, language, default country, and more.
               </p>
+
+              {/* Tags Input */}
+              <div className="mt-5">
+                <label className="block text-base font-jakarta text-white mb-2">
+                  Select Your Preferred Sports
+                </label>
+                <TagInput
+                  tags={editedUser.tags}
+                  setTags={(newTags) =>
+                    setEditedUser((prev) => ({ ...prev, tags: newTags }))
+                  }
+                />
+                <button
+                  onClick={() => {
+                    setTagsSaving(true);
+                    handleSave();
+                  }}
+                  disabled={!hasChanges}
+                  className="disabled:bg-accent/70 disabled:cursor-not-allowed mt-5 p-3 px-6 rounded-xl bg-accent text-black font-jakarta font-semibold hover:shadow-accentglow"
+                >
+                  Save Changes
+                </button>
+              </div>
             </div>
           )}
         </div>

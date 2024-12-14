@@ -1,11 +1,17 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 
 import SideBar from "@/components/SideBar";
 import LeaderBoard from "@/components/LeaderBoard";
 import Podium from "@/components/Podium";
 
 function SportLeaderboard() {
+  useEffect(() => {
+    (async () => {
+      // Fetch data
+    })();
+  }, []);
+
   return (
     <div className="h-screen bg-gradient-to-tr from-primary-200 via-primary-200 to-primary-100 flex overflow-hidden">
       {/* SideBar */}

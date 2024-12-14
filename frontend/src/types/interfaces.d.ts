@@ -24,3 +24,8 @@ interface Message {
 interface ChatBarProps {
   onSend: (text: string) => void;
 }
+
+interface CarouselProps {
+  newsData?: any;
+  carouselDataLength: number;
+}
