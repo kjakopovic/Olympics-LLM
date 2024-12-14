@@ -5,9 +5,18 @@ interface CountryLeaderboardProps {
   bronze: number;
 }
 
+interface AthletePodiumCardProps {
+  data: SportsmanData;
+  position: number;
+}
+
 interface PodiumCardProps {
   data: CountryLeaderboardProps;
   position: number;
+}
+
+interface AthleteLeaderboardProps {
+  data: SportsmanData[];
 }
 
 interface LeaderBoardProps {
@@ -28,4 +37,48 @@ interface ChatBarProps {
 interface CarouselProps {
   newsData?: any;
   carouselDataLength: number;
+}
+
+interface SportFilters {
+  medal: string;
+  name: string;
+  sex: string;
+  sport: string;
+  event_name: string;
+  country: string;
+}
+
+interface SportsmanData {
+  name: string;
+  sex: string;
+  sport: string;
+  event: string;
+  medal: string;
+  team: string;
+  year: number;
+}
+
+interface PodiumData {
+  data: CountryLeaderboardProps | SportsmanData;
+}
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+}
+
+interface SportFilters {
+  medal: string;
+  name: string;
+  sex: string;
+  sport: string;
+  event_name: string;
+  country: string;
+}
+
+interface FilterFormProps {
+  initialFilters: SportFilters;
+  onSubmit: (filters: SportFilters) => void;
 }

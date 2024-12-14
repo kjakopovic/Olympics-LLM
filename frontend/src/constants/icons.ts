@@ -10,6 +10,7 @@ import account from "@/assets/icons/account.png";
 import shield from "@/assets/icons/shield.png";
 import toggle from "@/assets/icons/toggle.png";
 import botAvatar from "@/assets/icons/botAvatar.png";
+import close from "@/assets/icons/close.png";
 
 export {
   google,
@@ -24,4 +25,5 @@ export {
   shield,
   toggle,
   botAvatar,
+  close,
 };

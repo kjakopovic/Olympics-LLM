@@ -14,7 +14,7 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({ data }) => {
     <div className="bg-primary-50 rounded-2xl p-4 mt-8 mr-5 ml-2">
       {/* Scrollable Container */}
       <div className="max-h-80 overflow-y-auto">
-        <table className="w-full border-separate border-spacing-y-4">
+        <table className="w-full border-separate border-spacing-y-4 px-1">
           <tbody>
             {data.slice(3).map((country, index) => (
               <tr key={index}>
@@ -25,9 +25,9 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({ data }) => {
                     className="bg-primary-500 w-full text-left px-6 py-3 flex items-center justify-between hover:border border-accent transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-accent rounded-2xl"
                   >
                     {/* Left Container: User Name */}
-                    <span className="font-jakarta font-semibold text-white">
+                    <span className="font-jakarta font-semibold text-accent">
                       {index + 4}.{" "}
-                      <span className="font-normal ml-2">
+                      <span className="font-normal ml-2 text-white">
                         {country.country}
                       </span>
                     </span>

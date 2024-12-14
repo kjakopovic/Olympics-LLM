@@ -69,7 +69,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
             <span className="mr-2">{tag}</span>
             <button onClick={() => handleRemoveTag(tag)}>
               <Image
-                src={icons.cog} // Replace with your close icon path
+                src={icons.close} // Replace with your close icon path
                 alt="Remove tag"
                 width={16}
                 height={16}
