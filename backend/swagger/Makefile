@@ -1,4 +1,5 @@
 build-lambda-common:
+	cd $(WORKING_DIR)
 	npm install
 	rm -rf dist
 	printf "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
@@ -13,4 +14,4 @@ build-RuntimeDependenciesLayer:
 	rm "$(ARTIFACTS_DIR)/nodejs/package.json"
 
 build-SwaggerDocsFunction:
-	$(MAKE) HANDLER=docs/app.ts build-lambda-common
+	$(MAKE) HANDLER=app.ts WORKING_DIR=docs build-lambda-common
