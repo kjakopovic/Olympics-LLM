@@ -13,9 +13,6 @@ const port = process.env.PORT || 5050
 
 const app = express()
 
-app.use('/api-docs', swaggerUI.serve,
-  swaggerUI.setup(null, options))
-
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.listen(port, () => {
