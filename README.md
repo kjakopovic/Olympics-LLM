@@ -1,5 +1,5 @@
 # Olympus
-## Tools used
+## 🛠️ Tools used
 ### Ai
 ![[Python badge](badge)](https://img.shields.io/badge/Python-3.12-%233776AB?logo=python&logoColor=white&labelColor=gray)
 ![[Jupyter Notebook badge](badge)](https://img.shields.io/badge/Jupyter-Note-%23F37626?logo=jupyter&logoColor=white&labelColor=gray)
