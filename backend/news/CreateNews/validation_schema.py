@@ -19,8 +19,9 @@ schema = {
                 "type": "string",
                 "maxLength": 255
             },
-            "minimum": 1,
-            "maximum": 3
+            "uniqueItems": True,
+            "minItems": 1,
+            "maxItems": 3
         }
     },
     "required": ["title", "description", "picture_count", "tags"],

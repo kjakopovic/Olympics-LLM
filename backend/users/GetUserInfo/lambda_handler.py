@@ -11,12 +11,8 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for getting user by email
-    """
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -42,13 +38,13 @@ def lambda_handler(event, context):
         )
 
     legal_name = user.get('first_name') + ' ' + user.get('last_name')
-    phone_number = user.get('phone_number') or 'N/A'
+    phone_number = user.get('phone_number', 'N/A')
 
     return build_response(
         200,
         {
             'message': 'Info retrieved successfully',
-            'data': {
+            'info': {
                 'legal_name': legal_name,
                 'email': user.get('email'),
                 'phone_number': phone_number,

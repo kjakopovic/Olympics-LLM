@@ -16,7 +16,6 @@ from common.common import (
     LambdaDynamoDBClass
 )
 
-
 @dataclass
 class Request:
     first_name: str
@@ -24,12 +23,8 @@ class Request:
     phone_number: str
     tags: list
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for updating user info
-    """
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -44,7 +39,15 @@ def lambda_handler(event, context):
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    request_body = json.loads(event.get('body', '{}'))
+    request_body = json.loads(event.get('body'))
+
+    if not request_body:
+        return build_response(
+            400,
+            {
+                'message': 'Request body is empty'
+            }
+        )
 
     try:
         validate(event=request_body, schema=schema)
@@ -61,8 +64,11 @@ def lambda_handler(event, context):
         )
 
     first_name = request_body.get('first_name')
+    logger.info(f'First name: {first_name}')
     last_name = request_body.get('last_name')
+    logger.info(f'Last name: {last_name}')
     phone_number = request_body.get('phone_number')
+    logger.info(f'Phone number: {phone_number}')
     tags = request_body.get('tags')
 
     update_user(dynamodb, email, first_name, last_name, phone_number, tags)
@@ -70,10 +76,9 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': f'User with email: {email} has been updated'
+            'message': 'User has been updated'
         }
     )
-
 
 def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     logger.info(f'Updating user with email: {email}')
@@ -91,6 +96,7 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
         update_expression += 'phone_number = :phone_number, '
         expression_attribute_values[':phone_number'] = phone_number
     if tags:
+        tags = move_tags_to_lowercase(tags)
         update_expression += 'tags = :tags, '
         expression_attribute_values[':tags'] = tags
 
@@ -99,3 +105,6 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
         UpdateExpression=update_expression.rstrip(', '),
         ExpressionAttributeValues=expression_attribute_values
     )
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]

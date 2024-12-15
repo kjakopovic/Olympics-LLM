@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 from boto3 import client, resource
 from os import environ
 import jwt
@@ -13,6 +14,11 @@ logger.setLevel(logging.DEBUG)
 _LAMBDA_NEWS_TABLE_RESOURCE = {
     "resource": resource("dynamodb"),
     "table_name": environ.get("NEWS_TABLE_NAME", "test_news_table")
+}
+
+_LAMBDA_USERS_TABLE_RESOURCE = {
+    "resource": resource("dynamodb"),
+    "table_name": environ.get("USERS_TABLE_NAME", "test_users_table")
 }
 
 _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
@@ -31,7 +37,6 @@ class LambdaS3Class:
         self.client = lambda_s3_client["client"]
         self.bucket_name = lambda_s3_client["bucket_name"]
 
-
 class LambdaDynamoDBClass:
     """
     AWS DynamoDB Resource Class
@@ -43,7 +48,6 @@ class LambdaDynamoDBClass:
         self.resource = lambda_dynamodb_resource["resource"]
         self.table_name = lambda_dynamodb_resource["table_name"]
         self.table = self.resource.Table(self.table_name)
-
 
 @lambda_handler_decorator
 def lambda_middleware(handler, event, context):
@@ -62,6 +66,8 @@ def lambda_middleware(handler, event, context):
     try:
         authorization = event_headers.get("Authorization") or event_headers.get("authorization")
 
+        logger.debug(f"Authorization header: {authorization}")
+
         if authorization:
             access_token = authorization.split(' ')[1] if ' ' in authorization else authorization
             event['headers']['x-access-token'] = access_token
@@ -79,7 +85,6 @@ def lambda_middleware(handler, event, context):
                 "message": f"{e}"
             }
         )
-
 
 def validate_jwt_token(event_headers):
     authorization = event_headers.get('Authorization') or event_headers.get('authorization')
@@ -114,21 +119,16 @@ def validate_jwt_token(event_headers):
              }
         )
 
-
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
-    logger.info(f"Validating Refresh Token: {refresh_token}")
-
     try:
         jwt.decode(refresh_token, refresh_secret, algorithms=["HS256"])
 
         logger.info("Refresh token verified successfully, creating new JWT token")
 
+        expiration_time = int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
         user_email = get_email_from_jwt_token(refresh_token)
-        new_access_token = jwt.encode(
-            {"email": user_email},
-            jwt_secret,
-            algorithm='HS256'
-        )
+        user_permissions = get_role_from_jwt_token(refresh_token)
+        new_jwt_token = jwt.encode({"email": user_email, "role": user_permissions, "exp": expiration_time}, jwt_secret, algorithm="HS256")
 
         return build_response(
             200,
@@ -136,39 +136,57 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
                 "message": "JWT token verified successfully"
             },
             {
-                'x-access-token': new_access_token,
+                'x-access-token': new_jwt_token,
                 'Content-Type': 'application/json'
             }
         )
-
-    except jwt.ExpiredSignatureError:
-        return build_response(
-            401,
-            {
-                "error": "Refresh Token has expired, please login again"
-            }
-        )
-
     except Exception as e:
-        logger.error(f"Error in validating Refresh Token: {e}")
+        logger.error(f"Error verifying refresh token: {e}")
+
         return build_response(
             401,
             {
-                "error": "Invalid Refresh Token, please login again"
+                "error": "Token expired"
             }
         )
-
 
 def get_email_from_jwt_token(token):
+    if not token:
+        return None
+
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
     )
 
-    decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
 
     return decoded_jwt.get('email')
 
+def get_role_from_jwt_token(token):
+    if not token:
+        return None
+
+    secrets = get_secrets_from_aws_secrets_manager(
+        environ.get('JWT_SECRET_NAME'),
+        environ.get('SECRETS_REGION_NAME')
+    )
+
+    try:
+        decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
+    except Exception:
+        return None
+
+    return decoded_jwt.get('role')
+
+def get_user_permissions_for_role(user_role):
+    if user_role == 'admin':
+        return 100
+    
+    return 1
 
 def build_response(status_code, body, headers=None):
     return {
@@ -178,7 +196,6 @@ def build_response(status_code, body, headers=None):
         },
         'body': json.dumps(body)
     }
-
 
 def get_secrets_from_aws_secrets_manager(secret_name, region_name):
     try:
@@ -192,4 +209,3 @@ def get_secrets_from_aws_secrets_manager(secret_name, region_name):
     except Exception as e:
         logger.error(f"Error in getting secrets from AWS Secrets Manager: {e}")
         return None
-

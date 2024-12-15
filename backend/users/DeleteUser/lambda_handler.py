@@ -39,7 +39,6 @@ def lambda_handler(event, context):
         }
     )
 
-
 def delete_user_from_db(dynamodb, user_email):
     try:
         user_exists = check_if_user_exists(dynamodb, user_email)
@@ -60,7 +59,6 @@ def delete_user_from_db(dynamodb, user_email):
         logger.error(f"Couldn't delete user profile: {str(e)}")
         
         return False
-
 
 def check_if_user_exists(dynamodb, email):
     logger.info('Checking if user exists.')

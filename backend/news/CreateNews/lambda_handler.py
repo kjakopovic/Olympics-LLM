@@ -14,11 +14,11 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
 )
-
 
 @dataclass
 class Request:
@@ -27,13 +27,23 @@ class Request:
     picture_count: int
     tags: list
 
-
 @lambda_middleware
 def lambda_handler(event, context):
     """
     Lambda handler for creating news
     """
     logger.info("Received event: %s", event)
+
+    token = event.get("headers", {}).get("x-access-token")
+    user_permissions = get_role_from_jwt_token(token)
+
+    if user_permissions < 100:
+        return build_response(
+            403,
+            {
+                "message": "You do not have permission to create news"
+            }
+        )
 
     try:
         request_body = json.loads(event["body"])
@@ -53,8 +63,11 @@ def lambda_handler(event, context):
     news_title = request_body.get("title")
     news_content = request_body.get("description")
     picture_count = request_body.get("picture_count")
-    news_date = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    news_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     tags = request_body.get("tags", [])
+
+    if len(tags) > 0:
+        tags = move_tags_to_lowercase(tags)
 
     news_item = {
         "id": news_id,
@@ -76,10 +89,10 @@ def lambda_handler(event, context):
         200,
         {
             "message": "News created successfully",
+            "id": news_id,
             "picture_urls": urls
         }
     )
-
 
 def save_news_pictures(picture_count, news_id):
     """
@@ -109,3 +122,6 @@ def save_news_pictures(picture_count, news_id):
     except Exception as e:
         logger.error(f"Error in generating picture urls for news {news_id}; {e}")
         return []
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]

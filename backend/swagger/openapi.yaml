@@ -1,0 +1,1141 @@
+openapi: 3.0.0
+info:
+  title: Olympus API docs
+  version: 1.0.0
+servers:
+- &id002
+  url: https://ewq9oc1sb4.execute-api.eu-central-1.amazonaws.com
+  description: Users service base api
+- &id003
+  url: https://1sccfx41r1.execute-api.eu-central-1.amazonaws.com
+  description: Sports service base api
+- &id001
+  url: https://5lnspigo1g.execute-api.eu-central-1.amazonaws.com
+  description: News service base api
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Use Bearer token for authentication, dont write Bearer in front,
+        just send the token
+paths:
+  /v1-news/:
+    post:
+      summary: Create new news for our site
+      description: Create new news for our site, authorized only for admins
+      operationId: createNews
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: string
+                  picture_urls:
+                    type: array
+                    urls:
+                      type: string
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        403:
+          description: If your permissions are not strong enough you wont be able
+            to use the endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                picture_count:
+                  type: integer
+                tags:
+                  type: array
+                  tagsinlist:
+                    type: string
+              required:
+              - title
+              - description
+      tags:
+      - news
+      servers:
+      - *id001
+      security:
+      - BearerAuth: []
+    get:
+      summary: Get all news paginated
+      description: Get all news paginated, if user is logged in he will have tags
+        related news
+      operationId: getAllNews
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  total_records_found:
+                    type: integer
+                  item_count:
+                    type: integer
+                  items:
+                    type: array
+                    news:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        published_at:
+                          type: string
+                        tags:
+                          type: array
+                          tagsinlist:
+                            type: string
+                        pictures_url:
+                          type: array
+                          picturesinlist:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              url:
+                                type: string
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+          example: 50
+      tags:
+      - news
+      servers:
+      - *id001
+      security:
+      - BearerAuth: []
+  /v1-news/{news_id}:
+    delete:
+      summary: Delete news from our site
+      description: Delete news from our site with pictures also, authorized only for
+        admins
+      operationId: deleteNews
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Validation error or invalid news id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        403:
+          description: If your permissions are not strong enough you wont be able
+            to use the endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: News with that id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          example: guid-type-of-id
+      tags:
+      - news
+      servers:
+      - *id001
+      security:
+      - BearerAuth: []
+    put:
+      summary: Update news from our site
+      description: Update news from our site with pictures also supported to be updated,
+        authorized only for admins
+      operationId: updateNews
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  urls:
+                    type: array
+                    urlsitems:
+                      type: string
+        400:
+          description: Validation error or invalid news id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        403:
+          description: If your permissions are not strong enough you wont be able
+            to use the endpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: News with that id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          example: guid-type-of-id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                new_pictures_count:
+                  type: integer
+                pictures_to_delete:
+                  type: array
+                  idsinlist:
+                    type: string
+                tags:
+                  type: array
+                  tagsinlist:
+                    type: string
+      tags:
+      - news
+      servers:
+      - *id001
+      security:
+      - BearerAuth: []
+    get:
+      summary: Get news info by id
+      description: Get news info by id
+      operationId: getNewsById
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  info:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      published_at:
+                        type: string
+                      tags:
+                        type: array
+                        tagsinlist:
+                          type: string
+                      pictures_url:
+                        type: array
+                        picturesinlist:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            url:
+                              type: string
+        400:
+          description: Validation error or invalid news id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: News with that id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          example: guid-type-of-id
+      tags:
+      - news
+      servers:
+      - *id001
+      security:
+      - BearerAuth: []
+  /v1-users/register:
+    post:
+      summary: Register user into our application
+      description: Register user into our application, they will be registered with
+        the role user automatically
+      operationId: registerUser
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Validation error or already existing user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+              required:
+              - email
+              - password
+              - first_name
+              - last_name
+      tags:
+      - users
+      servers:
+      - *id002
+      security: []
+  /v1-users/login:
+    post:
+      summary: Login user into our application
+      description: Login user into our application
+      operationId: loginUser
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+        400:
+          description: Validation error or wrong email or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+      tags:
+      - users
+      servers:
+      - *id002
+      security: []
+  /v1-users/login/third-party:
+    get:
+      summary: Request login via third party service
+      description: Request login via third party service, currently supported google,
+        facebook and github
+      operationId: thirdPartyLoginRequest
+      responses:
+        302:
+          description: Redirect to third party login page
+        400:
+          description: Wrong service type entered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: query
+        name: type_of_service
+        required: true
+        schema:
+          type: string
+          enum:
+          - google
+          - facebook
+          - github
+          example: google
+      tags:
+      - users
+      servers:
+      - *id002
+      security: []
+  /v1-users/login/third-party/confirm:
+    get:
+      summary: Callback endpoint for third party service login
+      description: You are not calling this endpoint directly, it is called by third
+        party service
+      operationId: thirdPartyLoginConfirm
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+        400:
+          description: Wrong queries from third party page entered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: query
+        name: code
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: state
+        required: true
+        schema:
+          type: string
+      tags:
+      - users
+      servers:
+      - *id002
+      security: []
+  /v1-users/:
+    delete:
+      summary: Hard delete user from our application
+      description: Hard delete user from our application
+      operationId: deleteUser
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: User cant be deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      tags:
+      - users
+      servers:
+      - *id002
+      security:
+      - BearerAuth: []
+    get:
+      summary: Get user profile info
+      description: Get user profile info
+      operationId: getUserInfo
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  info:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      legal_name:
+                        type: string
+                      phone_number:
+                        type: string
+                      tags:
+                        type: array
+                        items:
+                          type: string
+        400:
+          description: Invalid user credentials inside of token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      tags:
+      - users
+      servers:
+      - *id002
+      security:
+      - BearerAuth: []
+    put:
+      summary: Update users information
+      description: Update users information
+      operationId: updateUserInfo
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Validation error, wrong credentials in token or empty request
+            body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone_number:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      tags:
+      - users
+      servers:
+      - *id002
+      security:
+      - BearerAuth: []
+  /v1-users/password/change:
+    post:
+      summary: Change password for user that is logged in
+      description: Change password for user that is logged in
+      operationId: changePassword
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+        400:
+          description: Validation error, missing user or incorrect password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                new_password:
+                  type: string
+              required:
+              - email
+              - password
+              - new_password
+      tags:
+      - users
+      servers:
+      - *id002
+      security:
+      - BearerAuth: []
+  /v1-sports/:
+    get:
+      summary: Get all sports achievements
+      description: Retrieve all sports achievements.
+      operationId: getSportsAchievements
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  page:
+                    type: integer
+                  total_records_found:
+                    type: integer
+                  item_count:
+                    type: integer
+                  items:
+                    type: array
+                    sportsmen:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        sex:
+                          type: string
+                        sport:
+                          type: string
+                        event:
+                          type: string
+                        medal:
+                          type: string
+                        team:
+                          type: string
+                        year:
+                          type: integer
+        400:
+          description: Validation error or wrong page or limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: query
+        name: page
+        required: true
+        schema:
+          type: integer
+          example: 1
+      - in: query
+        name: limit
+        required: true
+        schema:
+          type: integer
+          example: 50
+      - in: query
+        name: medal
+        required: false
+        schema:
+          type: string
+          example: gold
+      - in: query
+        name: sportsman_name
+        required: false
+        schema:
+          type: string
+          example: Nikola Karabatic
+      - in: query
+        name: sex
+        required: false
+        schema:
+          type: string
+          example: M
+      - in: query
+        name: sport
+        required: false
+        schema:
+          type: string
+          example: Volleyball
+      - in: query
+        name: event
+        required: false
+        schema:
+          type: string
+          example: Men's Basketball
+      - in: query
+        name: country
+        required: false
+        schema:
+          type: string
+          example: croatia
+      tags:
+      - sports
+      servers:
+      - *id003
+      security:
+      - BearerAuth: []
+  /v1-sports/countries:
+    get:
+      summary: Get all sports achievements per countries
+      description: Retrieve all sports achievements per countries, for example number
+        of medals won by each country in some year range
+      operationId: getAllCountriesAchievements
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  page:
+                    type: integer
+                  total_records_found:
+                    type: integer
+                  item_count:
+                    type: integer
+                  items:
+                    type: array
+                    countries:
+                      type: object
+                      properties:
+                        country:
+                          type: string
+                        gold:
+                          type: integer
+                        silver:
+                          type: integer
+                        bronze:
+                          type: integer
+        400:
+          description: Validation error, wrong page or limit, wrong year range
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          description: Unauthorized, expired or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        500:
+          description: Unhandled exception, call developers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      parameters:
+      - in: query
+        name: page
+        required: true
+        schema:
+          type: integer
+          example: 1
+      - in: query
+        name: limit
+        required: true
+        schema:
+          type: integer
+          example: 50
+      - in: query
+        name: min_year
+        required: false
+        schema:
+          type: integer
+          example: 1800
+      - in: query
+        name: max_year
+        required: false
+        schema:
+          type: integer
+          example: 9999
+      - in: query
+        name: list_of_sports
+        required: false
+        schema:
+          type: string
+          example: volleyball,basketball
+      tags:
+      - sports
+      servers:
+      - *id003
+      security:
+      - BearerAuth: []
+tags:
+- name: news
+  description: Operations related to news
+- name: users
+  description: Operations related to users
+- name: sports
+  description: Operations related to sports

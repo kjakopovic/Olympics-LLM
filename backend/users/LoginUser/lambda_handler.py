@@ -14,6 +14,7 @@ from common.common import (
     generate_jwt_token,
     generate_refresh_token,
     build_response,
+    get_user_permissions_for_role,
     LambdaDynamoDBClass
 )
 
@@ -40,7 +41,6 @@ def lambda_handler(event, context):
 
     return login_user(dynamodb, email, password)
 
-
 def login_user(dynamodb, email, password):
     user = get_user_by_email(dynamodb, email)
 
@@ -51,9 +51,12 @@ def login_user(dynamodb, email, password):
                 'message': 'Wrong email or password. Please try again.'
             }
         )
+    
+    user_role = user.get('role', 'user')
+    user_permissions = get_user_permissions_for_role(user_role)
 
-    access_token = generate_jwt_token(email)
-    refresh_token = generate_refresh_token(email)
+    access_token = generate_jwt_token(email, user_permissions)
+    refresh_token = generate_refresh_token(email, user_permissions)
 
     if not access_token or not refresh_token:
         return build_response(
@@ -68,10 +71,9 @@ def login_user(dynamodb, email, password):
         {
             'message': 'User has been successfully logged in',
             'token': access_token,
-            'refresh-token': refresh_token
+            'refresh_token': refresh_token
         }
     )
-
 
 def update_refresh_token(dynamodb, email, refresh_token):
     logger.info('Updating refresh token in the database')
@@ -86,7 +88,6 @@ def update_refresh_token(dynamodb, email, refresh_token):
         }
     )
 
-
 def get_user_by_email(dynamodb, email):
     logger.info('Getting user by email')
 
@@ -97,7 +98,6 @@ def get_user_by_email(dynamodb, email):
     )
 
     return user.get('Item')
-
 
 def verify_password(user_password, stored_password):
     logger.info('Verifying password')

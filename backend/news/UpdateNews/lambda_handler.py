@@ -12,11 +12,11 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
 )
-
 
 @dataclass
 class Request:
@@ -26,12 +26,8 @@ class Request:
     pictures_to_delete: list
     tags: list
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for updating news
-    """
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
@@ -39,6 +35,17 @@ def lambda_handler(event, context):
             400,
             {
                 'message': 'News id is required'
+            }
+        )
+    
+    token = event.get("headers", {}).get("x-access-token")
+    user_permissions = get_role_from_jwt_token(token)
+
+    if user_permissions < 100:
+        return build_response(
+            403,
+            {
+                "message": "You do not have permission to create news"
             }
         )
 
@@ -54,9 +61,19 @@ def lambda_handler(event, context):
 
     title = request_body.get('title')
     description = request_body.get('description')
-    new_pictures_count = request_body.get('new_pictures_count')
-    pictures_to_delete = request_body.get('pictures_to_delete')
+    new_pictures_count = request_body.get('new_pictures_count', 0)
+    pictures_to_delete = request_body.get('pictures_to_delete', [])
     tags = request_body.get('tags', [])
+
+    if not check_if_news_exist(dynamodb, news_id):
+        logger.error(f'News with id {news_id} not found')
+
+        return build_response(
+            404,
+            {
+                'message': 'News not found'
+            }
+        )
 
     logger.info(f'Updating news with id: {news_id}')
     update_news(dynamodb, news_id, title, description, tags)
@@ -64,12 +81,12 @@ def lambda_handler(event, context):
     resigned_urls = []
     
     logger.info(f'Checking if pictures need to be added')
-    if new_pictures_count and new_pictures_count > 0:
+    if new_pictures_count > 0:
         logger.info(f'Adding pictures to news')
         resigned_urls = save_news_pictures(new_pictures_count, news_id)
 
     logger.info(f'Checking if pictures need to be deleted')
-    if pictures_to_delete and len(pictures_to_delete) > 0:
+    if len(pictures_to_delete) > 0:
         logger.info(f'Deleting pictures from news')
 
         for key in pictures_to_delete:
@@ -83,7 +100,6 @@ def lambda_handler(event, context):
             'urls': resigned_urls
         }
     )
-
 
 def update_news(dynamodb, news_id, title, description, tags):
     # Update news info
@@ -99,6 +115,7 @@ def update_news(dynamodb, news_id, title, description, tags):
         expression_attribute_values[':description'] = description
 
     if len(tags) > 0:
+        tags = move_tags_to_lowercase(tags)
         update_expression += "tags = :tags, "
         expression_attribute_values[':tags'] = tags
 
@@ -111,14 +128,13 @@ def update_news(dynamodb, news_id, title, description, tags):
             ExpressionAttributeValues=expression_attribute_values
         )
 
-
 def delete_news_pictures(key):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
     s3_client = s3_class.client
     bucket_name = s3_class.bucket_name
 
     try:
-        response = s3_client.delete_object(
+        s3_client.delete_object(
             Bucket=bucket_name,
             Key=key
         )
@@ -127,7 +143,6 @@ def delete_news_pictures(key):
     except Exception as e:
         logger.error(f"Error in deleting news pictures from S3 for key {key}: {e}")
         return False
-
 
 def save_news_pictures(picture_count, news_id):
     s3_class = LambdaS3Class(_LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES)
@@ -176,3 +191,16 @@ def save_news_pictures(picture_count, news_id):
     except Exception as e:
         logger.error(f"Error in generating picture urls for news {news_id}; {e}")
         return []
+
+def check_if_news_exist(dynamodb, news_id):
+    news = dynamodb.table.get_item(
+        Key={'id': news_id}
+    ).get('Item')
+
+    if not news:
+        return False
+
+    return True
+
+def move_tags_to_lowercase(tags):
+    return [tag.lower() for tag in tags]

@@ -7,17 +7,14 @@ from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
     lambda_middleware,
     build_response,
+    get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
 )
 
-
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for deleting news
-    """
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
@@ -27,14 +24,32 @@ def lambda_handler(event, context):
                 'message': 'News id is required'
             }
         )
+    
+    token = event.get("headers", {}).get("x-access-token")
+    user_permissions = get_role_from_jwt_token(token)
+
+    if user_permissions < 100:
+        return build_response(
+            403,
+            {
+                "message": "You do not have permission to delete news"
+            }
+        )
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
-    logger.info(f'Deleting news with id: {news_id}')
-    dynamodb.table.delete_item(
-        Key={'id': news_id}
-    )
+    if not check_if_news_exist(dynamodb, news_id):
+        logger.error(f'News with id {news_id} not found')
+
+        return build_response(
+            404,
+            {
+                'message': 'News not found'
+            }
+        )
+
+    delete_news_by_id(dynamodb, news_id)
 
     logger.info(f'Deleting pictures related to the news with id: {news_id}')
     result = delete_news_pictures(news_id)
@@ -53,7 +68,6 @@ def lambda_handler(event, context):
                 'message': f'News deleted successfully alongside related pictures: {news_id}'
             }
         )
-
 
 def delete_news_pictures(news_id):
     """
@@ -89,3 +103,20 @@ def delete_news_pictures(news_id):
     except Exception as e:
         logger.error(f"Error in deleting news pictures from S3 for news_id {news_id}: {e}")
         return False
+
+def check_if_news_exist(dynamodb, news_id):
+    news = dynamodb.table.get_item(
+        Key={'id': news_id}
+    ).get('Item')
+
+    if not news:
+        return False
+
+    return True
+
+def delete_news_by_id(dynamodb, news_id):
+    logger.debug(f'Deleting news with id: {news_id}')
+
+    dynamodb.table.delete_item(
+        Key={'id': news_id}
+    )

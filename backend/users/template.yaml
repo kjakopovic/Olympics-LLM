@@ -55,7 +55,6 @@ Resources:
         WriteCapacityUnits: 5
 
   # Lambda Functions
-
   RegisterUserFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -271,7 +270,7 @@ Resources:
         GetUserInfoEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: GET
             ApiId: !Ref UserServiceApi
 
@@ -303,7 +302,7 @@ Resources:
         UpdateUserInfoEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: PUT
             ApiId: !Ref UserServiceApi
 
