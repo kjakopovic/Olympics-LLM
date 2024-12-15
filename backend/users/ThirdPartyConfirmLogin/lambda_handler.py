@@ -2,6 +2,8 @@ import os
 import requests
 import logging
 
+from os import environ
+
 logger = logging.getLogger("ConfirmThirdPartyLogin")
 logger.setLevel(logging.DEBUG)
 
@@ -146,14 +148,14 @@ def lambda_handler(event, context):
         token = generate_jwt_token(user_email)
         refresh_token = generate_refresh_token(user_email)
 
-        return build_response(
-            200,
-            {
-                'message': "You're logged in successfully!",
-                'token': token,
-                'refresh_token': refresh_token
+        return {
+            'statusCode': 302,
+            'headers': {
+                'Location': environ.get('FRONTEND_CALLBACK_URL', 'http://localhost:3000/callback'),
+                'x-access-token': token,
+                'x-refresh-token': refresh_token
             }
-        )
+        }
     except requests.RequestException as e:
         logger.error(f'Request error: {str(e)}')
 

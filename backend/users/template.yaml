@@ -159,6 +159,7 @@ Resources:
           THIRD_PARTY_CLIENTS_SECRET_NAME: !Ref ThirdPartyClientsSecretName
           JWT_SECRET_NAME: !Ref JwtSecretName
           SECRETS_REGION_NAME: !Ref SecretsRegionName
+          FRONTEND_CALLBACK_URL: http://localhost:3000/callback
       Architectures:
         - x86_64
       Policies:
