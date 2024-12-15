@@ -38,5 +38,6 @@ A standout feature is its focus on cultural insights, such as food trends by cou
 ## 📧 Contact
 
 ![[LinkedIn KJ badge](badge)](https://img.shields.io/badge/LinkedIn-kjakopovic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkarlo-jakopovi%25C4%2587-24595027a%2F)
-![[LinkedIn Nolan badge](badge)](https://img.shields.io/badge/LinkedIn-nolanilisic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fnolan-ilisi%25C4%2587-aab4a32a3%2F)
+[![LinkedIn Nolan badge](https://img.shields.io/badge/LinkedIn-nolanilisic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray)](https://www.linkedin.com/in/nolan-ilisi%C4%87-aab4a32a3/)
 ![[LinkedIn Majki badge](badge)](https://img.shields.io/badge/LinkedIn-majki-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fmarin-mikulec-26b0a829b%2F)
+(**!!! If you are interested in our profile, after badge opens in new tab click on it again !!!**)
