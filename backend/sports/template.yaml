@@ -36,8 +36,6 @@ Resources:
 
   GetAllSportsAchievementsFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -63,11 +61,126 @@ Resources:
             Path: /
             Method: GET
             ApiId: !Ref SportServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Get all sports achievements
+        description: Retrieve all sports achievements.
+        operationId: getSportsAchievements
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    page:
+                      type: integer
+                    total_records_found:
+                      type: integer
+                    item_count:
+                      type: integer
+                    items:
+                      type: array
+                      sportsmen:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          sex:
+                            type: string
+                          sport:
+                            type: string
+                          event:
+                            type: string
+                          medal:
+                            type: string
+                          team:
+                            type: string
+                          year:
+                            type: integer
+          400:
+            description: Validation error or wrong page or limit
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized, expired or invalid token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        parameters:
+          - in: query
+            name: page
+            required: true
+            schema:
+              type: integer
+              example: 1
+          - in: query
+            name: limit
+            required: true
+            schema:
+              type: integer
+              example: 50
+          - in: query
+            name: medal
+            required: false
+            schema:
+              type: string
+              example: "gold"
+          - in: query
+            name: sportsman_name
+            required: false
+            schema:
+              type: string
+              example: "Nikola Karabatic"
+          - in: query
+            name: sex
+            required: false
+            schema:
+              type: string
+              example: "M"
+          - in: query
+            name: sport
+            required: false
+            schema:
+              type: string
+              example: "Volleyball"
+          - in: query
+            name: event
+            required: false
+            schema:
+              type: string
+              example: "Men's Basketball"
+          - in: query
+            name: country
+            required: false
+            schema:
+              type: string
+              example: "croatia"
 
   GetAllCountriesAchievementsFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -93,6 +206,99 @@ Resources:
             Path: /countries
             Method: GET
             ApiId: !Ref SportServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Get all sports achievements per countries
+        description: Retrieve all sports achievements per countries, for example number of medals won by each country in some year range
+        operationId: getAllCountriesAchievements
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    page:
+                      type: integer
+                    total_records_found:
+                      type: integer
+                    item_count:
+                      type: integer
+                    items:
+                      type: array
+                      countries:
+                        type: object
+                        properties:
+                          country:
+                            type: string
+                          gold:
+                            type: integer
+                          silver:
+                            type: integer
+                          bronze:
+                            type: integer
+          400:
+            description: Validation error, wrong page or limit, wrong year range
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized, expired or invalid token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        parameters:
+          - in: query
+            name: page
+            required: true
+            schema:
+              type: integer
+              example: 1
+          - in: query
+            name: limit
+            required: true
+            schema:
+              type: integer
+              example: 50
+          - in: query
+            name: min_year
+            required: false
+            schema:
+              type: integer
+              example: 1800
+          - in: query
+            name: max_year
+            required: false
+            schema:
+              type: integer
+              example: 9999
+          - in: query
+            name: list_of_sports
+            required: false
+            schema:
+              type: string
+              example: "volleyball,basketball"
 
 Outputs:
   EndpointURI:

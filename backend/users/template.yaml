@@ -55,11 +55,8 @@ Resources:
         WriteCapacityUnits: 5
 
   # Lambda Functions
-
   RegisterUserFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -84,11 +81,63 @@ Resources:
             Path: /register
             Method: POST
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Register user into our application
+        description: Register user into our application, they will be registered with the role user automatically
+        operationId: registerUser
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          400:
+            description: Validation error or already existing user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                required:
+                  - email
+                  - password
+                  - first_name
+                  - last_name
 
   LoginUserFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -115,11 +164,61 @@ Resources:
             Path: /login
             Method: POST
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Login user into our application
+        description: Login user into our application
+        operationId: loginUser
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    token:
+                      type: string
+                    refresh_token:
+                      type: string
+          400:
+            description: Validation error or wrong email or password
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+                required:
+                  - email
+                  - password
 
   ThirdPartyLoginRequestFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -145,11 +244,47 @@ Resources:
             Path: /login/third-party
             Method: GET
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Request login via third party service
+        description: Request login via third party service, currently supported google, facebook and github
+        operationId: thirdPartyLoginRequest
+        responses:
+          302:
+            description: Redirect to third party login page
+          400:
+            description: Wrong service type entered
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        parameters:
+          - in: query
+            name: type_of_service
+            required: true
+            schema:
+              type: string
+              enum:
+                - google
+                - facebook
+                - github
+              example: google
 
   ThirdPartyLoginValidateFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -178,11 +313,58 @@ Resources:
             Path: /login/third-party/confirm
             Method: GET
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Callback endpoint for third party service login
+        description: You are not calling this endpoint directly, it is called by third party service
+        operationId: thirdPartyLoginConfirm
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    token:
+                      type: string
+                    refresh_token:
+                      type: string
+          400:
+            description: Wrong queries from third party page entered
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        parameters:
+          - in: query
+            name: code
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: state
+            required: true
+            schema:
+              type: string
 
   DeleteUserFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -210,11 +392,52 @@ Resources:
             Path: /
             Method: DELETE
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Hard delete user from our application
+        description: Hard delete user from our application
+        operationId: deleteUser
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          400:
+            description: User cant be deleted
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
 
   ChangePasswordFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -242,11 +465,73 @@ Resources:
             Path: /password/change
             Method: POST
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Change password for user that is logged in
+        description: Change password for user that is logged in
+        operationId: changePassword
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    token:
+                      type: string
+                    refresh_token:
+                      type: string
+          400:
+            description: Validation error, missing user or incorrect password
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+                  new_password:
+                    type: string
+                required:
+                  - email
+                  - password
+                  - new_password
 
   GetUserInfoFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -271,14 +556,68 @@ Resources:
         GetUserInfoEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: GET
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Get user profile info
+        description: Get user profile info
+        operationId: getUserInfo
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    info:
+                      type: object
+                      properties:
+                        email:
+                          type: string
+                        legal_name:
+                          type: string
+                        phone_number:
+                          type: string
+                        tags:
+                          type: array
+                          items:
+                            type: string
+          400:
+            description: Invalid user credentials inside of token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
 
   UpdateUserInfoFunction:
     Type: AWS::Serverless::Function
-    Metadata:
-      BuildMethod: makefile
     Properties:
       CodeUri: ./
       Handler: lambda_handler.lambda_handler
@@ -303,9 +642,69 @@ Resources:
         UpdateUserInfoEndpoint:
           Type: HttpApi
           Properties:
-            Path: /profile
+            Path: /
             Method: PUT
             ApiId: !Ref UserServiceApi
+    Metadata:
+      BuildMethod: makefile
+      Swagger:
+        summary: Update users information
+        description: Update users information
+        operationId: updateUserInfo
+        responses:
+          200:
+            description: Successful response
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          400:
+            description: Validation error, wrong credentials in token or empty request body
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          401:
+            description: Unauthorized user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          500:
+            description: Unhandled exception, call developers
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  phone_number:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
 
 Outputs:
   UsersTableArn:

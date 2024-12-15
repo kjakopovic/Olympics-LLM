@@ -31,6 +31,14 @@ def lambda_handler(event, context):
         Key={'id': news_id}
     ).get('Item')
 
+    if not news:
+        return build_response(
+            404,
+            {
+                'message': 'News not found'
+            }
+        )
+
     logger.info(f'Found {news}')
 
     news['pictures_url'] = get_news_pictures(news['id'])
@@ -40,7 +48,7 @@ def lambda_handler(event, context):
     return build_response(
         200,
         {
-            'message': f'Retrieved news successfully',
+            'message': 'Retrieved news successfully',
             'info': news
         }
     )

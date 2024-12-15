@@ -65,7 +65,9 @@ def change_password(dynamodb, email, old_password, new_password):
         update_password(dynamodb, email, new_password)
         return build_response(
             200,
-            {'message': 'Password has been successfully changed'}
+            {
+                'message': 'Password has been successfully changed'
+            }
         )
     except Exception as e:
         logger.error(f"Error changing password for user {email}: {e}")
