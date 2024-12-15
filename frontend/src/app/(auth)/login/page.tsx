@@ -79,48 +79,12 @@ function Login() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     setLoading(true); // Start loading
 
     const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
-    try {
-      const response = await fetch(
-        `${API_URL}/login/third-party?type_of_service=google`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(errorData.message || "An error occurred. Please try again.");
-        setLoading(false); // End loading
-        return;
-      }
-
-      const data = await response.json();
-      console.log(data);
-
-      if (data.error) {
-        alert(data.error);
-        setLoading(false); // End loading
-        return;
-      }
-
-      Cookies.set("token", data.token);
-      Cookies.set("refresh-token", data.refresh_token);
-
-      router.push("/chat");
-    } catch (error: any) {
-      console.error("Fetch Error:", error);
-      alert("A network error occurred. Please try again.");
-    } finally {
-      setLoading(false); // End loading
-    }
+    window.location.href = `${API_URL}/login/third-party?type_of_service=google`;
   };
 
   return (

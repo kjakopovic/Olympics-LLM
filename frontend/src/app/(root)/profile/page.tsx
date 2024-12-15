@@ -8,12 +8,21 @@ import TagInput from "@/components/TagInput";
 import * as icons from "@/constants/icons";
 import Image from "next/image";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useRouter } from "next/navigation";
 
 function Profile() {
   const [activeSetting, setActiveSetting] = useState("Personal info");
   const [tagsSaving, setTagsSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const router = useRouter();
+
+  const [passwordChangeInputs, setPasswordChangeInputs] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
 
   const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
@@ -112,6 +121,82 @@ function Profile() {
 
   const handleInputChange = (field: string, value: string) => {
     setEditedUser((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("refresh-token");
+    router.replace("/login");
+  };
+
+  const handlePasswordChange = async () => {
+    setChangingPassword(true);
+    if (
+      !passwordChangeInputs.currentPassword ||
+      !passwordChangeInputs.newPassword ||
+      !passwordChangeInputs.confirmNewPassword
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (
+      passwordChangeInputs.newPassword !==
+      passwordChangeInputs.confirmNewPassword
+    ) {
+      alert("New passwords do not match.");
+      return;
+    }
+    if (
+      passwordChangeInputs.newPassword === passwordChangeInputs.currentPassword
+    ) {
+      alert("New password cannot be the same as current password.");
+      return;
+    }
+
+    const token = Cookies.get("token");
+    const refreshToken = Cookies.get("refresh-token");
+    if (!token) {
+      alert("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/password/change`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "x-refresh-token": refreshToken || "",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          password: passwordChangeInputs.currentPassword,
+          new_password: passwordChangeInputs.newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error changing password:", errorData);
+        alert(
+          errorData.message || "An error occurred while changing password."
+        );
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Password changed:", data);
+      alert("Password changed successfully!");
+      setChangingPassword(false);
+      setPasswordChangeInputs({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("An error occurred while changing password.");
+    }
   };
 
   const handleSave = async () => {
@@ -329,12 +414,65 @@ function Profile() {
 
           {activeSetting === "Login & Security" && (
             <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10">
-              <h1 className="text-2xl font-semibold text-white">
-                {activeSetting}
-              </h1>
+              <div className="flex flex-row items-center justify-between">
+                <h1 className="text-2xl font-semibold text-white">
+                  {activeSetting}
+                </h1>
+                <button
+                  onClick={handleLogout}
+                  className="text-base font-jakarta font-semibold text-accent underline hover:text-accent"
+                >
+                  Log out
+                </button>
+              </div>
               <p className="text-sm font-normal text-primary-300 mt-2">
                 Manage your login credentials and security settings.
               </p>
+
+              <div className="mt-5">
+                <label className="block text-base font-jakarta text-white mb-2">
+                  Change Password
+                </label>
+                <input
+                  type="password"
+                  onChange={(e) => {
+                    setPasswordChangeInputs((prev) => ({
+                      ...prev,
+                      currentPassword: e.target.value,
+                    }));
+                  }}
+                  placeholder="Current Password"
+                  className="w-full h-12 mb-3 focus:outline-none bg-transparent pl-2 border rounded-2xl border-accent text-primary-600 transition-all duration-200 mt-1"
+                />
+                <input
+                  type="password"
+                  onChange={(e) => {
+                    setPasswordChangeInputs((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }));
+                  }}
+                  placeholder="New Password"
+                  className="w-full my-3 h-12 focus:outline-none bg-transparent pl-2 border rounded-2xl border-accent text-primary-600 transition-all duration-200 mt-1"
+                />
+                <input
+                  type="password"
+                  onChange={(e) => {
+                    setPasswordChangeInputs((prev) => ({
+                      ...prev,
+                      confirmNewPassword: e.target.value,
+                    }));
+                  }}
+                  placeholder="Confirm New Password"
+                  className="w-full h-12 focus:outline-none bg-transparent pl-2 border rounded-2xl border-accent text-primary-600 transition-all duration-200 mt-1"
+                />
+                <button
+                  onClick={handlePasswordChange}
+                  className="mt-5 p-3 px-6 rounded-xl bg-accent text-black font-jakarta font-semibold hover:shadow-accentglow"
+                >
+                  {changingPassword ? "Changing..." : "Change Password"}
+                </button>
+              </div>
             </div>
           )}
           {activeSetting === "Global Preferences" && (
