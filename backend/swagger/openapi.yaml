@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: API Documentation
+  title: Olympus API docs
   version: 1.0.0
 servers:
 - &id002
