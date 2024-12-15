@@ -1,14 +1,10 @@
 # Olympus
 
----
-
 ## 🚀 About the Project
 
 The Olympus Project is designed for Olympic Games enthusiasts who want to dive deep into the world of the Olympics. It offers a comprehensive user interface to explore all data about the Olympic Games, keeping users updated with daily news, and providing a personalized AI chat assistant to address any questions related to the Games.
 
 A standout feature is its focus on cultural insights, such as food trends by country. Planning to attend the next Olympic Games in LA? Olympus can guide you on what foods and trends to expect, making your visit even more exciting and informed.
-
----
 
 ## 🛠️ Features
 - **🤖 AI Chat Bot**  
@@ -29,8 +25,6 @@ A standout feature is its focus on cultural insights, such as food trends by cou
 - **🏅 Leaderboard for Sportsmen**  
   View rankings and achievements of individual athletes.
 
----
-
 ## 🖥️ Technologies used
 
 | AI | Backend | Docs | CI/CD | Frontend |
@@ -40,8 +34,6 @@ A standout feature is its focus on cultural insights, such as food trends by cou
 ![[PyTorch badge](badge)](https://img.shields.io/badge/PyTorch-2.5.1-%23EE4C2C?logo=pytorch&logoColor=%23EE4C2C&labelColor=gray) | ![[AWS Lambda badge](badge)](https://img.shields.io/badge/Lambda-AWS-%23FF9900?logo=awslambda&logoColor=%23FF9900&labelColor=gray) | | | |
 | | ![[AWS S3 badge](badge)](https://img.shields.io/badge/S3-AWS-%23569A31?logo=amazons3&logoColor=%23569A31&labelColor=gray) | | | |
 | | ![[AWS DynamoDB badge](badge)](https://img.shields.io/badge/DynamoDB-AWS-%234053D6?logo=amazondynamodb&logoColor=white&labelColor=gray) | | | |
-
----
 
 ## 📧 Contact
 
