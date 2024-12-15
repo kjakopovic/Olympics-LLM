@@ -86,7 +86,8 @@ function SideBar() {
                 router.push(page.route);
               }}
               key={index}
-              className="relative w-full h-auto flex flex-row items-center justify-start p-2 rounded-xl group mt-2"
+              disabled={page.title === "Trends"}
+              className="disabled:cursor-not-allowed relative w-full h-auto flex flex-row items-center justify-start p-2 rounded-xl group mt-2"
             >
               {/* Background Overlay */}
               <div

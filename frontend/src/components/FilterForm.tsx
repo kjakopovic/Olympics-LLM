@@ -181,13 +181,13 @@ const FilterForm: React.FC<FilterFormProps> = ({
         <button
           type="button"
           onClick={handleReset}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200"
+          className="px-4 py-2 bg-primary-300 text-white/90 rounded-md hover:shadow-silver2glow transition-colors duration-200"
         >
           Reset
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors duration-200"
+          className="px-4 py-2 bg-accent text-primary-50 rounded-md hover:shadow-accentglow transition-colors duration-200"
         >
           Apply Filters
         </button>

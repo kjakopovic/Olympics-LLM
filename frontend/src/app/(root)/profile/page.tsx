@@ -237,6 +237,7 @@ function Profile() {
         const errorData = await response.json();
         console.error("Error saving profile:", errorData);
         alert(errorData.message || "An error occurred while saving changes.");
+        setSaving(false);
         return;
       }
 

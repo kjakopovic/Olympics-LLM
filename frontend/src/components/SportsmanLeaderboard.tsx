@@ -13,10 +13,10 @@ const SportsLeaderBoard: React.FC<AthleteLeaderboardProps> = ({ data }) => {
   return (
     <div className="bg-primary-50 rounded-2xl p-4 mt-8 mr-5 ml-2">
       {/* Scrollable Container */}
-      <div className="max-h-80 overflow-y-auto">
+      <div className="max-h-screen overflow-y-auto">
         <table className="w-full border-separate border-spacing-y-4 px-1">
           <tbody>
-            {data.slice(3).map((athlete, index) => (
+            {data.map((athlete, index) => (
               <tr key={index}>
                 <td colSpan={5} className="p-0">
                   {/* Interactive Button */}
@@ -27,7 +27,7 @@ const SportsLeaderBoard: React.FC<AthleteLeaderboardProps> = ({ data }) => {
                     {/* Left Container: User Name */}
                     <div className="flex items-center space-x-3">
                       <span className="font-jakarta font-extrabold text-accent">
-                        {index + 4}.{" "}
+                        {index + 1}.{" "}
                         <span className="font-bold ml-2 text-white">
                           {athlete.name}
                         </span>

@@ -1,5 +1,3 @@
-// /components/SportLeaderboard.tsx
-
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -9,7 +7,6 @@ import debounce from "lodash.debounce";
 import SideBar from "@/components/SideBar";
 import SportsLeaderBoard from "@/components/SportsmanLeaderboard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import AthletePodium from "@/components/SportsPodium";
 import Modal from "@/components/AthleteFilterModal";
 import FilterForm from "@/components/FilterForm";
 
@@ -160,10 +157,6 @@ function SportLeaderboard() {
             {loading ? "Loading..." : "Filters"}
           </button>
         </div>
-
-        {!loading && sportsmanData.length > 0 && (
-          <AthletePodium data={sportsmanData} />
-        )}
 
         {loading && <LoadingSpinner />}
 
