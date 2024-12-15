@@ -1,7 +1,11 @@
 const express = require('express')
 const swaggerJSDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
-const swaggerDefinition = require('./docs.json')
+// const swaggerDefinition = require('./openapi.yaml')
+const yaml = require('js-yaml');
+const fs = require('fs');
+
+const swaggerDefinition = yaml.load(fs.readFileSync('./openapi.yaml', 'utf8'));
 
 const options = {
   swaggerDefinition,
