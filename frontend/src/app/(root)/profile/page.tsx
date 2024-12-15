@@ -7,10 +7,13 @@ import SideBar from "@/components/SideBar";
 import TagInput from "@/components/TagInput";
 import * as icons from "@/constants/icons";
 import Image from "next/image";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 function Profile() {
   const [activeSetting, setActiveSetting] = useState("Personal info");
   const [tagsSaving, setTagsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
@@ -38,6 +41,7 @@ function Profile() {
 
   useEffect(() => {
     const fetchUser = async () => {
+      setLoading(true);
       const token = Cookies.get("token");
       const refreshToken = Cookies.get("refresh-token");
       if (!token) {
@@ -46,7 +50,7 @@ function Profile() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/profile`, {
+        const response = await fetch(`${API_URL}/`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -64,6 +68,7 @@ function Profile() {
         console.log(data);
         setUser(data.info);
         setEditedUser(data.info);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching user:", error);
         alert("An error occurred while fetching user data.");
@@ -110,6 +115,7 @@ function Profile() {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     const token = Cookies.get("token");
     const refreshToken = Cookies.get("refresh-token");
     if (!token) {
@@ -132,7 +138,7 @@ function Profile() {
     console.log("Saving profile:", apiBody);
 
     try {
-      const response = await fetch(`${API_URL}/profile`, {
+      const response = await fetch(`${API_URL}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +162,9 @@ function Profile() {
         email: false,
         phone_number: false,
       });
+      setSaving(false);
       alert("Profile updated successfully!");
+      window.location.reload();
     } catch (error) {
       console.error("Error saving profile:", error);
       alert("An error occurred while saving changes.");
@@ -204,113 +212,120 @@ function Profile() {
           </div>
 
           {/* Settings Content */}
-          {activeSetting === "Personal info" && (
-            <div className="flex flex-col w-2/3 rounded-xl p-5 ml-10">
-              <h1 className="text-2xl font-semibold text-white">
-                {activeSetting}
-              </h1>
-
-              {/* Legal Name */}
-              <div className="flex flex-row items-center justify-between mt-5">
-                <p className="text-base font-jakarta text-white">Legal Name</p>
-                <button
-                  onClick={() => handleEditClick("legal_name")}
-                  className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
-                  disabled={editingFields.legal_name}
-                >
-                  Edit
-                </button>
+          {activeSetting === "Personal info" &&
+            (loading ? (
+              <div className="flex flex-col w-2/3 rounded-xl p-5 ml-10">
+                <LoadingSpinner />
               </div>
-              <input
-                value={editedUser.legal_name}
-                onChange={(e) =>
-                  handleInputChange("legal_name", e.target.value)
-                }
-                readOnly={!editingFields.legal_name}
-                className={`w-full h-12 focus:outline-none ${
-                  editingFields.legal_name
-                    ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
-                    : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
-                } transition-all duration-200 mt-1`}
-              />
+            ) : (
+              <div className="flex flex-col w-2/3 rounded-xl p-5 ml-10">
+                <h1 className="text-2xl font-semibold text-white">
+                  {activeSetting}
+                </h1>
 
-              {/* Email Address */}
-              <div className="flex flex-row items-center justify-between mt-5">
-                <p className="text-base font-jakarta text-white">
-                  Email Address
-                </p>
-                <button
-                  onClick={() => handleEditClick("email")}
-                  className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
-                  disabled={editingFields.email}
-                >
-                  Edit
-                </button>
-              </div>
-              <input
-                value={editedUser.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                readOnly={!editingFields.email}
-                className={`w-full h-12 focus:outline-none ${
-                  editingFields.email
-                    ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
-                    : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
-                } transition-all duration-200 mt-1`}
-              />
+                {/* Legal Name */}
+                <div className="flex flex-row items-center justify-between mt-5">
+                  <p className="text-base font-jakarta text-white">
+                    Legal Name
+                  </p>
+                  <button
+                    onClick={() => handleEditClick("legal_name")}
+                    className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
+                    disabled={editingFields.legal_name}
+                  >
+                    Edit
+                  </button>
+                </div>
+                <input
+                  value={editedUser.legal_name}
+                  onChange={(e) =>
+                    handleInputChange("legal_name", e.target.value)
+                  }
+                  readOnly={!editingFields.legal_name}
+                  className={`w-full h-12 focus:outline-none ${
+                    editingFields.legal_name
+                      ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
+                      : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
+                  } transition-all duration-200 mt-1`}
+                />
 
-              {/* Phone Number */}
-              <div className="flex flex-row items-center justify-between mt-5">
-                <p className="text-base font-jakarta text-white">
-                  Phone Number
-                </p>
-                <button
-                  onClick={() => handleEditClick("phone_number")}
-                  className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
-                  disabled={editingFields.phone_number}
-                >
-                  Edit
-                </button>
-              </div>
-              <input
-                value={editedUser.phone_number}
-                onChange={(e) =>
-                  handleInputChange("phone_number", e.target.value)
-                }
-                readOnly={!editingFields.phone_number}
-                className={`w-full h-12 focus:outline-none ${
-                  editingFields.phone_number
-                    ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
-                    : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
-                } transition-all duration-200 mt-1`}
-              />
+                {/* Email Address */}
+                <div className="flex flex-row items-center justify-between mt-5">
+                  <p className="text-base font-jakarta text-white">
+                    Email Address
+                  </p>
+                  <button
+                    onClick={() => handleEditClick("email")}
+                    className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
+                    disabled={editingFields.email}
+                  >
+                    Edit
+                  </button>
+                </div>
+                <input
+                  value={editedUser.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  readOnly={!editingFields.email}
+                  className={`w-full h-12 focus:outline-none ${
+                    editingFields.email
+                      ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
+                      : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
+                  } transition-all duration-200 mt-1`}
+                />
 
-              {/* Save and Cancel Buttons */}
-              <div className="flex flex-row items-center justify-end mt-5 gap-x-4">
-                <button
-                  onClick={handleCancel}
-                  disabled={!hasChanges}
-                  className={`p-3 px-6 rounded-xl font-jakarta font-semibold ${
-                    hasChanges
-                      ? "hover:shadow-silver2glow bg-primary-500 text-white"
-                      : "bg-primary-500/50 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={!hasChanges}
-                  className={`p-3 px-6 rounded-xl font-jakarta font-semibold ${
-                    hasChanges
-                      ? "hover:shadow-accentglow bg-accent text-black"
-                      : "bg-accent/50 text-black/80 cursor-not-allowed"
-                  }`}
-                >
-                  Save Changes
-                </button>
+                {/* Phone Number */}
+                <div className="flex flex-row items-center justify-between mt-5">
+                  <p className="text-base font-jakarta text-white">
+                    Phone Number
+                  </p>
+                  <button
+                    onClick={() => handleEditClick("phone_number")}
+                    className="text-base font-jakarta font-semibold text-white underline hover:text-accent"
+                    disabled={editingFields.phone_number}
+                  >
+                    Edit
+                  </button>
+                </div>
+                <input
+                  value={editedUser.phone_number}
+                  onChange={(e) =>
+                    handleInputChange("phone_number", e.target.value)
+                  }
+                  readOnly={!editingFields.phone_number}
+                  className={`w-full h-12 focus:outline-none ${
+                    editingFields.phone_number
+                      ? "bg-transparent pl-2 border rounded-2xl border-accent text-primary-600"
+                      : "bg-transparent border-b border-accent text-primary-600 py-4 mt-2"
+                  } transition-all duration-200 mt-1`}
+                />
+
+                {/* Save and Cancel Buttons */}
+                <div className="flex flex-row items-center justify-end mt-5 gap-x-4">
+                  <button
+                    onClick={handleCancel}
+                    disabled={!hasChanges}
+                    className={`p-3 px-6 rounded-xl font-jakarta font-semibold ${
+                      hasChanges
+                        ? "hover:shadow-silver2glow bg-primary-500 text-white"
+                        : "bg-primary-500/50 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={!hasChanges}
+                    className={`p-3 px-6 rounded-xl font-jakarta font-semibold ${
+                      hasChanges
+                        ? "hover:shadow-accentglow bg-accent text-black"
+                        : "bg-accent/50 text-black/80 cursor-not-allowed"
+                    }`}
+                  >
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
 
           {activeSetting === "Login & Security" && (
             <div className="flex flex-col w-2/3 h-auto rounded-xl p-5 ml-10">

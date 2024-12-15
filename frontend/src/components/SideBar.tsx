@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
+import LoadingSpinner from "./ButtonSpinner";
 
 function SideBar() {
   const [user, setUser] = React.useState({
@@ -15,16 +16,18 @@ function SideBar() {
   const [selected, setSelected] = React.useState("");
   const [selectedLeaderboard, setSelectedLeaderboard] = React.useState("");
   const [dropdown, setDropdown] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
 
   React.useEffect(() => {
     (async () => {
+      setLoading(true);
       const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
       const token = Cookies.get("token");
       const refreshToken = Cookies.get("refresh-token");
 
       try {
-        const response = await fetch(`${API_URL}/profile`, {
+        const response = await fetch(`${API_URL}/`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -39,6 +42,7 @@ function SideBar() {
           name: data.info.legal_name,
           email: data.info.email,
         });
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -198,14 +202,18 @@ function SideBar() {
               height={48}
               className="mb-2"
             />
-            <div className="w-full h-auto flex flex-col items-start justify-start ml-1">
-              <h1 className="text-base font-semibold font-jakarta text-white">
-                {user.name}
-              </h1>
-              <span className="text-[10px] font-medium font-jakarta text-accent">
-                {user.email}
-              </span>
-            </div>
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <div className="w-full h-auto flex flex-col items-start justify-start ml-1">
+                <h1 className="text-base font-semibold font-jakarta text-white">
+                  {user.name}
+                </h1>
+                <span className="text-[10px] font-medium font-jakarta text-accent">
+                  {user.email}
+                </span>
+              </div>
+            )}
           </div>
 
           <button className="flex flex-row items-center justify-center relative z-10">
