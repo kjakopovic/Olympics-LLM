@@ -151,9 +151,10 @@ def lambda_handler(event, context):
         return {
             'statusCode': 302,
             'headers': {
-                'Location': environ.get('FRONTEND_CALLBACK_URL', 'http://localhost:3000/callback'),
                 'x-access-token': token,
-                'x-refresh-token': refresh_token
+                'x-refresh-token': refresh_token,
+                'content-type': 'application/json',
+                'Location': environ.get('FRONTEND_CALLBACK_URL', 'http://localhost:3000/callback')
             }
         }
     except requests.RequestException as e:
