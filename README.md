@@ -1,14 +1,37 @@
 # Olympus
 
-
-
+---
 
 ## 🚀 About the Project
-Olympus project is about Olympic games enthusiast who want to learn more about olympic games. It provides UI for all data about olympic games, it provides you daily news about olympic games and the most important thing it provides you personal AI chat assistant to get you trough any questions you have about olympic games, most importantly food trends per country. Let's say you want to visit next olympic games in LA, you can find out what foods and trends to expect there.
+
+The Olympus Project is designed for Olympic Games enthusiasts who want to dive deep into the world of the Olympics. It offers a comprehensive user interface to explore all data about the Olympic Games, keeping users updated with daily news, and providing a personalized AI chat assistant to address any questions related to the Games.
+
+A standout feature is its focus on cultural insights, such as food trends by country. Planning to attend the next Olympic Games in LA? Olympus can guide you on what foods and trends to expect, making your visit even more exciting and informed.
 
 ---
 
-## 🛠️ Tools used
+## 🛠️ Features
+- **🤖 AI Chat Bot**  
+  A personalized AI assistant trained on food trends to answer all your Olympic-related questions.
+
+- **📰 News Feed**  
+  Stay updated with the latest news and events related to the Olympic Games.
+
+- **🔧 Admin Panel**  
+  Manage the site effortlessly, including adding new articles and updating content.
+
+- **👤 Profile Management**  
+  Personalize your experience with customizable profiles.
+
+- **🌍 Leaderboard for Countries**  
+  Track and compare the performance of countries in the Olympics.
+
+- **🏅 Leaderboard for Sportsmen**  
+  View rankings and achievements of individual athletes.
+
+---
+
+## 🖥️ Technologies used
 
 | AI | Backend | Docs | CI/CD | Frontend |
 | :-: | :----: | :--: | :---: | :------: |
@@ -17,3 +40,11 @@ Olympus project is about Olympic games enthusiast who want to learn more about o
 ![[PyTorch badge](badge)](https://img.shields.io/badge/PyTorch-2.5.1-%23EE4C2C?logo=pytorch&logoColor=%23EE4C2C&labelColor=gray) | ![[AWS Lambda badge](badge)](https://img.shields.io/badge/Lambda-AWS-%23FF9900?logo=awslambda&logoColor=%23FF9900&labelColor=gray) | | | |
 | | ![[AWS S3 badge](badge)](https://img.shields.io/badge/S3-AWS-%23569A31?logo=amazons3&logoColor=%23569A31&labelColor=gray) | | | |
 | | ![[AWS DynamoDB badge](badge)](https://img.shields.io/badge/DynamoDB-AWS-%234053D6?logo=amazondynamodb&logoColor=white&labelColor=gray) | | | |
+
+---
+
+## 📧 Contact
+
+![[LinkedIn KJ badge](badge)](https://img.shields.io/badge/LinkedIn-kjakopovic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fkarlo-jakopovi%25C4%2587-24595027a%2F)
+![[LinkedIn Nolan badge](badge)](https://img.shields.io/badge/LinkedIn-kjakopovic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fnolan-ilisi%25C4%2587-aab4a32a3%2F)
+![[LinkedIn Majki badge](badge)](https://img.shields.io/badge/LinkedIn-kjakopovic-%230A66C2?logo=linkedin&logoColor=white&labelColor=gray&link=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fmarin-mikulec-26b0a829b%2F)
