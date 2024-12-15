@@ -153,7 +153,6 @@ def lambda_handler(event, context):
             'headers': {
                 'x-access-token': token,
                 'x-refresh-token': refresh_token,
-                'content-type': 'application/json',
                 'Location': environ.get('FRONTEND_CALLBACK_URL', 'http://localhost:3000/callback')
             }
         }
