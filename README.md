@@ -1,4 +1,13 @@
 # Olympus
+
+
+
+
+## 🚀 About the Project
+Olympus project is about Olympic games enthusiast who want to learn more about olympic games. It provides UI for all data about olympic games, it provides you daily news about olympic games and the most important thing it provides you personal AI chat assistant to get you trough any questions you have about olympic games, most importantly food trends per country. Let's say you want to visit next olympic games in LA, you can find out what foods and trends to expect there.
+
+---
+
 ## 🛠️ Tools used
 
 | AI | Backend | Docs | CI/CD | Frontend |
