@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from "react";
+import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import LogoHeader from "@/components/LogoHeader";
@@ -11,7 +12,7 @@ import TopicTitle from "@/components/news/TopicTitle";
 
 function NewsPage() {
   const router = useRouter();
-  const isLoggedIn = false;
+  const isLoggedIn = Cookies.get("token") ? true : false;
 
   const tempNewsData = [
     {

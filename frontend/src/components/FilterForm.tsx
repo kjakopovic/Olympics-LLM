@@ -131,7 +131,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           list="olympic-sports"
           className="mt-1 block w-full border bg-transparent border-accent rounded-md shadow-sm p-2 focus:outline-none text-white"
         />
-        <datalist id="olympic-sports">
+        <datalist id="olympic-sports" className="max-h-5">
           {olympicSports.map((sport, index) => (
             <option value={sport} key={index} />
           ))}

@@ -55,6 +55,10 @@ function SideBar() {
       route: "/chat",
     },
     {
+      title: "News",
+      route: "/",
+    },
+    {
       title: "Trends",
       route: "/trends",
     },
