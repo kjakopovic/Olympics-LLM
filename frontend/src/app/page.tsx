@@ -15,7 +15,7 @@ function NewsPage() {
   const router = useRouter();
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Cookies.get("token") ? true : false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
 
@@ -92,7 +92,7 @@ function NewsPage() {
     fetchData();
   }, []);
 
-  if (loading) {
+  if (loading || newsData.length === 0) {
     return (
       <LoadingSpinner />
     )
