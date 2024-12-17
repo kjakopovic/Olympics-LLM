@@ -88,7 +88,7 @@ def sort_news(news):
 
     sorted_news = sorted(
         news,
-        key=lambda x: datetime.datetime.strptime(x['published_at'], "%d-%m-%Y %H:%M:%S"),
+        key=lambda x: datetime.datetime.strptime(x['published_at'], "%Y-%m-%dT%H:%M:%S"),
         reverse=True
     )
 
