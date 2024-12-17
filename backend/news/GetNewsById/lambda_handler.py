@@ -5,14 +5,12 @@ logger.setLevel(logging.DEBUG)
 
 from common.common import (
     _LAMBDA_NEWS_TABLE_RESOURCE,
-    lambda_middleware,
     build_response,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
     LambdaS3Class
 )
 
-@lambda_middleware
 def lambda_handler(event, context):
     news_id = event.get('pathParameters', {}).get('news_id')
 

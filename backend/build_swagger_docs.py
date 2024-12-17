@@ -24,7 +24,8 @@ list_of_unauthorized_lambdas = [
     "RegisterUserFunction",
     "LoginUserFunction",
     "ThirdPartyLoginRequestFunction",
-    "ThirdPartyLoginValidateFunction"
+    "ThirdPartyLoginValidateFunction",
+    "GetNewsByIdFunction"
 ]
 
 # OpenAPI documentation starting point
