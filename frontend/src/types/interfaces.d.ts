@@ -35,7 +35,7 @@ interface ChatBarProps {
 }
 
 interface CarouselProps {
-  newsData?: any;
+  newsData?: NewsData[];
   carouselDataLength: number;
 }
 
@@ -81,4 +81,18 @@ interface SportFilters {
 interface FilterFormProps {
   initialFilters: SportFilters;
   onSubmit: (filters: SportFilters) => void;
+}
+
+interface NewsData {
+  id: string;
+  title: string;
+  description: string;
+  published_at: string;
+  tags: string[];
+  pictures_url: NewsPicture[];
+}
+
+interface NewsPicture {
+  key: string;
+  url: string;
 }

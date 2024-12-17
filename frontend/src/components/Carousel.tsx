@@ -30,8 +30,7 @@ const Carousel: React.FC<CarouselProps> = ({
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {newsData &&
-          newsData.map((news: any) => (
-            // TODO: pogledati prave nazive varijabli u news response objektu
+          newsData.map((news: NewsData) => (
             <div
               key={news.id}
               className="flex-shrink-0 w-full text-white flex 
@@ -47,8 +46,8 @@ const Carousel: React.FC<CarouselProps> = ({
                 <NewsCard
                   key={news.id + "card"}
                   title={news.title}
-                  image={news.image}
-                  timePosted={news.timePosted}
+                  imageUrl={news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
+                  timePosted={new Date(news.published_at)}
                   openNews={() => {}}
                   fullscreenView={true}
                 />

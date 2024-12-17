@@ -2,16 +2,18 @@ import Image, { StaticImageData } from "next/image";
 import React from "react";
 
 import { timeSincePosted } from "@/utils/helpers";
+import * as images from "@/constants/images";
 
 interface NewsCardProps {
     title: string;
     timePosted: Date;
-    image: StaticImageData;
+    imageUrl?: string;
+    image?: StaticImageData;
     fullscreenView?: boolean;
     openNews: () => void;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ title, image, timePosted, openNews, fullscreenView = false }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, timePosted, openNews, fullscreenView = false }) => {
     return (
         <div 
             className={`flex flex-col items-center justify-center ${!fullscreenView ? "mb-10" : ""}`}
@@ -21,7 +23,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, image, timePosted, openNews,
                 "w-[90%]"}
             `}>
                 <Image
-                    src={image}
+                    src={(imageUrl ? imageUrl : image) ?? images.login}
                     alt="Logo"
                     className={`rounded-xl w-full mr-2 object-cover ${fullscreenView ? "aspect-[3/1]" : "aspect-[2/1]"}`}
                 />
