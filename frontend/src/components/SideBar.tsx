@@ -2,21 +2,61 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
+import LoadingSpinner from "./ButtonSpinner";
 
 function SideBar() {
-  const [selected, setSelected] = React.useState("Chat Bot");
-  const [selectedLeaderboard, setSelectedLeaderboard] =
-    React.useState("Country");
+  const [user, setUser] = React.useState({
+    name: "",
+    email: "",
+  });
+  const [selected, setSelected] = React.useState("");
+  const [selectedLeaderboard, setSelectedLeaderboard] = React.useState("");
   const [dropdown, setDropdown] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+
+  React.useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const API_URL = process.env.NEXT_PUBLIC_USER_API_URL;
+      const token = Cookies.get("token");
+      const refreshToken = Cookies.get("refresh-token");
+
+      try {
+        const response = await fetch(`${API_URL}/`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "x-refresh-token": refreshToken || "",
+          },
+        });
+
+        const data = await response.json();
+
+        setUser({
+          name: data.info.legal_name,
+          email: data.info.email,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, []);
 
   const pages = [
     {
       title: "Chat Bot",
       route: "/chat",
+    },
+    {
+      title: "News",
+      route: "/",
     },
     {
       title: "Trends",
@@ -50,7 +90,8 @@ function SideBar() {
                 router.push(page.route);
               }}
               key={index}
-              className="relative w-full h-auto flex flex-row items-center justify-start p-2 rounded-xl group mt-2"
+              disabled={page.title === "Trends"}
+              className="disabled:cursor-not-allowed relative w-full h-auto flex flex-row items-center justify-start p-2 rounded-xl group mt-2"
             >
               {/* Background Overlay */}
               <div
@@ -149,7 +190,12 @@ function SideBar() {
             </div>
           )}
         </div>
-        <div className="w-[18%] absolute h-auto flex flex-row items-center justify-between bottom-7 left-6 p-2 hover:cursor-pointer">
+        <div
+          onClick={() => {
+            router.push("/profile");
+          }}
+          className="w-[18%] absolute h-auto flex flex-row items-center justify-between bottom-7 left-6 p-2 hover:cursor-pointer"
+        >
           {/* Background Overlay */}
           <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-glass-100 to-glass-200/0 opacity-16 pointer-events-none"></div>
 
@@ -161,14 +207,18 @@ function SideBar() {
               height={48}
               className="mb-2"
             />
-            <div className="w-full h-auto flex flex-col items-start justify-start ml-1">
-              <h1 className="text-base font-semibold font-jakarta text-white">
-                Jon Doe
-              </h1>
-              <span className="text-xs font-medium font-jakarta text-accent">
-                jon@doe.com
-              </span>
-            </div>
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <div className="w-full h-auto flex flex-col items-start justify-start ml-1">
+                <h1 className="text-base font-semibold font-jakarta text-white">
+                  {user.name}
+                </h1>
+                <span className="text-[10px] font-medium font-jakarta text-accent">
+                  {user.email}
+                </span>
+              </div>
+            )}
           </div>
 
           <button className="flex flex-row items-center justify-center relative z-10">

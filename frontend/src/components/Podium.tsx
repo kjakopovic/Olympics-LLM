@@ -1,35 +1,12 @@
 import React from "react";
 import PodiumCard from "./PodiumCard";
 
-import * as images from "@/constants/images";
-
-const podiumData = [
-  {
-    position: 1,
-    name: "United States of America",
-    medals: 1440,
-    image: images.america,
-  },
-  {
-    position: 2,
-    name: "UK",
-    medals: 90,
-    image: images.america,
-  },
-  {
-    position: 3,
-    name: "Japan",
-    medals: 80,
-    image: images.america,
-  },
-];
-
-function Podium() {
+function Podium({ data }: { data: CountryLeaderboardProps[] }) {
   return (
     <div className="h-auto w-full flex flex-row items-end justify-between px-14">
-      <PodiumCard data={podiumData[2]} />
-      <PodiumCard data={podiumData[0]} />
-      <PodiumCard data={podiumData[1]} />
+      <PodiumCard data={data[2]} position={3} />
+      <PodiumCard data={data[0]} position={1} />
+      <PodiumCard data={data[1]} position={2} />
     </div>
   );
 }

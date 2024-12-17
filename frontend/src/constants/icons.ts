@@ -6,5 +6,24 @@ import send from "@/assets/icons/send.png";
 import clip from "@/assets/icons/clip.png";
 import arrowDown from "@/assets/icons/arrowDown.png";
 import arrowUp from "@/assets/icons/arrowUp.png";
+import account from "@/assets/icons/account.png";
+import shield from "@/assets/icons/shield.png";
+import toggle from "@/assets/icons/toggle.png";
+import botAvatar from "@/assets/icons/botAvatar.png";
+import close from "@/assets/icons/close.png";
 
-export { google, cog, chat, folder, send, clip, arrowDown, arrowUp };
+export {
+  google,
+  cog,
+  chat,
+  folder,
+  send,
+  clip,
+  arrowDown,
+  arrowUp,
+  account,
+  shield,
+  toggle,
+  botAvatar,
+  close,
+};
