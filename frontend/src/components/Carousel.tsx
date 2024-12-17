@@ -35,7 +35,7 @@ const Carousel: React.FC<CarouselProps> = ({
               key={news.id}
               className="flex-shrink-0 w-full text-white flex 
                     text-lg font-bold items-center justify-center
-                    xs:min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[600px]
+                    xs:min-h-[150px] sm:min-h-[200px] md:min-h-[300px] lg:min-h-[350px]
                 "
             >
               <div
@@ -46,7 +46,7 @@ const Carousel: React.FC<CarouselProps> = ({
                 <NewsCard
                   key={news.id + "card"}
                   title={news.title}
-                  imageUrl={news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
+                  imageUrl={news.pictures_url && news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
                   timePosted={new Date(news.published_at)}
                   openNews={() => {}}
                   fullscreenView={true}
@@ -55,9 +55,9 @@ const Carousel: React.FC<CarouselProps> = ({
                 <div
                   key={news.id + "description-div"}
                   className="flex flex-col justify-start ml-10 mr-10
-                            xs:max-w-[90%] sm:max-w-[90%] md:max-w-[90%] lg:max-w-[20%]
+                            xs:max-w-[90%] sm:max-w-[90%] md:max-w-[90%] lg:max-w-[30%]
                             xs:items-center sm:items-center md:items-center lg:items-start
-                            xs:text-sm sm:text-lg md:text-lg lg:text-xl
+                            xs:text-sm sm:text-lg md:text-lg lg:text-lg
                     "
                 >
                   <p

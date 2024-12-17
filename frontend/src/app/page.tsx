@@ -50,7 +50,7 @@ function NewsPage() {
 
     const data = await response.json();
     console.log("Fetched Data:", data);
-    setNewsData(data);
+    setNewsData(data.items);
   }
 
   useEffect(() => {
@@ -152,11 +152,11 @@ function NewsPage() {
           className="grid w-[85%] items-center justify-center
           xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         >
-          {newsData.map((news) => (
+          {newsData && newsData.map((news) => (
             <NewsCard
               key={news.id}
               title={news.title}
-              imageUrl={news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
+              imageUrl={news.pictures_url && news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
               timePosted={new Date(news.published_at)}
               openNews={() => router.push(`/news/${news.id}`)}
             />
