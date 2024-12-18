@@ -19,6 +19,13 @@ function NewsPage() {
   const [error, setError] = useState<string>("");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
 
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("refresh-token");
+
+    window.location.reload();
+  };
+
   const fetchNewsData = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -119,12 +126,21 @@ function NewsPage() {
 
         <div className="flex flex-row items-center mr-5">
           {isLoggedIn ? (
-            <button
-              className="bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 bg-clip-text text-transparent font-jakarta font-bold text-[20px]"
-              onClick={() => router.push("/chat")}
-            >
-              Ask AI
-            </button>
+            <div className="flex flex-row items-center space-x-5">
+              <button
+                className="bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 bg-clip-text text-transparent font-jakarta font-bold text-[20px]"
+                onClick={() => router.push("/chat")}
+              >
+                Ask AI
+              </button>
+
+              <button
+                className="bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 bg-clip-text text-transparent font-jakarta font-bold text-[20px]"
+                onClick={handleLogout}
+              >
+                Log out
+              </button>
+            </div>
           ) : (
             <button
               className="bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 bg-clip-text text-transparent font-jakarta font-bold text-[20px]"
