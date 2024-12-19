@@ -54,8 +54,9 @@ function Profile() {
       setLoading(true);
       const token = Cookies.get("token");
       const refreshToken = Cookies.get("refresh-token");
+      
       if (!token) {
-        alert("No token found. Please log in.");
+        router.push("/login");
         return;
       }
 
@@ -74,18 +75,19 @@ function Profile() {
               handleLogout(router, true);
               return;
           }
-          alert("An error occurred. Please try again.");
+
+          router.push(`/error?code=${response.status}&message=An error occurred. Please try again.`);
           return;
         }
 
         const data = await response.json();
         console.log(data);
+
         setUser(data.info);
         setEditedUser(data.info);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching user:", error);
-        alert("An error occurred while fetching user data.");
+        router.push(`/error?code=500&message=An error occurred while fetching user data.`);
       }
     };
 
@@ -176,10 +178,8 @@ function Profile() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error changing password:", errorData);
-        alert(
-          errorData.message || "An error occurred while changing password."
-        );
+        router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while changing password."}`);
+
         return;
       }
 
@@ -194,7 +194,7 @@ function Profile() {
       });
     } catch (error) {
       console.error("Error changing password:", error);
-      alert("An error occurred while changing password.");
+      router.push(`/error?code=500&message=An error occurred while changing password.`);
     }
   };
 
@@ -234,9 +234,7 @@ function Profile() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error saving profile:", errorData);
-        alert(errorData.message || "An error occurred while saving changes.");
-        setSaving(false);
+        router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while saving changes."}`);
         return;
       }
 
@@ -251,8 +249,7 @@ function Profile() {
       alert("Profile updated successfully!");
       window.location.reload();
     } catch (error) {
-      console.error("Error saving profile:", error);
-      alert("An error occurred while saving changes.");
+      router.push(`/error?code=500&message=An error occurred while saving changes.`);
     }
   };
 

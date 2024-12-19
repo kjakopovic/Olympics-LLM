@@ -26,7 +26,6 @@ function SportLeaderboard() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [sportsmanData, setSportsmanData] = useState<SportsmanData[]>([]);
-  const [error, setError] = useState<string>("");
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -68,22 +67,19 @@ function SportLeaderboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Start loading
-      setError(""); // Reset previous errors
+      setLoading(true);
 
       const token = Cookies.get("token");
       const refreshToken = Cookies.get("refresh-token");
-      const API_URL = process.env.NEXT_PUBLIC_SPORTS_API_URL; // Ensure this is correctly defined
+      const API_URL = process.env.NEXT_PUBLIC_SPORTS_API_URL;
 
       if (!API_URL) {
-        setError("API URL is not defined.");
-        setLoading(false);
+        router.push(`/error?code=500&message=API URL is not defined.`);
         return;
       }
 
       if (!token) {
-        setError("No token found. Please log in.");
-        setLoading(false);
+        router.push(`/login`);
         return;
       }
 
@@ -106,22 +102,19 @@ function SportLeaderboard() {
             return;
           }
           const errorData = await response.json();
-          console.error("API Error:", errorData);
-          setError(
-            errorData.message || "An error occurred while fetching data."
-          );
-          setLoading(false);
+          router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while fetching data."}`);
+          
           return;
         }
 
         const data = await response.json();
         console.log("Fetched Data:", data);
-        setSportsmanData(data.items); // Adjust based on your API response structure
+        setSportsmanData(data.items);
       } catch (error: any) {
         console.error("Fetch Error:", error);
-        setError("A network error occurred. Please try again.");
+        router.push(`/error?code=500&message=A network error occurred. Please try again.`);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
 
@@ -169,7 +162,7 @@ function SportLeaderboard() {
         {loading && <LoadingSpinner />}
 
         {/* Scrollable LeaderBoard */}
-        {!loading && !error && (
+        {!loading && (
           <div className="flex-1 overflow-auto mt-4">
             <SportsLeaderBoard data={sportsmanData} />
           </div>

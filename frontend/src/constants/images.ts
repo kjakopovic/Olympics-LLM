@@ -6,6 +6,7 @@ import goldGlow from "@/assets/images/goldGlow.png";
 import america from "@/assets/images/america.png";
 import bronzeGlow from "@/assets/images/bronzeGlow.png";
 import silverGlow from "@/assets/images/silverGlow.png";
+import alert from "@/assets/images/alert.png";
 
 export {
   login,
@@ -16,4 +17,5 @@ export {
   america,
   bronzeGlow,
   silverGlow,
+  alert,
 };

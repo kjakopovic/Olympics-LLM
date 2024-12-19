@@ -1,11 +1,9 @@
-// /components/TagInput.tsx
-
 "use client";
 
 import React, { useState, useEffect, KeyboardEvent } from "react";
 import { olympicSports } from "@/constants/olympicStaticData";
 import Image from "next/image";
-import * as icons from "@/constants/icons"; // Assuming you have a close icon
+import * as icons from "@/constants/icons";
 
 interface TagInputProps {
   tags: string[];

@@ -43,7 +43,7 @@ function SideBar() {
             return;
           }
           const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch data.");
+          router.push(`/error?code=${response.status}&message=${errorData.message || "Failed to fetch data."}`);
         }
 
         const data = await response.json();

@@ -24,12 +24,10 @@ function CountryLeaderboard() {
   const [countries, setCountries] = useState<CountryLeaderboardProps[]>([]);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Start Loading
-      setError(""); // Reset Previous Errors
+      setLoading(true);
 
       const API_URL = process.env.NEXT_PUBLIC_SPORTS_API_URL || "";
       const token = Cookies.get("token");
@@ -53,19 +51,19 @@ function CountryLeaderboard() {
             handleLogout(router, true);
             return;
           }
+
           const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch data.");
+          router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while fetching data."}`);
         }
 
         const data = await response.json();
-        console.log(data);
-        console.log("main", data.items);
+
         setCountries(data.items);
       } catch (err: any) {
         console.error("Error fetching data:", err);
-        setError(err.message || "An unexpected error occurred.");
+        router.push(`/error?code=500&message=${err.message || "An unexpected error occurred."}`);
       } finally {
-        setLoading(false); // End Loading
+        setLoading(false);
       }
     };
 
@@ -108,15 +106,8 @@ function CountryLeaderboard() {
         {/* Loading Indicator */}
         {loading && <LoadingSpinner />}
 
-        {/* Error Message */}
-        {error && (
-          <div className="flex justify-center items-center mt-4">
-            <p className="text-red-500 text-lg font-jakarta">{error}</p>
-          </div>
-        )}
-
         {/* Scrollable LeaderBoard */}
-        {!loading && !error && (
+        {!loading && (
           <div className="flex-1 overflow-auto mt-4">
             <LeaderBoard data={countries} />
           </div>
