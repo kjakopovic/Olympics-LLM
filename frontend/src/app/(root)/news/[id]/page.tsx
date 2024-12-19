@@ -15,21 +15,18 @@ function NewsByIdPage() {
     const router = useRouter();
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>("");
     const [newsData, setNewsData] = useState<NewsData | undefined>(undefined);
 
     useEffect(() => {
         const fetchData = async () => {
           setLoading(true);
-          setError("");
     
           try {
             const API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
     
             if (!API_URL) {
-              setError("API URL is not defined.");
-              setLoading(false);
-              return;
+                router.push(`/error?code=500&message=API URL is not defined.`);
+                return;
             }
               
             const response = await fetch(`${API_URL}/${id}?populate=*`, {
@@ -39,12 +36,8 @@ function NewsByIdPage() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("API Error:", errorData);
-            
-                setError(
-                    errorData.message || "An error occurred while fetching data."
-                );
-
-                setLoading(false);
+                
+                router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while fetching data."}`);
                 return;
             }
         
@@ -52,8 +45,7 @@ function NewsByIdPage() {
             console.log("Fetched Data:", data);
             setNewsData(data.data);
           } catch (error: any) {
-            console.error("Fetch Error:", error);
-            setError("A network error occurred. Please try again.");
+            router.push(`/error?code=500&message=A network error occurred. Please try again.`);
           } finally {
             setLoading(false);
           }
@@ -66,20 +58,6 @@ function NewsByIdPage() {
         return (
             <LoadingSpinner />
         )
-    }
-
-    if (!loading && error) {
-        return (
-          <div className="w-full h-full bg-primary-100 flex flex-col items-center">
-            <LogoHeader logo={images.logo} title="Olympus" />
-    
-            <div className="w-full h-full flex flex-col items-center justify-center">
-              <h1 className="font-jakarta text-[30px] font-bold text-primary-300">
-                {error}
-              </h1>
-            </div>
-          </div>
-        );
     }
 
     return (

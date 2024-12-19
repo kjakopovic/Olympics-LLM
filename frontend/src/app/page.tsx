@@ -20,9 +20,8 @@ function NewsPage() {
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Cookies.get("token") ? true : false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
-  const [mostPopularNewsData, setMostPopularNewsData] = useState<NewsData[]>([]);
+  const [mostPopularNewsData, setMostPopularNewsData] = useState<NewsData[] |undefined>(undefined);
 
   const fetchTagsFromUserInfo = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
     const response = await fetch(`${apiUrl}/`, {
@@ -43,10 +42,7 @@ function NewsPage() {
       const errorData = await response.json();
       console.error("API Error:", errorData);
 
-      setError(
-        errorData.message || errorData.error || "An error occurred while fetching data."
-      );
-      setLoading(false);
+      router.push(`/error?code=${response.status}&message=${errorData.message || errorData.error || "An error occurred while fetching data."}`);
       return [];
     }
 
@@ -65,10 +61,7 @@ function NewsPage() {
       const errorData = await response.json();
       console.error("API Error:", errorData);
 
-      setError(
-        errorData.message || "An error occurred while fetching data."
-      );
-      setLoading(false);
+      router.push(`/error?code=${response.status}&message=${errorData.message || "An error occurred while fetching data."}`);
       return [];
     }
 
@@ -81,14 +74,12 @@ function NewsPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError("");
 
       try {
         const NEWS_API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
 
         if (!NEWS_API_URL) {
-          setError("API URL is not defined.");
-          setLoading(false);
+          router.push("/error?code=500&message=API URL is not defined.");
           return;
         }
 
@@ -129,7 +120,7 @@ function NewsPage() {
         setMostPopularNewsData([...newsData]);
       } catch (error: any) {
         console.error("Fetch Error:", error);
-        setError("A network error occurred. Please try again.");
+        router.push(`/error?code=500&message=A network error occurred. Please try again.`);
       } finally {
         setLoading(false);
       }
@@ -138,24 +129,10 @@ function NewsPage() {
     fetchData();
   }, []);
 
-  if (loading) {
+  if (loading || !mostPopularNewsData || !newsData) {
     return (
       <LoadingSpinner />
     )
-  }
-
-  if (!loading && error) {
-    return (
-      <div className="w-full h-full bg-primary-100 flex flex-col items-center">
-        <LogoHeader logo={images.logo} title="Olympus" />
-
-        <div className="w-full h-screen flex flex-col items-center justify-center">
-          <h1 className="font-jakarta text-[30px] font-bold text-primary-300">
-            {error}
-          </h1>
-        </div>
-      </div>
-    );
   }
 
   return (

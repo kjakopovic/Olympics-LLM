@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import Image from "next/image";
-import * as icons from "@/constants/icons"; // Assuming you have icons for user and bot
-import * as images from "@/constants/images"; // Assuming you have images for user and bot
+import * as icons from "@/constants/icons";
+import * as images from "@/constants/images";
 
 interface MessagesProps {
   messages: Message[];
@@ -28,7 +28,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
         >
           {msg.sender === "bot" && (
             <Image
-              src={icons.botAvatar} // Replace with your bot avatar path
+              src={icons.botAvatar}
               alt="Bot Avatar"
               className="mr-2 w-10 h-10 self-end"
             />
@@ -50,7 +50,7 @@ const Messages: React.FC<MessagesProps> = ({ messages }) => {
           </div>
           {msg.sender === "user" && (
             <Image
-              src={images.avatar} // Replace with your user avatar path
+              src={images.avatar}
               alt="User Avatar"
               className="ml-2 w-10 h-10 self-end"
             />
