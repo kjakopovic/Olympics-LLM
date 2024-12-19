@@ -90,7 +90,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
           if (input) setShowSuggestions(true);
         }}
         placeholder="Add a sport..."
-        className="w-full border bg-transparent text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-accent"
+        className="w-full border bg-transparent text-white border-accent rounded-lg px-4 py-2 focus:outline-none"
       />
 
       {/* Suggestions Dropdown */}

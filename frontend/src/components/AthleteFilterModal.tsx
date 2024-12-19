@@ -22,7 +22,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       onClick={onClose}
     >
       <div
-        className="bg-primary-500 rounded-lg shadow-lg w-full max-w-lg p-6 relative"
+        className="bg-primary-50 rounded-lg shadow-lg w-full max-w-lg p-6 relative"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
       >
         {/* Close Button */}

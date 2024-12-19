@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
+import { handleLogout } from "@/utils/helpers";
+
 import * as images from "@/constants/images";
 import LogoHeader from "@/components/LogoHeader";
 import NewsCarousel from "@/components/news/NewsCarousel";
@@ -21,13 +23,6 @@ function NewsPage() {
   const [newsData, setNewsData] = useState<NewsData[]>([]);
   const [mostPopularNewsData, setMostPopularNewsData] = useState<NewsData[]>([]);
 
-  const handleLogout = () => {
-    Cookies.remove("token");
-    Cookies.remove("refresh-token");
-
-    window.location.reload();
-  };
-
   const fetchTagsFromUserInfo = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
     const response = await fetch(`${apiUrl}/`, {
       method: "GET",
@@ -40,7 +35,7 @@ function NewsPage() {
 
     if (!response.ok) {
       if (response.status === 401) {
-        handleLogout();
+        handleLogout(router);
         return [];
       }
 
@@ -113,18 +108,24 @@ function NewsPage() {
 
           // If no tags found fetch all news
           if (!tags || tags.length <= 0) {
-            setNewsData(newsData);
+            setNewsData([...newsData]);
           } else {
             var query = tags.map((tag: string) => `filters[tags][$contains]=${tag}`).join("&");
 
             const personalizedNewsData = await fetchNewsData(NEWS_API_URL, query);
-            setNewsData(personalizedNewsData);
+
+            // If no personalized news found fetch all news
+            if (personalizedNewsData.length <= 0) {
+              setNewsData([...newsData]);
+            } else {
+              setNewsData(personalizedNewsData);
+            }
           }
         } else {
-          setNewsData(newsData);
+          setNewsData([...newsData]);
         }
 
-        setMostPopularNewsData(newsData);
+        setMostPopularNewsData([...newsData]);
       } catch (error: any) {
         console.error("Fetch Error:", error);
         setError("A network error occurred. Please try again.");
@@ -136,7 +137,7 @@ function NewsPage() {
     fetchData();
   }, []);
 
-  if (loading || newsData.length === 0) {
+  if (loading || mostPopularNewsData.length === 0) {
     return (
       <LoadingSpinner />
     )
@@ -173,7 +174,7 @@ function NewsPage() {
 
               <button
                 className="bg-gradient-to-r from-gradientGreen-100 to-gradientGreen-200 bg-clip-text text-transparent font-jakarta font-bold text-[20px]"
-                onClick={handleLogout}
+                onClick={() => handleLogout(router)}
               >
                 Log out
               </button>

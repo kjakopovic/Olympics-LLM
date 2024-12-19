@@ -115,3 +115,25 @@
   background: #1A1D21;
   border-radius: 10px;
 }
+
+/* Custom css classes */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  cursor: pointer;
+}

@@ -55,16 +55,16 @@ const FilterForm: React.FC<FilterFormProps> = ({
       <div>
         <label
           htmlFor="medal"
-          className="block text-sm font-medium text-white/90"
+          className="block text-gray-500 mb-2"
         >
-          Medal
+          Medal (optional)
         </label>
         <select
           id="medal"
           name="medal"
           value={formFilters.medal}
           onChange={handleChange}
-          className="mt-1 block w-full bg-transparent border border-accent text-white rounded-md shadow-sm p-2 focus:ring-accent focus:outline-none pr-5"
+          className="mt-1 block w-full bg-primary-200 text-white rounded-lg p-2 focus:outline-none pr-5 custom-select"
         >
           <option value="">All Medals</option>
           <option value="gold">Gold</option>
@@ -77,9 +77,9 @@ const FilterForm: React.FC<FilterFormProps> = ({
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-white/90"
+          className="block text-gray-500 mb-2"
         >
-          Sportsman Name
+          Sportsman Name (optional)
         </label>
         <input
           type="text"
@@ -88,7 +88,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           value={formFilters.name}
           onChange={handleChange}
           placeholder="Enter sportsman name"
-          className="mt-1 block w-full border bg-transparent border-accent rounded-md shadow-sm p-2 focus:outline-none text-white"
+          className="mt-1 block w-full bg-primary-200 rounded-lg p-2 focus:outline-none text-white"
         />
       </div>
 
@@ -96,16 +96,16 @@ const FilterForm: React.FC<FilterFormProps> = ({
       <div>
         <label
           htmlFor="sex"
-          className="block text-sm font-medium text-white/90"
+          className="block text-gray-500 mb-2"
         >
-          Sex
+          Sex (optional)
         </label>
         <select
           id="sex"
           name="sex"
           value={formFilters.sex}
           onChange={handleChange}
-          className="mt-1 block w-full bg-transparent border border-accent text-white rounded-md shadow-sm p-2 focus:ring-accent focus:outline-none pr-5"
+          className="mt-1 block w-full bg-primary-200 text-white rounded-lg p-2 focus:outline-none pr-5 custom-select"
         >
           <option value="">All Sexes</option>
           <option value="M">Male</option>
@@ -115,36 +115,34 @@ const FilterForm: React.FC<FilterFormProps> = ({
 
       {/* Sport Filter with Suggestions */}
       <div>
-        <label
-          htmlFor="sport"
-          className="block text-sm font-medium text-white/90"
-        >
-          Sport
+        <label htmlFor="sport" className="block text-gray-500 mb-2">
+          Sport (optional)
         </label>
-        <input
-          type="text"
-          name="sport"
+
+        <select
           id="sport"
+          name="sport"
           value={formFilters.sport}
           onChange={handleChange}
-          placeholder="Enter sport"
-          list="olympic-sports"
-          className="mt-1 block w-full border bg-transparent border-accent rounded-md shadow-sm p-2 focus:outline-none text-white"
-        />
-        <datalist id="olympic-sports" className="max-h-5">
+          className="mt-1 block w-full bg-primary-200 text-white rounded-lg p-2 focus:outline-none pr-5 custom-select"
+        >
+          <option value="">Select a sport</option>
+          
           {olympicSports.map((sport, index) => (
-            <option value={sport} key={index} />
+            <option key={index} value={sport}>
+              {sport}
+            </option>
           ))}
-        </datalist>
+        </select>
       </div>
 
       {/* Event Name Filter */}
       <div>
         <label
           htmlFor="event_name"
-          className="block text-sm font-medium text-white/90"
+          className="block text-gray-500 mb-2"
         >
-          Event Name
+          Event Name (optional)
         </label>
         <input
           type="text"
@@ -153,7 +151,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           value={formFilters.event_name}
           onChange={handleChange}
           placeholder="Enter event name"
-          className="mt-1 block w-full border bg-transparent border-accent rounded-md shadow-sm p-2 focus:outline-none text-white"
+          className="mt-1 block w-full bg-primary-200 rounded-lg p-2 focus:outline-none text-white"
         />
       </div>
 
@@ -161,9 +159,9 @@ const FilterForm: React.FC<FilterFormProps> = ({
       <div>
         <label
           htmlFor="country"
-          className="block text-sm font-medium text-white/90"
+          className="block text-gray-500 mb-2"
         >
-          Country
+          Country (optional)
         </label>
         <input
           type="text"
@@ -172,7 +170,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           value={formFilters.country}
           onChange={handleChange}
           placeholder="Enter country"
-          className="mt-1 block w-full border bg-transparent border-accent rounded-md shadow-sm p-2 focus:outline-none text-white"
+          className="mt-1 block w-full bg-primary-200 rounded-lg p-2 focus:outline-none text-white"
         />
       </div>
 
