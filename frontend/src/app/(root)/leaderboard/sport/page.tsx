@@ -20,7 +20,7 @@ function SportLeaderboard() {
     name: "",
     sex: "",
     sport: "",
-    event_name: "",
+    event: "",
     country: "",
   });
 

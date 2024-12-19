@@ -44,7 +44,7 @@ interface SportFilters {
   name: string;
   sex: string;
   sport: string;
-  event_name: string;
+  event: string;
   country: string;
 }
 
@@ -67,15 +67,6 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-}
-
-interface SportFilters {
-  medal: string;
-  name: string;
-  sex: string;
-  sport: string;
-  event_name: string;
-  country: string;
 }
 
 interface FilterFormProps {

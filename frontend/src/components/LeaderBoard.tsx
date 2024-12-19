@@ -10,6 +10,16 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({ data }) => {
     // router.push(`/users/${user.id}`);
   };
 
+  if (data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <span className="font-jakarta text-2xl text-[#888]">
+          No data available
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-primary-50 rounded-2xl p-4 mt-8 mr-5 ml-2">
       {/* Scrollable Container */}
