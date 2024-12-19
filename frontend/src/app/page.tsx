@@ -12,6 +12,7 @@ import NewsCarousel from "@/components/news/NewsCarousel";
 import NewsCard from "@/components/news/NewsCard";
 import TopicTitle from "@/components/news/TopicTitle";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import AutocompleteSelect from "@/components/AutocompleteSelect";
 
 function NewsPage() {
   const router = useRouter();
@@ -137,7 +138,7 @@ function NewsPage() {
     fetchData();
   }, []);
 
-  if (loading || mostPopularNewsData.length === 0) {
+  if (loading) {
     return (
       <LoadingSpinner />
     )
@@ -148,7 +149,7 @@ function NewsPage() {
       <div className="w-full h-full bg-primary-100 flex flex-col items-center">
         <LogoHeader logo={images.logo} title="Olympus" />
 
-        <div className="w-full h-full flex flex-col items-center justify-center">
+        <div className="w-full h-screen flex flex-col items-center justify-center">
           <h1 className="font-jakarta text-[30px] font-bold text-primary-300">
             {error}
           </h1>

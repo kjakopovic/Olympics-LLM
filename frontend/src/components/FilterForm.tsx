@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { olympicSports } from "@/constants/olympicSports";
+import { olympicSports, olympicEvents, olympicTeams } from "@/constants/olympicStaticData";
+import AutocompleteSelect from "./AutocompleteSelect";
 
 interface SportFilters {
   medal: string;
   name: string;
   sex: string;
   sport: string;
-  event_name: string;
+  event: string;
   country: string;
 }
 
@@ -44,7 +45,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
       name: "",
       sex: "",
       sport: "",
-      event_name: "",
+      event: "",
       country: "",
     });
   };
@@ -57,7 +58,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           htmlFor="medal"
           className="block text-gray-500 mb-2"
         >
-          Medal (optional)
+          Medal
         </label>
         <select
           id="medal"
@@ -79,7 +80,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           htmlFor="name"
           className="block text-gray-500 mb-2"
         >
-          Sportsman Name (optional)
+          Sportsman Name
         </label>
         <input
           type="text"
@@ -98,7 +99,7 @@ const FilterForm: React.FC<FilterFormProps> = ({
           htmlFor="sex"
           className="block text-gray-500 mb-2"
         >
-          Sex (optional)
+          Sex
         </label>
         <select
           id="sex"
@@ -116,24 +117,21 @@ const FilterForm: React.FC<FilterFormProps> = ({
       {/* Sport Filter with Suggestions */}
       <div>
         <label htmlFor="sport" className="block text-gray-500 mb-2">
-          Sport (optional)
+          Sport
         </label>
 
-        <select
-          id="sport"
-          name="sport"
-          value={formFilters.sport}
-          onChange={handleChange}
-          className="mt-1 block w-full bg-primary-200 text-white rounded-lg p-2 focus:outline-none pr-5 custom-select"
-        >
-          <option value="">Select a sport</option>
-          
-          {olympicSports.map((sport, index) => (
-            <option key={index} value={sport}>
-              {sport}
-            </option>
-          ))}
-        </select>
+        <AutocompleteSelect
+          suggestionsList={olympicSports}
+          inputBoxName="sport"
+          placeholder="Select a sport"
+          selectedItem={formFilters.sport}
+          setSelectedItem={(value) => {
+            setFormFilters((prev) => ({
+              ...prev,
+              sport: value,
+            }));
+          }}
+        />
       </div>
 
       {/* Event Name Filter */}
@@ -142,35 +140,43 @@ const FilterForm: React.FC<FilterFormProps> = ({
           htmlFor="event_name"
           className="block text-gray-500 mb-2"
         >
-          Event Name (optional)
+          Event Name
         </label>
-        <input
-          type="text"
-          name="event_name"
-          id="event_name"
-          value={formFilters.event_name}
-          onChange={handleChange}
+
+        <AutocompleteSelect
+          suggestionsList={olympicEvents}
+          inputBoxName="event_name"
           placeholder="Enter event name"
-          className="mt-1 block w-full bg-primary-200 rounded-lg p-2 focus:outline-none text-white"
+          selectedItem={formFilters.event}
+          setSelectedItem={(value) => {
+            setFormFilters((prev) => ({
+              ...prev,
+              event: value,
+            }));
+          }}
         />
       </div>
 
-      {/* Country Filter */}
+      {/* Country/Team Filter */}
       <div>
         <label
           htmlFor="country"
           className="block text-gray-500 mb-2"
         >
-          Country (optional)
+          Country/Team
         </label>
-        <input
-          type="text"
-          name="country"
-          id="country"
-          value={formFilters.country}
-          onChange={handleChange}
+
+        <AutocompleteSelect
+          suggestionsList={olympicTeams}
+          inputBoxName="country"
           placeholder="Enter country"
-          className="mt-1 block w-full bg-primary-200 rounded-lg p-2 focus:outline-none text-white"
+          selectedItem={formFilters.country}
+          setSelectedItem={(value) => {
+            setFormFilters((prev) => ({
+              ...prev,
+              country: value,
+            }));
+          }}
         />
       </div>
 

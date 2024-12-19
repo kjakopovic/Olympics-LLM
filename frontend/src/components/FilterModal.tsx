@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { olympicSports } from "@/constants/olympicSports";
+import { olympicSports } from "@/constants/olympicStaticData";
 
 interface FiltersModalProps {
   isOpen: boolean;
