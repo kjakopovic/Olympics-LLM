@@ -1,3 +1,6 @@
+import Cookies from "js-cookie";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
 export function timeSincePosted(date: Date): string {
     const now = new Date();
     const seconds = Math.ceil((now.getTime() - date.getTime()) / 1000);
@@ -26,3 +29,14 @@ export function timeSincePosted(date: Date): string {
 
     return "just now";
 }
+
+export function handleLogout(router: AppRouterInstance, moveToLoginPage: boolean = false): void {
+    Cookies.remove("token");
+    Cookies.remove("refresh-token");
+
+    if (moveToLoginPage) {
+        router.replace("/login");
+    } else {
+        window.location.reload();
+    }
+};

@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import * as images from "@/constants/images";
 import * as icons from "@/constants/icons";
 import LoadingSpinner from "./ButtonSpinner";
+import { handleLogout } from "@/utils/helpers";
 
 function SideBar() {
   const [user, setUser] = React.useState({
@@ -36,6 +37,15 @@ function SideBar() {
           },
         });
 
+        if (!response.ok) {
+          if (response.status === 401) {
+            handleLogout(router, true);
+            return;
+          }
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch data.");
+        }
+
         const data = await response.json();
 
         setUser({
@@ -57,10 +67,6 @@ function SideBar() {
     {
       title: "News",
       route: "/",
-    },
-    {
-      title: "Trends",
-      route: "/trends",
     },
   ];
 

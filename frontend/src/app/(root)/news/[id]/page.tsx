@@ -14,8 +14,6 @@ function NewsByIdPage() {
     const { id } = useParams();
     const router = useRouter();
 
-    const strapiBaseUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://localhost:1337";
-
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
     const [newsData, setNewsData] = useState<NewsData | undefined>(undefined);

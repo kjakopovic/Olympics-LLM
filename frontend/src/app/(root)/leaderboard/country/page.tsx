@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 
@@ -7,9 +8,12 @@ import LeaderBoard from "@/components/LeaderBoard";
 import Podium from "@/components/Podium";
 import SideBar from "@/components/SideBar";
 import FiltersModal, { Filters } from "@/components/FilterModal";
-import LoadingSpinner from "@/components/LoadingSpinner"; // Import the spinner
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { handleLogout } from "@/utils/helpers";
 
 function CountryLeaderboard() {
+  const router = useRouter();
+  
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [filters, setFilters] = useState<Filters>({
     startYear: 2000,
@@ -45,6 +49,10 @@ function CountryLeaderboard() {
         );
 
         if (!response.ok) {
+          if (response.status === 401) {
+            handleLogout(router, true);
+            return;
+          }
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch data.");
         }

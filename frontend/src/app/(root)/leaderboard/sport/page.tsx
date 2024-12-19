@@ -9,8 +9,12 @@ import SportsLeaderBoard from "@/components/SportsmanLeaderboard";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Modal from "@/components/AthleteFilterModal";
 import FilterForm from "@/components/FilterForm";
+import { handleLogout } from "@/utils/helpers";
+import { useRouter } from "next/navigation";
 
 function SportLeaderboard() {
+  const router = useRouter();
+  
   const [filters, setFilters] = useState<SportFilters>({
     medal: "",
     name: "",
@@ -97,6 +101,10 @@ function SportLeaderboard() {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            handleLogout(router, true);
+            return;
+          }
           const errorData = await response.json();
           console.error("API Error:", errorData);
           setError(

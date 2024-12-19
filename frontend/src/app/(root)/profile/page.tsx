@@ -9,6 +9,7 @@ import * as icons from "@/constants/icons";
 import Image from "next/image";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRouter } from "next/navigation";
+import { handleLogout } from "@/utils/helpers";
 
 function Profile() {
   const [activeSetting, setActiveSetting] = useState("Personal info");
@@ -69,6 +70,10 @@ function Profile() {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+              handleLogout(router, true);
+              return;
+          }
           alert("An error occurred. Please try again.");
           return;
         }
@@ -121,12 +126,6 @@ function Profile() {
 
   const handleInputChange = (field: string, value: string) => {
     setEditedUser((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleLogout = () => {
-    Cookies.remove("token");
-    Cookies.remove("refresh-token");
-    router.replace("/login");
   };
 
   const handlePasswordChange = async () => {
@@ -420,7 +419,7 @@ function Profile() {
                   {activeSetting}
                 </h1>
                 <button
-                  onClick={handleLogout}
+                  onClick={() => handleLogout(router, true)}
                   className="text-base font-jakarta font-semibold text-accent underline hover:text-accent"
                 >
                   Log out

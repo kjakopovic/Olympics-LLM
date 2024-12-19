@@ -59,7 +59,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-primary-100 border-accent rounded-xl w-11/12 max-w-md p-6">
+      <div className="bg-primary-50 rounded-xl w-11/12 max-w-md p-6">
         <h2 className="text-2xl text-white font-jakarta font-semibold mb-4">
           Filters
         </h2>
@@ -78,7 +78,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
             min="1896" // First modern Olympics year
             max={currentYear}
             placeholder="e.g., 2000"
-            className="w-full border placeholder:text-primary-500 bg-primary-400 text-white border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-accent"
+            className="w-full placeholder:text-primary-500 bg-primary-200 text-white rounded-lg px-3 py-3 focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -96,7 +96,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
             min="1896"
             max={currentYear}
             placeholder="e.g., 2020"
-            className="w-full border placeholder:text-primary-500 bg-primary-400 text-white border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-accent"
+            className="w-full placeholder:text-primary-500 bg-primary-200 text-white rounded-lg px-3 py-3 focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -110,7 +110,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
             name="sport"
             value={filters.sport}
             onChange={handleChange}
-            className="w-full border placeholder:text-primary-500 bg-primary-400 text-white border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-accent"
+            className="w-full placeholder:text-primary-500 bg-primary-200 text-white rounded-lg px-3 py-3 focus:outline-none focus:border-accent custom-select"
           >
             <option value="">Select a sport</option>
             {olympicSports.map((sport) => (
