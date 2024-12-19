@@ -39,11 +39,16 @@ function NewsPage() {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        handleLogout();
+        return [];
+      }
+
       const errorData = await response.json();
       console.error("API Error:", errorData);
 
       setError(
-        errorData.message || "An error occurred while fetching data."
+        errorData.message || errorData.error || "An error occurred while fetching data."
       );
       setLoading(false);
       return [];

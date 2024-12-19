@@ -9,15 +9,6 @@ PROTECTED_PATHS = ["/api/v1/chat-bot"]
 
 app = FastAPI()
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     """
@@ -55,7 +46,17 @@ async def auth_middleware(request: Request, call_next):
 
     # Proceed to the next middleware or endpoint
     response = await call_next(request)
+
     return response
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 # Include routes from other files
 app.include_router(chat_bot.router, prefix="/api/v1/chat-bot")

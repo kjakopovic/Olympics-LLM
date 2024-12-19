@@ -15,7 +15,7 @@ const ChatBar: React.FC<ChatBarProps> = ({ onSend }) => {
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && input && input !== "") {
       handleSend();
     }
   };
@@ -26,6 +26,7 @@ const ChatBar: React.FC<ChatBarProps> = ({ onSend }) => {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyPress}
         placeholder="You can ask me anything! I am here to help."
         className="flex-1 bg-primary-50 text-white p-3 rounded-xl focus:outline-none placeholder-primary-500"
       />
