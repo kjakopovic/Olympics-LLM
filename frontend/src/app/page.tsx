@@ -6,18 +6,20 @@ import Cookies from "js-cookie";
 
 import * as images from "@/constants/images";
 import LogoHeader from "@/components/LogoHeader";
-import Carousel from "@/components/Carousel";
+import NewsCarousel from "@/components/news/NewsCarousel";
 import NewsCard from "@/components/news/NewsCard";
 import TopicTitle from "@/components/news/TopicTitle";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 function NewsPage() {
   const router = useRouter();
+  const strapiBaseUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://localhost:1337";
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Cookies.get("token") ? true : false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
+  const [mostPopularNewsData, setMostPopularNewsData] = useState<NewsData[]>([]);
 
   const handleLogout = () => {
     Cookies.remove("token");
@@ -26,22 +28,14 @@ function NewsPage() {
     window.location.reload();
   };
 
-  const fetchNewsData = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    
-    if (refreshToken) {
-      headers["x-refresh-token"] = refreshToken;
-    }
-    
+  const fetchTagsFromUserInfo = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
     const response = await fetch(`${apiUrl}/`, {
       method: "GET",
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "x-refresh-token": refreshToken || ""
+      },
     });
 
     if (!response.ok) {
@@ -52,12 +46,35 @@ function NewsPage() {
         errorData.message || "An error occurred while fetching data."
       );
       setLoading(false);
-      return;
+      return [];
     }
 
     const data = await response.json();
     console.log("Fetched Data:", data);
-    setNewsData(data.items);
+    
+    return data.info.tags
+  }
+
+  const fetchNewsData = async (apiUrl: string, query: string, page: number = 1): Promise<NewsData[]> => {
+    const response = await fetch(`${apiUrl}?pagination[page]=${page}&pagination[pageSize]=10&populate=*&${query}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("API Error:", errorData);
+
+      setError(
+        errorData.message || "An error occurred while fetching data."
+      );
+      setLoading(false);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log("Fetched Data:", data);
+
+    return data.data;
   }
 
   useEffect(() => {
@@ -66,13 +83,15 @@ function NewsPage() {
       setError("");
 
       try {
-        const API_URL = process.env.NEXT_PUBLIC_NEWS_API_URL;
+        const NEWS_API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
 
-        if (!API_URL) {
+        if (!NEWS_API_URL) {
           setError("API URL is not defined.");
           setLoading(false);
           return;
         }
+
+        const newsData = await fetchNewsData(NEWS_API_URL, "");
 
         if (isLoggedIn) {
           const token = Cookies.get("token");
@@ -84,10 +103,23 @@ function NewsPage() {
             return;
           }
 
-          fetchNewsData(token, refreshToken, API_URL);
+          const USER_API_URL = process.env.NEXT_PUBLIC_USER_API_URL ?? "";
+          const tags = await fetchTagsFromUserInfo(token, refreshToken, USER_API_URL);
+
+          // If no tags found fetch all news
+          if (!tags || tags.length <= 0) {
+            setNewsData(newsData);
+          } else {
+            var query = tags.map((tag: string) => `filters[tags][$contains]=${tag}`).join("&");
+
+            const personalizedNewsData = await fetchNewsData(NEWS_API_URL, query);
+            setNewsData(personalizedNewsData);
+          }
         } else {
-          fetchNewsData(undefined, undefined, API_URL);
+          setNewsData(newsData);
         }
+
+        setMostPopularNewsData(newsData);
       } catch (error: any) {
         console.error("Fetch Error:", error);
         setError("A network error occurred. Please try again.");
@@ -155,9 +187,9 @@ function NewsPage() {
       <div className="w-full flex flex-col justify-center items-center mt-20">
         <TopicTitle title="Hot topics" />
 
-        <Carousel
-          newsData={newsData}
-          carouselDataLength={newsData.length}
+        <NewsCarousel
+          newsData={mostPopularNewsData.slice(0, 10)}
+          carouselDataLength={mostPopularNewsData.slice(0, 10).length}
         />
       </div>
 
@@ -172,9 +204,11 @@ function NewsPage() {
             <NewsCard
               key={news.id}
               title={news.title}
-              imageUrl={news.pictures_url && news.pictures_url.length > 0 ? news.pictures_url[0].url : undefined}
-              timePosted={new Date(news.published_at)}
-              openNews={() => router.push(`/news/${news.id}`)}
+              imageUrl={`${strapiBaseUrl}${news.pictures[0].url}`}
+              imageWidth={news.pictures[0].width}
+              imageHeight={news.pictures[0].height}
+              timePosted={new Date(news.publishedAt)}
+              openNews={() => router.push(`/news/${news.documentId}`)}
             />
           ))}
         </div>

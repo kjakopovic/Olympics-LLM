@@ -34,7 +34,7 @@ interface ChatBarProps {
   onSend: (text: string) => void;
 }
 
-interface CarouselProps {
+interface NewsCarouselProps {
   newsData?: NewsData[];
   carouselDataLength: number;
 }
@@ -84,15 +84,19 @@ interface FilterFormProps {
 }
 
 interface NewsData {
-  id: string;
+  id: number;
+  documentId: string;
   title: string;
   description: string;
-  published_at: string;
-  tags: string[];
-  pictures_url: NewsPicture[];
+  tags: string;
+  publishedAt: string;
+  pictures: NewsPicture[];
 }
 
 interface NewsPicture {
-  key: string;
+  documentId: string;
+  name: string;
+  width: number;
+  height: number;
   url: string;
 }

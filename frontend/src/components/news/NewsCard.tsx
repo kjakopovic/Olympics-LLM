@@ -9,11 +9,13 @@ interface NewsCardProps {
     timePosted: Date;
     imageUrl?: string;
     image?: StaticImageData;
+    imageWidth?: number;
+    imageHeight?: number;
     fullscreenView?: boolean;
     openNews: () => void;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, timePosted, openNews, fullscreenView = false }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, imageWidth, imageHeight, timePosted, openNews, fullscreenView = false }) => {
     return (
         <div 
             className={`flex flex-col items-center justify-center ${!fullscreenView ? "mb-10" : ""}`}
@@ -25,6 +27,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, timePosted,
                 <Image
                     src={(imageUrl ? imageUrl : image) ?? images.login}
                     alt="Logo"
+                    width={imageWidth ?? undefined}
+                    height={imageHeight ?? undefined}
                     className={`rounded-xl w-full mr-2 object-cover ${fullscreenView ? "aspect-[3/1]" : "aspect-[2/1]"}`}
                 />
 

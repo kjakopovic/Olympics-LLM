@@ -1,0 +1,77 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newss",
+  "info": {
+    "singularName": "news",
+    "pluralName": "newss",
+    "displayName": "News",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "tags": {
+      "type": "enumeration",
+      "enum": [
+        "Archery",
+        "Artistic Swimming",
+        "Athletics",
+        "Badminton",
+        "Basketball",
+        "Boxing",
+        "Canoeing",
+        "Cycling",
+        "Diving",
+        "Equestrian",
+        "Fencing",
+        "Football",
+        "Golf",
+        "Gymnastics",
+        "Handball",
+        "Hockey",
+        "Judo",
+        "Karate",
+        "Modern Pentathlon",
+        "Rowing",
+        "Rugby Sevens",
+        "Sailing",
+        "Shooting",
+        "Skateboarding",
+        "Sport Climbing",
+        "Surfing",
+        "Swimming",
+        "Table Tennis",
+        "Taekwondo",
+        "Tennis",
+        "Triathlon",
+        "Volleyball",
+        "Water Polo",
+        "Weightlifting",
+        "Wrestling"
+      ],
+      "required": true
+    },
+    "pictures": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}
