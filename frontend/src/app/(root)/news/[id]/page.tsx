@@ -8,10 +8,13 @@ import { timeSincePosted } from "@/utils/helpers";
 import LogoHeader from "@/components/LogoHeader";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Carousel from "@/components/Carousel";
 
 function NewsByIdPage() {
     const { id } = useParams();
     const router = useRouter();
+
+    const strapiBaseUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://localhost:1337";
 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
@@ -23,7 +26,7 @@ function NewsByIdPage() {
           setError("");
     
           try {
-            const API_URL = process.env.NEXT_PUBLIC_NEWS_API_URL;
+            const API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
     
             if (!API_URL) {
               setError("API URL is not defined.");
@@ -31,11 +34,8 @@ function NewsByIdPage() {
               return;
             }
               
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "GET",
-                headers:{
-                    "Content-Type": "application/json",
-                }
+            const response = await fetch(`${API_URL}/${id}?populate=*`, {
+                method: "GET"
             });
         
             if (!response.ok) {
@@ -52,7 +52,7 @@ function NewsByIdPage() {
         
             const data = await response.json();
             console.log("Fetched Data:", data);
-            setNewsData(data.info);
+            setNewsData(data.data);
           } catch (error: any) {
             console.error("Fetch Error:", error);
             setError("A network error occurred. Please try again.");
@@ -88,8 +88,8 @@ function NewsByIdPage() {
         <div className="w-full h-full bg-primary-100 flex flex-col items-center">
             <div className="flex flex-row items-center justify-between w-full mt-5">
                 <LogoHeader
-                logo={images.logo}
-                title="Olympus"
+                    logo={images.logo}
+                    title="Olympus"
                 />
 
                 <div className="flex flex-row items-center mr-5">
@@ -110,19 +110,15 @@ function NewsByIdPage() {
                         {newsData.title}
                     </h1>
 
-                    {newsData.pictures_url && newsData.pictures_url.length > 0 ? (
-                        newsData.pictures_url.map((picture: NewsPicture) => (
-                            <Image
-                                key={picture.key}
-                                src={picture.url}
-                                alt="Logo"
-                                className="rounded-2xl w-full mr-2 object-cover aspect-[3/1]"
-                            />
-                        ))
+                    {newsData.pictures && newsData.pictures.length > 0 ? (
+                        <Carousel
+                            images={newsData.pictures}
+                            strapiPictures={true}
+                        />
                     ) : (
                         <Image
                             src={images.login}
-                            alt="Logo"
+                            alt="Olympic News image"
                             className="rounded-2xl w-full mr-2 object-cover aspect-[3/1]"
                         />
                     )}
@@ -130,7 +126,7 @@ function NewsByIdPage() {
                     <p className="text-right mt-5 font-normal text-[#949494]
                         xs:text-sm sm:text-sm md:text-lg lg:text-lg
                     ">
-                        {timeSincePosted(new Date(newsData.published_at))}
+                        {timeSincePosted(new Date(newsData.publishedAt))}
                     </p>
 
                     <p className="text-left mt-5 font-semibold text-white
