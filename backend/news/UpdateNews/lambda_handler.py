@@ -3,7 +3,7 @@ import json
 
 from validation_schema import schema
 from dataclasses import dataclass, field
-from aws_lambda_powertools.utilities.validation import validate
+from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("UpdateNews")
 logger.setLevel(logging.DEBUG)
@@ -15,8 +15,7 @@ from common.common import (
     get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
-    LambdaS3Class,
-    ValidationError
+    LambdaS3Class
 )
 
 @dataclass
@@ -62,10 +61,13 @@ def lambda_handler(event, context):
 
     try:
         validate(event=request_body, schema=schema)
-    except Exception as e:
-        raise ValidationError(str(e))
+    except SchemaValidationError as e:
+        return build_response(400, {'message': str(e)})
     
-    request = Request(**request_body)
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
