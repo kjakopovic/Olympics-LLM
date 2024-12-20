@@ -3,7 +3,7 @@ import logging
 
 from validation_schema import schema
 from dataclasses import dataclass
-from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
+from aws_lambda_powertools.utilities.validation import validate
 
 logger = logging.getLogger("UpdateUserInfo")
 logger.setLevel(logging.DEBUG)
@@ -13,7 +13,8 @@ from common.common import (
     lambda_middleware,
     build_response,
     get_email_from_jwt_token,
-    LambdaDynamoDBClass
+    LambdaDynamoDBClass,
+    ValidationError
 )
 
 @dataclass
@@ -48,13 +49,10 @@ def lambda_handler(event, context):
 
     try:
         validate(event=request_body, schema=schema)
-    except SchemaValidationError as e:
-        return build_response(400, {'message': str(e)})
+    except Exception as e:
+        raise ValidationError(str(e))
     
-    try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+    request = Request(**request_body)
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)

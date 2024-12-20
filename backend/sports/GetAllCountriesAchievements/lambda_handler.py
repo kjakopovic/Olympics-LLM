@@ -2,14 +2,15 @@ import logging
 import pandas as pd
 
 from validation_schema import schema
-from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
+from aws_lambda_powertools.utilities.validation import validate
 
 logger = logging.getLogger("GetAllCountriesAchievements")
 logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
-    build_response
+    build_response,
+    ValidationError
 )
 
 @lambda_middleware
@@ -18,8 +19,8 @@ def lambda_handler(event, context):
 
     try:
         validate(event=query_params, schema=schema)
-    except SchemaValidationError as e:
-        return build_response(400, {'message': str(e)})
+    except Exception as e:
+        raise ValidationError(str(e))
     
     page = int(query_params.get("page", "1"))
     limit = int(query_params.get("limit", "50"))

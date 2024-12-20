@@ -5,7 +5,7 @@ import datetime
 
 from validation_schema import schema
 from dataclasses import dataclass
-from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
+from aws_lambda_powertools.utilities.validation import validate
 
 logger = logging.getLogger("CreateNews")
 logger.setLevel(logging.DEBUG)
@@ -17,7 +17,8 @@ from common.common import (
     get_role_from_jwt_token,
     LambdaDynamoDBClass,
     _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES,
-    LambdaS3Class
+    LambdaS3Class,
+    ValidationError
 )
 
 @dataclass
@@ -48,13 +49,10 @@ def lambda_handler(event, context):
 
     try:
         validate(event=request_body, schema=schema)
-    except SchemaValidationError as e:
-        return build_response(400, {'message': str(e)})
+    except Exception as e:
+        raise ValidationError(str(e))
     
-    try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+    request = Request(**request_body)
 
     news_id = str(uuid.uuid4())
     news_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")

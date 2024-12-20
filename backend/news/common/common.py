@@ -11,6 +11,11 @@ from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 logger = logging.getLogger("NewsCommon")
 logger.setLevel(logging.DEBUG)
 
+class ValidationError(Exception):
+    """An error that should be thrown when validation on the request fails."""
+    def __init__(self, message="Invalid request data"):
+        super().__init__(message)
+
 _LAMBDA_NEWS_TABLE_RESOURCE = {
     "resource": resource("dynamodb"),
     "table_name": environ.get("NEWS_TABLE_NAME", "test_news_table")
@@ -76,6 +81,24 @@ def lambda_middleware(handler, event, context):
             event['headers'].pop('authorization', None)
 
         return handler(event, context)
+    except TypeError as e:
+        logger.error(f"Error in the handler: {e}")
+
+        return build_response(
+            400,
+            {
+                "message": f"Invalid request body: {e}"
+            }
+        )
+    except ValidationError as e:
+        logger.error(f"Error in the handler: {e}")
+
+        return build_response(
+            400,
+            {
+                "message": str(e)
+            }
+        )
     except Exception as e:
         logger.error(f"{e}")
 

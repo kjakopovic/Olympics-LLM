@@ -12,6 +12,11 @@ from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
 logger = logging.getLogger("SportsCommon")
 logger.setLevel(logging.INFO)
 
+class ValidationError(Exception):
+    """An error that should be thrown when validation on the request fails."""
+    def __init__(self, message="Invalid request data"):
+        super().__init__(message)
+
 def generate_jwt_token(email, user_permissions=1):
     secrets = get_secrets_from_aws_secrets_manager(
         environ.get('JWT_SECRET_NAME'),
@@ -57,13 +62,22 @@ def lambda_middleware(handler, event, context):
             event['headers'].pop('authorization', None)
 
         return handler(event, context)
+    except ValidationError as e:
+        logger.error(f"Error in the handler: {e}")
+
+        return build_response(
+            400,
+            {
+                "message": str(e)
+            }
+        )
     except Exception as e:
         logger.error(f"Error in the handler: {e}")
 
         return build_response(
             500,
             {
-                "error": "Internal server error"
+                "message": "Internal server error"
             }
         )
 
