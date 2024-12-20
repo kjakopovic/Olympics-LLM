@@ -12,6 +12,7 @@ import NewsCarousel from "@/components/news/NewsCarousel";
 import NewsCard from "@/components/news/NewsCard";
 import TopicTitle from "@/components/news/TopicTitle";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Footer from "@/components/Footer";
 
 function NewsPage() {
   const router = useRouter();
@@ -221,6 +222,8 @@ function NewsPage() {
           </h1>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }

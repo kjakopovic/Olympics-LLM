@@ -3,7 +3,7 @@ import LogoHeader from "@/components/LogoHeader";
 
 function NotFoundPage() {
     return (
-        <main className="w-full h-screen bg-primary-100 flex flex-col items-center">
+        <main className="w-full h-full bg-primary-100 flex flex-col items-center">
             <div className="w-full flex flex-col items-center justify-center">
                 <div className="
                     xs:mb-4 sm:mb-5 md:mb-7 lg:mb-10
@@ -37,7 +37,7 @@ function NotFoundPage() {
 
                 <img
                     src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTh6Y2RoejI1YTI5dGNhODk4ampycGZpZjhodTc3cXBnbTR2amZmMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/tBxyh2hbwMiqc/giphy.gif"
-                    className=" rounded-2xl
+                    className=" rounded-2xl mb-5
                         xs:max-h-[20%] sm:max-h-[25%] md:max-h-[30%] lg:max-h-[35%]
                         xs:mt-[80px] sm:mt-[100px] md:mt-[120px] lg:mt-[150px]
                     "

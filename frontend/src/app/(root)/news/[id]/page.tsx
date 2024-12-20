@@ -9,6 +9,7 @@ import LogoHeader from "@/components/LogoHeader";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Carousel from "@/components/Carousel";
+import Footer from "@/components/Footer";
 
 function NewsByIdPage() {
     const { id } = useParams();
@@ -78,8 +79,8 @@ function NewsByIdPage() {
                 </div>
             </div>
 
-            {newsData && (
-                <div className="w-[90%] mt-5 flex flex-col">
+            {newsData ? (
+                <div className="w-[90%] mt-5 flex flex-col mb-5">
                     <h1 className="text-white font-jakarta font-bold text- text-left mb-10
                         xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl
                     ">
@@ -111,7 +112,15 @@ function NewsByIdPage() {
                         {newsData.description}
                     </p>
                 </div>
+            ) : (
+                <h1 className="text-white font-jakarta font-bold text- text-center mt-10
+                    xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl
+                ">
+                    News not found.
+                </h1>
             )}
+
+            <Footer />
         </div>
     );
 }
