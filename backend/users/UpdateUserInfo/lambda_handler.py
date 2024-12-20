@@ -18,10 +18,10 @@ from common.common import (
 
 @dataclass
 class Request:
-    first_name: str | None
-    last_name: str | None
-    phone_number: str | None
-    tags: list | None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    tags: list | None = None
 
 @lambda_middleware
 def lambda_handler(event, context):
