@@ -13,7 +13,6 @@ import { handleLogout } from "@/utils/helpers";
 
 function Profile() {
   const [activeSetting, setActiveSetting] = useState("Personal info");
-  const [tagsSaving, setTagsSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -198,10 +197,11 @@ function Profile() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (tagsSaving: boolean = false) => {
     setSaving(true);
     const token = Cookies.get("token");
     const refreshToken = Cookies.get("refresh-token");
+    
     if (!token) {
       alert("No token found. Please log in.");
       return;
@@ -395,7 +395,7 @@ function Profile() {
                     Cancel
                   </button>
                   <button
-                    onClick={handleSave}
+                    onClick={() => {handleSave()}}
                     disabled={!hasChanges}
                     className={`p-3 px-6 rounded-xl font-jakarta font-semibold ${
                       hasChanges
@@ -494,8 +494,7 @@ function Profile() {
                 />
                 <button
                   onClick={() => {
-                    setTagsSaving(true);
-                    handleSave();
+                    handleSave(true);
                   }}
                   disabled={!hasChanges}
                   className="disabled:bg-accent/70 disabled:cursor-not-allowed mt-5 p-3 px-6 rounded-xl bg-accent text-black font-jakarta font-semibold hover:shadow-accentglow"
