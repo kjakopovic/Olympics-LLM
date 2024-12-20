@@ -25,7 +25,15 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
-    request_body = json.loads(event.get('body')) if 'body' in event else event
+    request_body = json.loads(event.get('body'))
+
+    if not request_body:
+        return build_response(
+            200,
+            {
+                'message': 'Nothing to update, your request body is empty'
+            }
+        )
 
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
