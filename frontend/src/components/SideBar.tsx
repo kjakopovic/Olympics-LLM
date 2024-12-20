@@ -68,6 +68,14 @@ function SideBar() {
       title: "News",
       route: "/",
     },
+    {
+      title: "About Olympics",
+      route: "/info/about-olympic-games",
+    },
+    {
+      title: "Start Your Olympic Career",
+      route: "/info/start-your-olympic-career",
+    }
   ];
 
   return (
@@ -85,9 +93,6 @@ function SideBar() {
         </h1>
       </div>
       <div className="w-full h-auto flex flex-col items-start justify-start p-4">
-        <h1 className="text-xs font-semibold font-jakarta text-primary-300">
-          GENRAL
-        </h1>
         <div className="w-full h-auto flex flex-col items-start justify-start mt-2">
           {pages.map((page, index) => (
             <button
@@ -196,6 +201,7 @@ function SideBar() {
             </div>
           )}
         </div>
+        {/* Profile */}
         <div
           onClick={() => {
             router.push("/profile");

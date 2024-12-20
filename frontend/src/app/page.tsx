@@ -85,7 +85,7 @@ function NewsPage() {
     }
 
     const newsData = await fetchNewsData(NEWS_API_URL, "", pageData.page + 1);
-    setNewsData([...newsData]);
+    setNewsData(prevNewsData => [...prevNewsData, ...newsData]);
   }
 
   useEffect(() => {

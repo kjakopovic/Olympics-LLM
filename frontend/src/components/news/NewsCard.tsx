@@ -27,8 +27,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, imageWidth,
                 <Image
                     src={(imageUrl ? imageUrl : image) ?? images.login}
                     alt="Logo"
-                    width={imageWidth ?? undefined}
-                    height={imageHeight ?? undefined}
+                    width={imageWidth ?? 3000}
+                    height={imageHeight ?? 3000}
                     className={`rounded-xl w-full mr-2 object-cover ${fullscreenView ? "aspect-[3/1]" : "aspect-[2/1]"}`}
                 />
 
