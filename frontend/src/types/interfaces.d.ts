@@ -91,3 +91,10 @@ interface NewsPicture {
   height: number;
   url: string;
 }
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  pageCount: number;
+}

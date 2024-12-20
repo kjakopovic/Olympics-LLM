@@ -12,16 +12,18 @@ import NewsCarousel from "@/components/news/NewsCarousel";
 import NewsCard from "@/components/news/NewsCard";
 import TopicTitle from "@/components/news/TopicTitle";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import AutocompleteSelect from "@/components/AutocompleteSelect";
 
 function NewsPage() {
   const router = useRouter();
   const strapiBaseUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://localhost:1337";
+  const NEWS_API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Cookies.get("token") ? true : false);
   const [loading, setLoading] = useState<boolean>(true);
+
   const [newsData, setNewsData] = useState<NewsData[]>([]);
   const [mostPopularNewsData, setMostPopularNewsData] = useState<NewsData[] |undefined>(undefined);
+  const [pageData, setPageData] = useState<Pagination | undefined>(undefined);
 
   const fetchTagsFromUserInfo = async (token: string | undefined, refreshToken: string | undefined, apiUrl: string) => {
     const response = await fetch(`${apiUrl}/`, {
@@ -68,7 +70,22 @@ function NewsPage() {
     const data = await response.json();
     console.log("Fetched Data:", data);
 
+    setPageData(data.meta.pagination);
     return data.data;
+  }
+
+  const handleLoadMoreNews = async () => {
+    if (!pageData) {
+      return;
+    }
+
+    if (!NEWS_API_URL) {
+      router.push("/error?code=500&message=API URL is not defined.");
+      return;
+    }
+
+    const newsData = await fetchNewsData(NEWS_API_URL, "", pageData.page + 1);
+    setNewsData([...newsData]);
   }
 
   useEffect(() => {
@@ -76,8 +93,6 @@ function NewsPage() {
       setLoading(true);
 
       try {
-        const NEWS_API_URL = process.env.NEXT_PUBLIC_STRAPI_NEWS_URL;
-
         if (!NEWS_API_URL) {
           router.push("/error?code=500&message=API URL is not defined.");
           return;
@@ -196,6 +211,15 @@ function NewsPage() {
             />
           ))}
         </div>
+
+        {(pageData?.page ?? 0) < (pageData?.pageCount ?? 0) && (
+          <h1
+            className="bg-accent bg-clip-text text-transparent hover:cursor-pointer font-jakarta font-bold text-[20px] mb-5"
+            onClick={handleLoadMoreNews}
+          >
+            Load more...
+          </h1>
+        )}
       </div>
     </div>
   );
