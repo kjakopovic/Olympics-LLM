@@ -31,16 +31,16 @@ def lambda_handler(event, context):
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
-
-    email = request_body.get('email')
-    password = request_body.get('password')
-    first_name = request_body.get('first_name')
-    last_name = request_body.get('last_name')
+    
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    return register_user(dynamodb, email, password, first_name, last_name)
+    return register_user(dynamodb, request.email, request.password, request.first_name, request.last_name)
 
 def register_user(dynamodb, email, password, first_name, last_name):
     is_user_found = check_if_user_exists(dynamodb, email)

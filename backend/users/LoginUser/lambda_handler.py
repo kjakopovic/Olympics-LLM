@@ -32,14 +32,16 @@ def lambda_handler(event, context):
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
-
-    email = request_body.get('email')
-    password = request_body.get('password')
+    
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    return login_user(dynamodb, email, password)
+    return login_user(dynamodb, request.email, request.password)
 
 def login_user(dynamodb, email, password):
     user = get_user_by_email(dynamodb, email)

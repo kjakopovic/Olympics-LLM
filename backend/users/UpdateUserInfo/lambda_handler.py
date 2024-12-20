@@ -18,13 +18,15 @@ from common.common import (
 
 @dataclass
 class Request:
-    first_name: str
-    last_name: str
-    phone_number: str
-    tags: list
+    first_name: str | None
+    last_name: str | None
+    phone_number: str | None
+    tags: list | None
 
 @lambda_middleware
 def lambda_handler(event, context):
+    request_body = json.loads(event.get('body')) if 'body' in event else event
+
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -36,23 +38,18 @@ def lambda_handler(event, context):
             }
         )
 
-    global _LAMBDA_USERS_TABLE_RESOURCE
-    dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
-
-    request_body = json.loads(event.get('body'))
-
-    if not request_body:
-        return build_response(
-            400,
-            {
-                'message': 'Request body is empty'
-            }
-        )
-
     try:
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
+    
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+
+    global _LAMBDA_USERS_TABLE_RESOURCE
+    dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
     user = dynamodb.table.get_item(Key={'email': email})
     if not user:
@@ -63,15 +60,7 @@ def lambda_handler(event, context):
             }
         )
 
-    first_name = request_body.get('first_name')
-    logger.info(f'First name: {first_name}')
-    last_name = request_body.get('last_name')
-    logger.info(f'Last name: {last_name}')
-    phone_number = request_body.get('phone_number')
-    logger.info(f'Phone number: {phone_number}')
-    tags = request_body.get('tags')
-
-    update_user(dynamodb, email, first_name, last_name, phone_number, tags)
+    update_user(dynamodb, email, request.first_name, request.last_name, request.phone_number, request.tags)
 
     return build_response(
         200,
