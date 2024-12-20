@@ -2,7 +2,7 @@ import logging
 import json
 
 from validation_schema import schema
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from aws_lambda_powertools.utilities.validation import SchemaValidationError, validate
 
 logger = logging.getLogger("UpdateNews")
@@ -20,14 +20,15 @@ from common.common import (
 
 @dataclass
 class Request:
-    title: str
-    description: str
-    new_pictures_count: int
-    pictures_to_delete: list
-    tags: list
+    title: str = None
+    description: str = None
+    new_pictures_count: int = 0
+    pictures_to_delete: list = field(default_factory=list)
+    tags: list = None
 
 @lambda_middleware
 def lambda_handler(event, context):
+    request_body = json.loads(event.get('body')) if 'body' in event else event
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
@@ -49,21 +50,18 @@ def lambda_handler(event, context):
             }
         )
 
-    global _LAMBDA_NEWS_TABLE_RESOURCE
-    dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
-
-    request_body = json.loads(event.get('body', '{}'))
-
     try:
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
+    
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
 
-    title = request_body.get('title')
-    description = request_body.get('description')
-    new_pictures_count = request_body.get('new_pictures_count', 0)
-    pictures_to_delete = request_body.get('pictures_to_delete', [])
-    tags = request_body.get('tags', [])
+    global _LAMBDA_NEWS_TABLE_RESOURCE
+    dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
     if not check_if_news_exist(dynamodb, news_id):
         logger.error(f'News with id {news_id} not found')
@@ -76,20 +74,20 @@ def lambda_handler(event, context):
         )
 
     logger.info(f'Updating news with id: {news_id}')
-    update_news(dynamodb, news_id, title, description, tags)
+    update_news(dynamodb, news_id, request.title, request.description, request.tags)
 
     resigned_urls = []
     
     logger.info(f'Checking if pictures need to be added')
-    if new_pictures_count > 0:
+    if request.new_pictures_count > 0:
         logger.info(f'Adding pictures to news')
-        resigned_urls = save_news_pictures(new_pictures_count, news_id)
+        resigned_urls = save_news_pictures(request.new_pictures_count, news_id)
 
     logger.info(f'Checking if pictures need to be deleted')
-    if len(pictures_to_delete) > 0:
+    if len(request.pictures_to_delete) > 0:
         logger.info(f'Deleting pictures from news')
 
-        for key in pictures_to_delete:
+        for key in request.pictures_to_delete:
             if delete_news_pictures(key):
                 logger.info(f"Deleted picture with key: {key}")
 
@@ -114,7 +112,7 @@ def update_news(dynamodb, news_id, title, description, tags):
         update_expression += "description = :description, "
         expression_attribute_values[':description'] = description
 
-    if len(tags) > 0:
+    if tags:
         tags = move_tags_to_lowercase(tags)
         update_expression += "tags = :tags, "
         expression_attribute_values[':tags'] = tags

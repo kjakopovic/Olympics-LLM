@@ -29,9 +29,7 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
-    """
-    Lambda handler for creating news
-    """
+    request_body = json.loads(event.get('body')) if 'body' in event else event
     logger.info("Received event: %s", event)
 
     token = event.get("headers", {}).get("x-access-token")
@@ -45,12 +43,6 @@ def lambda_handler(event, context):
             }
         )
 
-    try:
-        request_body = json.loads(event["body"])
-    except json.JSONDecodeError as e:
-        logger.error("Error decoding JSON: %s", e)
-        return build_response(400, {"message": "Error decoding JSON"})
-
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
 
@@ -58,23 +50,24 @@ def lambda_handler(event, context):
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
+    
+    try:
+        request = Request(**request_body)
+    except TypeError as e:
+        return build_response(400, {'message': f"Invalid request: {str(e)}"})
 
     news_id = str(uuid.uuid4())
-    news_title = request_body.get("title")
-    news_content = request_body.get("description")
-    picture_count = request_body.get("picture_count")
     news_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    tags = request_body.get("tags", [])
 
-    if len(tags) > 0:
-        tags = move_tags_to_lowercase(tags)
+    if len(request.tags) > 0:
+        request.tags = move_tags_to_lowercase(request.tags)
 
     news_item = {
         "id": news_id,
-        "title": news_title,
-        "description": news_content,
+        "title": request.title,
+        "description": request.description,
         "published_at": news_date,
-        "tags": tags
+        "tags": request.tags
     }
 
     try:
@@ -83,7 +76,7 @@ def lambda_handler(event, context):
         logger.error("Error saving news to DynamoDB: %s", e)
         return build_response(500, {"message": "Error saving news to DynamoDB"})
 
-    urls = save_news_pictures(picture_count, news_id)
+    urls = save_news_pictures(request.picture_count, news_id)
 
     return build_response(
         200,
