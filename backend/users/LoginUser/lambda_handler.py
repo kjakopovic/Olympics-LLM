@@ -77,19 +77,6 @@ def login_user(dynamodb, email, password):
         }
     )
 
-def update_refresh_token(dynamodb, email, refresh_token):
-    logger.info('Updating refresh token in the database')
-
-    dynamodb.table.update_item(
-        Key={
-            'email': email
-        },
-        UpdateExpression='SET refresh_token = :refreshToken',
-        ExpressionAttributeValues={
-            ':refreshToken': refresh_token
-        }
-    )
-
 def get_user_by_email(dynamodb, email):
     logger.info('Getting user by email')
 
