@@ -15,6 +15,7 @@ def lambda_handler(event, context):
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
+        logger.error('News id is required')
         return build_response(
             400,
             {
@@ -29,15 +30,16 @@ def lambda_handler(event, context):
         Key={'id': news_id}
     ).get('Item')
 
+    logger.debug(f'Found news: {news}')
+
     if not news:
+        logger.error('News not found')
         return build_response(
             404,
             {
                 'message': 'News not found'
             }
         )
-
-    logger.info(f'Found {news}')
 
     news['pictures_url'] = get_news_pictures(news['id'])
 

@@ -30,12 +30,14 @@ class Request:
 @lambda_middleware
 def lambda_handler(event, context):
     request_body = json.loads(event.get('body')) if 'body' in event else event
-    logger.info("Received event: %s", event)
+    logger.info(f"Received event: {event}")
 
     token = event.get("headers", {}).get("x-access-token")
     user_permissions = get_role_from_jwt_token(token)
 
     if user_permissions < 100:
+        logger.info("User does not have permission to create news")
+
         return build_response(
             403,
             {
@@ -45,21 +47,22 @@ def lambda_handler(event, context):
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
-
-    try:
-        validate(event=request_body, schema=schema)
-    except SchemaValidationError as e:
-        return build_response(400, {'message': str(e)})
     
     try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+        logger.info("Validating request")
+        validate(event=request_body, schema=schema)
+    except SchemaValidationError as e:
+        logger.error(f"Error validating request: {e}")
+        return build_response(400, {'message': str(e)})
+    
+    logger.info("Parsing request body")
+    request = Request(**request_body)
 
     news_id = str(uuid.uuid4())
     news_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     if len(request.tags) > 0:
+        logger.info("Converting tags to lowercase")
         request.tags = move_tags_to_lowercase(request.tags)
 
     news_item = {
@@ -97,6 +100,8 @@ def save_news_pictures(picture_count, news_id):
 
     pre_signed_urls = []
 
+    logger.debug(f"Generating pre-signed URLs for news with id: {news_id}")
+
     try:
         for i in range(1, picture_count + 1):
             pre_signed_url = s3_client.generate_presigned_url(
@@ -109,7 +114,7 @@ def save_news_pictures(picture_count, news_id):
             )
             pre_signed_urls.append(pre_signed_url)
 
-        logger.info(f"Pre-signed URLs generated successfully for news with id: {news_id}")
+        logger.debug(f"Pre-signed URLs generated successfully for news with id: {news_id}")
         return pre_signed_urls
 
     except Exception as e:

@@ -18,6 +18,7 @@ def lambda_handler(event, context):
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
+        logger.error(f'you did not provide a news id, request event: {event}')
         return build_response(
             400,
             {
@@ -29,6 +30,7 @@ def lambda_handler(event, context):
     user_permissions = get_role_from_jwt_token(token)
 
     if user_permissions < 100:
+        logger.info("User does not have permission to delete news")
         return build_response(
             403,
             {
@@ -41,7 +43,6 @@ def lambda_handler(event, context):
 
     if not check_if_news_exist(dynamodb, news_id):
         logger.error(f'News with id {news_id} not found')
-
         return build_response(
             404,
             {
@@ -55,19 +56,20 @@ def lambda_handler(event, context):
     result = delete_news_pictures(news_id)
 
     if not result:
+        logger.error(f'Error in deleting news pictures for news_id: {news_id}')
         return build_response(
             500,
             {
                 'message': f'Error in deleting news pictures for news_id: {news_id}'
             }
         )
-    else:
-        return build_response(
-            200,
-            {
-                'message': f'News deleted successfully alongside related pictures: {news_id}'
-            }
-        )
+    
+    return build_response(
+        200,
+        {
+            'message': f'News deleted successfully alongside related pictures: {news_id}'
+        }
+    )
 
 def delete_news_pictures(news_id):
     """
@@ -108,6 +110,8 @@ def check_if_news_exist(dynamodb, news_id):
     news = dynamodb.table.get_item(
         Key={'id': news_id}
     ).get('Item')
+
+    logger.debug(f'News with id {news_id} found: {news}')
 
     if not news:
         return False

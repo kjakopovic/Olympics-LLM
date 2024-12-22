@@ -28,9 +28,12 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
+    logger.debug(f"Received event: {event}")
     request_body = json.loads(event.get('body'))
 
     if not request_body:
+        logger.error('Nothing to update, your request body is empty')
+
         return build_response(
             200,
             {
@@ -41,6 +44,7 @@ def lambda_handler(event, context):
     news_id = event.get('pathParameters', {}).get('news_id')
 
     if not news_id:
+        logger.error('News id is required')
         return build_response(
             400,
             {
@@ -52,22 +56,22 @@ def lambda_handler(event, context):
     user_permissions = get_role_from_jwt_token(token)
 
     if user_permissions < 100:
+        logger.error('You do not have permission to update news')
         return build_response(
             403,
             {
-                "message": "You do not have permission to create news"
+                "message": "You do not have permission to update news"
             }
         )
 
     try:
+        logger.debug(f"Validating request body: {request_body}")
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
         return build_response(400, {'message': str(e)})
     
-    try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+    logger.info(f"Parsing request body for {news_id}")
+    request = Request(**request_body)
 
     global _LAMBDA_NEWS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
@@ -114,19 +118,23 @@ def update_news(dynamodb, news_id, title, description, tags):
     expression_attribute_values = {}
 
     if title:
+        logger.debug(f"Updating title to {title}")
         update_expression += "title = :title, "
         expression_attribute_values[':title'] = title
 
     if description:
+        logger.debug(f"Updating description to {description}")
         update_expression += "description = :description, "
         expression_attribute_values[':description'] = description
 
     if tags:
+        logger.debug(f"Updating tags to {tags}")
         tags = move_tags_to_lowercase(tags)
         update_expression += "tags = :tags, "
         expression_attribute_values[':tags'] = tags
 
     if expression_attribute_values:
+        logger.debug(f"UpdateExpression: {update_expression}")
         update_expression = update_expression.rstrip(', ')
 
         dynamodb.table.update_item(
@@ -203,6 +211,8 @@ def check_if_news_exist(dynamodb, news_id):
     news = dynamodb.table.get_item(
         Key={'id': news_id}
     ).get('Item')
+
+    logger.debug(f'Found news: {news}')
 
     if not news:
         return False
