@@ -23,6 +23,7 @@ def lambda_handler(event, context):
     jwt_token = None
 
     if jwt_auth:
+        logger.info("Jwt auth found, extracting token")
         jwt_token = jwt_auth.split(' ')[1] if ' ' in jwt_auth else jwt_auth
 
         response = validate_jwt_token(headers)
@@ -37,24 +38,25 @@ def lambda_handler(event, context):
     news_table = LambdaDynamoDBClass(_LAMBDA_NEWS_TABLE_RESOURCE)
     users_table = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
+    logger.debug(f"Fetching query parameters from event: {event}")
     query_params = event.get("queryStringParameters", {})
     page = int(query_params.get("page", 1))
     limit = int(query_params.get("limit", 10))
 
     if email:
         logger.info("Querying news by tags")
-
         user_tags = fetch_user_tags(users_table, email)
+        
         if len(user_tags) <= 0:
+            logger.info("User has no tags, fetching all news")
             news = get_all_news(news_table)
         else:
             news = get_news_by_tags(news_table, user_tags)
     else:
-        logger.info(f"Querying all news")
+        logger.info("Querying all news")
         news = get_all_news(news_table)
 
     logger.debug(f'Found {len(news)} news')
-
     sorted_news = sort_news(news)
 
     logger.info("Fetching pictures for news")
@@ -101,8 +103,8 @@ def get_news_by_tags(news_table, tags):
         # Construct ExpressionAttributeValues dynamically
         expression_attribute_values = {f":tag{i}": tag for i, tag in enumerate(tags)}
 
-        logger.info(f"FilterExpression: {filter_expression}")
-        logger.info(f"ExpressionAttributeValues: {expression_attribute_values}")
+        logger.debug(f"FilterExpression: {filter_expression}")
+        logger.debug(f"ExpressionAttributeValues: {expression_attribute_values}")
 
         # Query the DynamoDB table with the constructed filter
         response = news_table.table.scan(
@@ -159,7 +161,7 @@ def fetch_user_tags(users_table, email):
     if not user:
         return []
 
-    logger.info(f'Fetching tags for user with email: {email}')
+    logger.debug(f'Fetching tags for user with email: {email}')
 
     tags = user.get('tags', [])
     return tags
@@ -167,6 +169,8 @@ def fetch_user_tags(users_table, email):
 def paginate_list(data, page, limit):
     start = (page - 1) * limit
     end = page * limit
+
+    logger.debug(f"Paginating data from {start} to {end}")
 
     if len(data) < start or len(data) < end:
         return data[-limit:]

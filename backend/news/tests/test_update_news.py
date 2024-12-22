@@ -112,7 +112,7 @@ class TestUpdateNewsLambda(BaseTestSetup):
         
         # Assert
         self.assertEqual(response['statusCode'], 403)
-        self.assertEqual(body['message'], "You do not have permission to create news")
+        self.assertEqual(body['message'], "You do not have permission to update news")
 
     def test_validation_schema(self):
         """
