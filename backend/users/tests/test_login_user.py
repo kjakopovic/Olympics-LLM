@@ -6,6 +6,9 @@ import json
 import sys
 import os
 
+if 'validation_schema' in sys.modules:
+    del sys.modules['validation_schema']
+
 new_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'LoginUser'))
 sys.path.append(new_path)
 
@@ -17,7 +20,10 @@ class TestLoginUserLambda(BaseUsersTest):
         super().setUp()
 
     def test_validation_schema(self):
-        """Test response when validation schema is not satisfied."""
+        """
+        Test response when validation schema is not satisfied.
+        """
+
         test_cases = [
             {
                 "request_body": {
@@ -64,7 +70,9 @@ class TestLoginUserLambda(BaseUsersTest):
                 self.assertIn(case["expected_validation_message"], body['message'])
 
     def test_when_user_not_found(self):
-        """Test response when user email is not found."""
+        """
+        Test response when user email is not found.
+        """
         
         # Arrange
         event = {
@@ -83,7 +91,9 @@ class TestLoginUserLambda(BaseUsersTest):
         self.assertEqual(body['message'], "Wrong email or password. Please try again.")
 
     def test_when_user_password_incorrect(self):
-        """Test response when user password is incorrect."""
+        """
+        Test response when user password is incorrect.
+        """
         
         # Arrange
         event = {
@@ -102,7 +112,9 @@ class TestLoginUserLambda(BaseUsersTest):
         self.assertEqual(body['message'], "Wrong email or password. Please try again.")
 
     def test_success(self):
-        """Test response when user login is successfull."""
+        """
+        Test response when user login is successfull.
+        """
         
         # Arrange
         event = {
