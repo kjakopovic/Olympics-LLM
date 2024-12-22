@@ -20,12 +20,10 @@ from common.common import (
 )
 
 def lambda_handler(event, context):
-    # Extract the type of service from the query parameters
+    logger.debug(f"Received event {event}")
     type_of_service = event.get('queryStringParameters', {}).get('type_of_service')
 
     logger.info(f'Checking if the service type is valid: {type_of_service}')
-
-    # Check if the service type is valid
     if type_of_service not in VALID_SERVICE_TYPES:
         return build_response(
             400,
@@ -35,16 +33,12 @@ def lambda_handler(event, context):
         )
     
     logger.info('Retrieving secrets from AWS Secrets Manager')
-    
-    # Retrieve secret string from AWS Secrets Manager
     secrets = get_secrets_from_aws_secrets_manager(
         os.getenv('THIRD_PARTY_CLIENTS_SECRET_NAME'),
         os.getenv('SECRETS_REGION_NAME')
     )
     
     logger.info(f'Constructing authorization URL for {type_of_service}')
-
-    # Determine the authorization URL based on the service type
     try:
         redirect_uri = secrets['callback_uri']
 
@@ -65,7 +59,6 @@ def lambda_handler(event, context):
             )
     except Exception as e:
         logger.error(f'Failed to construct authorization URL: {str(e)}')
-        
         return build_response(
             500,
             {
@@ -73,7 +66,6 @@ def lambda_handler(event, context):
             }
         )
 
-    # Redirect the user to the authorization URL
     return {
         'statusCode': 302,
         'headers': {

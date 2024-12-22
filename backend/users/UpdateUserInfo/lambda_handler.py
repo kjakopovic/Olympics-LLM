@@ -25,6 +25,7 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
+    logger.debug(f"Received event {event}")
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -37,7 +38,6 @@ def lambda_handler(event, context):
         )
     
     request_body = json.loads(event.get('body'))
-
     if not request_body:
         return build_response(
             200,
@@ -47,21 +47,22 @@ def lambda_handler(event, context):
         )
 
     try:
+        logger.debug(f"Validating request body {request_body}")
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
+        logger.error(f"Invalid request: {str(e)}")
         return build_response(400, {'message': str(e)})
     
-    try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+    logger.debug("Parsing request body")
+    request = Request(**request_body)
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    user = dynamodb.table.get_item(Key={'email': email}).get('Item')
+    user = check_if_user_exists(dynamodb, email)
 
     if not user:
+        logger.error(f"User with email {email} does not exist")
         return build_response(
             404,
             {
@@ -85,15 +86,19 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     expression_attribute_values = {}
 
     if first_name:
+        logger.debug(f"Updating first name to {first_name}")
         update_expression += 'first_name = :first_name, '
         expression_attribute_values[':first_name'] = first_name
     if last_name:
+        logger.debug(f"Updating last name to {last_name}")
         update_expression += 'last_name = :last_name, '
         expression_attribute_values[':last_name'] = last_name
     if phone_number:
+        logger.debug(f"Updating phone number to {phone_number}")
         update_expression += 'phone_number = :phone_number, '
         expression_attribute_values[':phone_number'] = phone_number
     if tags:
+        logger.debug(f"Updating tags to {tags}")
         tags = move_tags_to_lowercase(tags)
         update_expression += 'tags = :tags, '
         expression_attribute_values[':tags'] = tags
@@ -106,3 +111,13 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
 
 def move_tags_to_lowercase(tags):
     return [tag.lower() for tag in tags]
+
+def check_if_user_exists(dynamodb, email):
+    logger.info(f'Checking if user with email: {email} exists')
+    response = dynamodb.table.get_item(
+        Key={
+            'email': email
+        }
+    )
+
+    return response.get('Item')
