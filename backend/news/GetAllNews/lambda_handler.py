@@ -15,7 +15,6 @@ from common.common import (
     LambdaS3Class
 )
 
-# TODO: Check if only image with id 1 is enough to be returned for each news, or all images need to be
 def lambda_handler(event, context):
     headers = event.get("headers")
     logger.debug(f"Received Event Headers: {headers}")
@@ -156,13 +155,13 @@ def fetch_pictures(news_id):
         return []
 
 def fetch_user_tags(users_table, email):
-    user = users_table.table.get_item(Key={'email': email})
+    user = users_table.table.get_item(Key={'email': email}).get('Item')
     if not user:
         return []
 
     logger.info(f'Fetching tags for user with email: {email}')
 
-    tags = user.get('Item', {}).get('tags', [])
+    tags = user.get('tags', [])
     return tags
 
 def paginate_list(data, page, limit):
