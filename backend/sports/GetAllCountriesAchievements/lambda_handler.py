@@ -18,8 +18,12 @@ def lambda_handler(event, context):
     query_params = event.get("queryStringParameters", {})
 
     try:
+        logger.debug(f"Validating query params: {query_params}")
+
         validate(event=query_params, schema=schema)
     except Exception as e:
+        logger.error(f"Validation error: {str(e)}")
+
         raise ValidationError(str(e))
     
     page = int(query_params.get("page", "1"))
@@ -29,6 +33,8 @@ def lambda_handler(event, context):
     list_of_sports = query_params.get("list_of_sports", "").split(",")
 
     if page < 1 or limit < 1:
+        logger.error("Page and limit should be greater than 0.")
+
         return build_response(
             400,
             {
@@ -37,6 +43,8 @@ def lambda_handler(event, context):
         )
 
     if min_year > max_year:
+        logger.error("min_year should be less than max_year.")
+
         return build_response(
             400,
             {
@@ -60,6 +68,8 @@ def lambda_handler(event, context):
     )
 
 def get_sorted_list_of_countries_with_medals(min_year, max_year, list_of_sports):
+    logger.info("Getting sorted list of countries with medals...")
+
     dataset = pd.read_csv("common/dataset.csv")
     
     logger.debug(f"Dataset length: {len(dataset)}")
@@ -104,7 +114,7 @@ def apply_filters_to_dataset(dataset, min_year, max_year, list_of_sports):
     if max_year < 9999:
         dataset = dataset[dataset['Year'] <= max_year]
 
-    logger.debug(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports}")
+    logger.debug(f"list of sports count and shape: {len(list_of_sports)} {list_of_sports} for min_year: {min_year} and max_year: {max_year}")
 
     if list_of_sports and len(list_of_sports) > 0 and list_of_sports[0] != '':
         dataset = dataset[dataset['Sport'].isin(list_of_sports)]
@@ -115,6 +125,8 @@ def paginate_list(data, page_number, limit_per_page):
     # It's page_number - 1 because the minimum page is 1 not 0
     start_index = (page_number - 1) * limit_per_page
     end_index = page_number * limit_per_page
+
+    logger.debug(f"start index: {start_index} end index: {end_index}")
 
     if len(data) < start_index or len(data) < end_index:
         return data[-limit_per_page:]
