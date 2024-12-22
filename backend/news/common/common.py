@@ -23,7 +23,7 @@ _LAMBDA_USERS_TABLE_RESOURCE = {
 
 _LAMBDA_S3_CLIENT_FOR_NEWS_PICTURES = {
     "client": client("s3", region_name=environ.get("AWS_REGION", "eu-central-1")),
-    "bucket_name": environ.get("NEWS_PICTURES_BUCKET", "iolap-project")
+    "bucket_name": environ.get("NEWS_PICTURES_BUCKET", "test_bucket")
 }
 
 class LambdaS3Class:
@@ -89,7 +89,7 @@ def lambda_middleware(handler, event, context):
 def validate_jwt_token(event_headers):
     authorization = event_headers.get('Authorization') or event_headers.get('authorization')
 
-    access_token = authorization.split(' ')[1] if ' ' in authorization else authorization
+    access_token = authorization.split(' ')[1] if authorization and ' ' in authorization else authorization
     refresh_token = event_headers.get('x-refresh-token')
 
     logger.info(f"Validating JWT token: {access_token}")
@@ -115,8 +115,8 @@ def validate_jwt_token(event_headers):
         return build_response(
             401,
             {
-                "error": "Invalid JWT Token, please login again"
-             }
+                "message": "Invalid token, please login again"
+            }
         )
 
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
@@ -146,7 +146,7 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
         return build_response(
             401,
             {
-                "error": "Token expired"
+                "message": "Token expired"
             }
         )
 
