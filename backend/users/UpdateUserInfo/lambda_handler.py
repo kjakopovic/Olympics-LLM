@@ -25,16 +25,6 @@ class Request:
 
 @lambda_middleware
 def lambda_handler(event, context):
-    request_body = json.loads(event.get('body'))
-
-    if not request_body:
-        return build_response(
-            200,
-            {
-                'message': 'Nothing to update, your request body is empty'
-            }
-        )
-
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
 
@@ -42,7 +32,17 @@ def lambda_handler(event, context):
         return build_response(
             400,
             {
-                'message': 'Unable to get email from jwt token'
+                'message': 'Invalid email in jwt token'
+            }
+        )
+    
+    request_body = json.loads(event.get('body'))
+
+    if not request_body:
+        return build_response(
+            200,
+            {
+                'message': 'Nothing to update, your request body is empty'
             }
         )
 
@@ -59,10 +59,11 @@ def lambda_handler(event, context):
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
 
-    user = dynamodb.table.get_item(Key={'email': email})
+    user = dynamodb.table.get_item(Key={'email': email}).get('Item')
+
     if not user:
         return build_response(
-            400,
+            404,
             {
                 'message': 'User not found'
             }

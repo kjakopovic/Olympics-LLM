@@ -59,7 +59,10 @@ class BaseUsersTest(unittest.TestCase):
 
         self.sample_user = {
             "email": "test@mail.com",
+            "first_name": "Test",
+            "last_name": "User",
             "password": bcrypt.hashpw(self.sample_user_raw_pass.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         }
 
         self.table.put_item(Item=self.sample_user)
+        

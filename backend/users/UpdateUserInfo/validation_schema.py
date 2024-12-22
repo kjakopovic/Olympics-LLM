@@ -15,7 +15,7 @@ schema = {
             "type": "string",
             "minLength": 8,
             "maxLength": 15,
-            "pattern": r"^\+?[1-9]\d{1,14}$"
+            "pattern": r"^\+[1-9]\d{1,14}$"
         },
         "tags": {
             "type": "array",
