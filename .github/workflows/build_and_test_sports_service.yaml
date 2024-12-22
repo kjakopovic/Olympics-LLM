@@ -1,16 +1,16 @@
-name: Deploy News Service Lambdas
+name: Build And Test Sport Service Lambdas
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
-      - "backend/news/**"
-      - ".github/workflows/deploy_news_service.yaml"
+      - "backend/sports/**"
+      - ".github/workflows/build_and_test_sports_service.yaml"
 
 env:
   AWS_REGION: "eu-central-1"
-  SERVICE_PATH: "backend/news"
+  SERVICE_PATH: "backend/sports"
 
 jobs:
   deploy:
@@ -26,12 +26,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+      # - name: Set up AWS CLI
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
 
       - name: Install SAM CLI
         run: |
@@ -48,11 +48,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p "test*.py" -v
 
-      # Build and deploy service
+      # Build service
       - name: Build service
         working-directory: ${{ env.SERVICE_PATH }}
         run: sam build --parallel --cached
-
-      - name: Deploy service
-        working-directory: ${{ env.SERVICE_PATH }}
-        run: sam deploy --no-confirm-changeset
