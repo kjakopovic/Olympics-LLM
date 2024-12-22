@@ -16,6 +16,14 @@ def lambda_handler(event, context):
     # Getting email from JWT token
     jwt_token = event.get('headers').get('x-access-token')
     email = get_email_from_jwt_token(jwt_token)
+
+    if not email:
+        return build_response(
+            400,
+            {
+                'message': 'Invalid email in jwt token'
+            }
+        )
     
     # Setting up table for users
     global _LAMBDA_USERS_TABLE_RESOURCE

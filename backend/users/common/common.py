@@ -81,7 +81,7 @@ def lambda_middleware(handler, event, context):
         return build_response(
             400,
             {
-                "error": f"Invalid request body: {e}"
+                "message": f"Invalid request body: {e}"
             }
         )
     except Exception as e:
@@ -90,7 +90,7 @@ def lambda_middleware(handler, event, context):
         return build_response(
             500,
             {
-                "error": "Internal server error"
+                "message": "Internal server error"
             }
         )
 
@@ -125,7 +125,7 @@ def validate_jwt_token(event_headers):
         return build_response(
             401,
             {
-                "error": "Invalid token, please login again"
+                "message": "Invalid token, please login again"
             }
         )
 
@@ -156,7 +156,7 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
         return build_response(
             401,
             {
-                "error": "Token expired"
+                "message": "Token expired"
             }
         )
 
