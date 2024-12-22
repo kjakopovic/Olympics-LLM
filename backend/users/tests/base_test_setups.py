@@ -24,6 +24,7 @@ class BaseTestSetup(unittest.TestCase):
         os.environ["USERS_TABLE_NAME"] = "test_table"
         os.environ["JWT_SECRET_NAME"] = "secret"
         os.environ["SECRETS_REGION_NAME"] = "eu-central-1"
+        os.environ["AWS_REGION"] = "eu-central-1"
 
         # Mocked Secrets Manager
         self.secrets_manager = client('secretsmanager', region_name='eu-central-1')
