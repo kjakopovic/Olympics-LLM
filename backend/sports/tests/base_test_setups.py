@@ -5,18 +5,6 @@ import json
 from moto import mock_aws
 from boto3 import resource, client
 
-class LambdaDynamoDBClass:
-    """
-    AWS DynamoDB Resource Class
-    """
-    def __init__(self, lambda_dynamodb_resource):
-        """
-        Initialize a DynamoDB Resource
-        """
-        self.resource = lambda_dynamodb_resource["resource"]
-        self.table_name = lambda_dynamodb_resource["table_name"]
-        self.table = self.resource.Table(self.table_name)
-
 @mock_aws
 class BaseTestSetup(unittest.TestCase):
     def setUp(self):

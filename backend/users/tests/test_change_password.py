@@ -1,4 +1,4 @@
-from base_test_setups import BaseUsersTest
+from base_test_setups import BaseTestSetup
 from moto import mock_aws
 
 import json
@@ -15,7 +15,7 @@ sys.path.append(new_path)
 from ChangePassword.lambda_handler import lambda_handler
 
 @mock_aws
-class TestChangePasswordLambda(BaseUsersTest):
+class TestChangePasswordLambda(BaseTestSetup):
     def setUp(self):
         super().setUp()
 

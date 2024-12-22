@@ -1,4 +1,4 @@
-from base_test_setups import BaseUsersTest
+from base_test_setups import BaseTestSetup
 from moto import mock_aws
 
 import json
@@ -7,7 +7,7 @@ import jwt
 from GetUserInfo.lambda_handler import lambda_handler
 
 @mock_aws
-class TestGetUserInfoLambda(BaseUsersTest):
+class TestGetUserInfoLambda(BaseTestSetup):
     def setUp(self):
         super().setUp()
 
