@@ -23,15 +23,17 @@ class Request:
     new_password: str
 
 def lambda_handler(event, context):
+    logger.debug(f"Received event {event}")
     request_body = json.loads(event.get('body')) if 'body' in event else event
 
-    logger.info(f"Checking if every required attribute is found: {request_body}")
-
     try:
+        logger.debug(f"Validating request {request_body}")
         validate(event=request_body, schema=schema)
     except Exception as e:
+        logger.error(f"Validation failed: {e}")
         return build_response(400, {'message': str(e)})
     
+    logger.info("Parsing request body")
     request = Request(**request_body)
 
     global _LAMBDA_USERS_TABLE_RESOURCE
@@ -40,10 +42,10 @@ def lambda_handler(event, context):
     return change_password(dynamodb, request.email, request.password, request.new_password)
 
 def change_password(dynamodb, email, old_password, new_password):
-
     try:
         user = check_if_user_exists(dynamodb, email)
         if not user:
+            logger.error(f"User with email {email} does not exist")
             return build_response(
                 400,
                 {
@@ -53,6 +55,7 @@ def change_password(dynamodb, email, old_password, new_password):
 
         verified_password = verify_password(old_password, user['password'])
         if not verified_password:
+            logger.error(f"Password is incorrect for user {email}")
             return build_response(
                 400,
                 {
@@ -78,7 +81,7 @@ def check_if_user_exists(dynamodb, email):
     return response.get('Item')
 
 def verify_password(password, saved_password):
-    logger.info(f"Verifying password")
+    logger.info("Verifying password")
     return bcrypt.checkpw(password.encode('utf-8'), saved_password.encode('utf-8'))
 
 def update_password(dynamodb, email, new_password):

@@ -28,7 +28,8 @@ from common.common import (
 
 def lambda_handler(event, context):
     try:
-        # Extract the code and state parameters from the query string
+        logger.debug(f"Received event {event}")
+
         query_params = event.get('queryStringParameters', {})
         code = query_params.get('code')
         state = query_params.get('state')
@@ -48,15 +49,12 @@ def lambda_handler(event, context):
         dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
         
         logger.info('Retrieving secrets from AWS Secrets Manager')
-
-        # Retrieve secret string from AWS Secrets Manager
         secrets = get_secrets_from_aws_secrets_manager(
             os.getenv('THIRD_PARTY_CLIENTS_SECRET_NAME'),
             os.getenv('SECRETS_REGION_NAME')
         )
 
-        logger.info(f'Determining URLs and parameters based on state: {state}')
-        
+        logger.debug(f'Determining URLs and parameters based on state: {state}')
         token_url = user_info_url = None
         client_id_key = client_secret_key = None
         headers = {'Accept': 'application/json'}
@@ -77,6 +75,7 @@ def lambda_handler(event, context):
             client_id_key = secrets['github_client_id']
             client_secret_key = secrets['github_client_secret']
         else:
+            logger.error(f'Unsupported state parameter {state}')
             return build_response(
                 400,
                 {
@@ -85,7 +84,6 @@ def lambda_handler(event, context):
             )
         
         logger.info('Requesting access token from third party service')
-
         payload = {
             'code': code,
             'client_id': client_id_key,
@@ -107,14 +105,12 @@ def lambda_handler(event, context):
             )
         
         logger.info('Fetching user information')
-
         headers = {'Authorization': f'Bearer {access_token}'}
         user_info_response = requests.get(user_info_url, headers=headers)
         user_info_response.raise_for_status()
         user_info = user_info_response.json()
 
         logger.info('Extracting user information')
-
         user_name = user_info.get('name').split(' ')
         user_email = user_info.get('email')
         
@@ -140,11 +136,7 @@ def lambda_handler(event, context):
                 'last_name': user_name[1],
             })
 
-            logger.info('Storing profile picture if found')
-
         logger.info('Generating tokens')
-
-        # Generating tokens
         token = generate_jwt_token(user_email)
         refresh_token = generate_refresh_token(user_email)
 
@@ -156,7 +148,6 @@ def lambda_handler(event, context):
         }
     except requests.RequestException as e:
         logger.error(f'Request error: {str(e)}')
-
         return build_response(
             500,
             {
@@ -165,18 +156,13 @@ def lambda_handler(event, context):
         )
     
 def check_if_user_exists(dynamodb, email):
-    logger.info('Checking if user exists.')
-
-    response = dynamodb.table.get_item(
-        Key={
-            'email': email
-        }
-    )
+    logger.info(f"Checking if user with email {email} exists")
+    response = dynamodb.table.get_item(Key={'email': email})
 
     return response.get('Item')
 
 def add_user_to_the_table(dynamodb, user_item):
-    logger.info('Adding user to the table.')
+    logger.info(f'Adding user {user_item} to the table.')
 
     dynamodb.table.put_item(
         Item=user_item

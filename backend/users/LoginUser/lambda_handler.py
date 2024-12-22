@@ -24,19 +24,18 @@ class Request:
     password: str
 
 def lambda_handler(event, context):
+    logger.debug(f"Received event {event}")
     request_body = json.loads(event.get('body')) if 'body' in event else event
 
-    logger.info(f'Checking if every required attribute is found in body: {request_body}')
-
     try:
+        logger.debug(f"Validating request {request_body}")
         validate(event=request_body, schema=schema)
     except SchemaValidationError as e:
+        logger.error(f"Validation failed: {e}")
         return build_response(400, {'message': str(e)})
     
-    try:
-        request = Request(**request_body)
-    except TypeError as e:
-        return build_response(400, {'message': f"Invalid request: {str(e)}"})
+    logger.info("Parsing request body")
+    request = Request(**request_body)
 
     global _LAMBDA_USERS_TABLE_RESOURCE
     dynamodb = LambdaDynamoDBClass(_LAMBDA_USERS_TABLE_RESOURCE)
@@ -47,6 +46,7 @@ def login_user(dynamodb, email, password):
     user = get_user_by_email(dynamodb, email)
 
     if not user or not verify_password(password, user.get("password", "")):
+        logger.debug(f"User with email {email} does not exist or password is incorrect")
         return build_response(
             400,
             {
@@ -61,10 +61,11 @@ def login_user(dynamodb, email, password):
     refresh_token = generate_refresh_token(email, user_permissions)
 
     if not access_token or not refresh_token:
+        logger.error(f"Unable to generate tokens for user {email}")
         return build_response(
             500,
             {
-                'message': f"Unable to generate tokens. Please contact support."
+                'message': "Unable to generate tokens. Please contact support."
             }
         )
 
@@ -78,8 +79,7 @@ def login_user(dynamodb, email, password):
     )
 
 def get_user_by_email(dynamodb, email):
-    logger.info('Getting user by email')
-
+    logger.info(f'Getting user by email {email}')
     user = dynamodb.table.get_item(
         Key={
             'email': email
@@ -90,5 +90,4 @@ def get_user_by_email(dynamodb, email):
 
 def verify_password(user_password, stored_password):
     logger.info('Verifying password')
-
     return bcrypt.checkpw(user_password.encode('utf-8'), stored_password.encode('utf-8'))
