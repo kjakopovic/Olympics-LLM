@@ -38,6 +38,8 @@ def generate_jwt_token(email, user_permissions=1):
 
     expiration_time = int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
 
+    logger.debug(f"Generating JWT token for email: {email}")
+
     return jwt.encode({"email": email, "role": user_permissions, "exp": expiration_time}, secrets['jwt_secret'], algorithm="HS256")
 
 def generate_refresh_token(email, user_permissions=1):
@@ -45,6 +47,8 @@ def generate_refresh_token(email, user_permissions=1):
         environ.get('JWT_SECRET_NAME'),
         environ.get('SECRETS_REGION_NAME')
     )
+
+    logger.debug(f"Generating refresh token for email: {email}")
 
     expiration_time = int((datetime.now(timezone.utc) + timedelta(days=1)).timestamp())
 
@@ -66,6 +70,8 @@ def lambda_middleware(handler, event, context):
 
     try:
         authorization = event_headers.get('Authorization') or event_headers.get('authorization')
+
+        logger.debug(f"Authorization header: {authorization}")
 
         if authorization:
             access_token = authorization.split(' ')[1] if ' ' in authorization else authorization
@@ -95,8 +101,10 @@ def lambda_middleware(handler, event, context):
         )
 
 def validate_jwt_token(event_headers):
+    logger.debug("Getting authorization from the headers")
     authorization = event_headers.get('Authorization') or event_headers.get('authorization')
 
+    logger.debug("Fetching tokens from the authorization")
     access_token = authorization.split(' ')[1] if authorization and ' ' in authorization else authorization
     refresh_token = event_headers.get('x-refresh-token')
 
@@ -108,6 +116,7 @@ def validate_jwt_token(event_headers):
     )
 
     try:
+        logger.debug("Verifying JWT token")
         jwt.decode(access_token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
 
         logger.info("JWT token verified successfully, continuing to the handler")
@@ -117,6 +126,7 @@ def validate_jwt_token(event_headers):
         }
 
     except jwt.ExpiredSignatureError:
+        logger.info("JWT token expired, verifying refresh token")
         return validate_refresh_token(refresh_token, secrets["refresh_secret"], secrets["jwt_secret"])
 
     except Exception as e:
@@ -131,6 +141,7 @@ def validate_jwt_token(event_headers):
 
 def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
     try:
+        logger.debug("Verifying refresh token")
         jwt.decode(refresh_token, refresh_secret, algorithms=["HS256"])
 
         logger.info("Refresh token verified successfully, creating new JWT token")
@@ -139,6 +150,8 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
         user_email = get_email_from_jwt_token(refresh_token)
         user_permissions = get_role_from_jwt_token(refresh_token)
         new_jwt_token = jwt.encode({"email": user_email, "role": user_permissions, "exp": expiration_time}, jwt_secret, algorithm="HS256")
+
+        logger.info(f"New JWT token created successfully for email: {user_email}")
 
         return build_response(
             200,
@@ -162,6 +175,7 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
 
 def get_email_from_jwt_token(token):
     if not token:
+        logger.warning("No token provided")
         return None
 
     secrets = get_secrets_from_aws_secrets_manager(
@@ -170,14 +184,20 @@ def get_email_from_jwt_token(token):
     )
 
     try:
+        logger.debug("Decoding JWT token")
         decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error decoding JWT token {e}")
         return None
 
-    return decoded_jwt.get('email')
+    email = decoded_jwt.get('email')
+
+    logger.debug(f"Returning email from the JWT token: {email}")
+    return email
 
 def get_role_from_jwt_token(token):
     if not token:
+        logger.warning("No token provided")
         return None
 
     secrets = get_secrets_from_aws_secrets_manager(
@@ -186,13 +206,17 @@ def get_role_from_jwt_token(token):
     )
 
     try:
+        logger.debug("Decoding JWT token")
         decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error decoding JWT token {e}")
         return None
 
     return decoded_jwt.get('role')
 
 def get_user_permissions_for_role(user_role):
+    logger.info(f"Getting permissions for role: {user_role}")
+    
     if user_role == 'admin':
         return 100
     

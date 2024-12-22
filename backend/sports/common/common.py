@@ -136,7 +136,7 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
         user_permissions = get_role_from_jwt_token(refresh_token)
         new_jwt_token = jwt.encode({"email": user_email, "role": user_permissions, "exp": expiration_time}, jwt_secret, algorithm="HS256")
 
-        logger.info("New JWT token created successfully")
+        logger.info(f"New JWT token created successfully for email: {user_email}")
 
         return build_response(
             200,
@@ -171,8 +171,8 @@ def get_email_from_jwt_token(token):
     try:
         logger.debug("Decoding JWT token")
         decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
-    except Exception:
-        logger.error("Error decoding JWT token")
+    except Exception as e:
+        logger.error(f"Error decoding JWT token {e}")
         return None
 
     email = decoded_jwt.get('email')
@@ -193,8 +193,8 @@ def get_role_from_jwt_token(token):
     try:
         logger.debug("Decoding JWT token")
         decoded_jwt = jwt.decode(token.encode('utf-8'), secrets["jwt_secret"], algorithms=["HS256"])
-    except Exception:
-        logger.error("Error decoding JWT token")
+    except Exception as e:
+        logger.error(f"Error decoding JWT token {e}")
         return None
 
     role = decoded_jwt.get('role')
@@ -204,7 +204,7 @@ def get_role_from_jwt_token(token):
 
 def get_user_permissions_for_role(user_role):
     logger.info(f"Getting permissions for role: {user_role}")
-    
+
     if user_role == 'admin':
         return 100
     
