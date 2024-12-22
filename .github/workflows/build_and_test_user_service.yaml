@@ -1,7 +1,7 @@
 name: Build And Test User Service Lambdas
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
