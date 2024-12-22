@@ -1,4 +1,4 @@
-from base_test_setups import BaseUsersTest
+from base_test_setups import BaseTestSetup
 from moto import mock_aws
 
 import json
@@ -16,7 +16,7 @@ sys.path.append(new_path)
 from UpdateUserInfo.lambda_handler import lambda_handler
 
 @mock_aws
-class TestUpdateUserInfoLambda(BaseUsersTest):
+class TestUpdateUserInfoLambda(BaseTestSetup):
     def setUp(self):
         super().setUp()
 

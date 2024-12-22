@@ -35,14 +35,6 @@ def lambda_handler(event, context):
                 'message': "Page and limit should be greater than 0."
             }
         )
-    
-    if min_year < 1800 or max_year > 9999:
-        return build_response(
-            400,
-            {
-                'message': "min_year should be greater than 1800 and max_year should be less than 9999."
-            }
-        )
 
     if min_year > max_year:
         return build_response(

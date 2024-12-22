@@ -112,7 +112,7 @@ def validate_jwt_token(event_headers):
         return build_response(
             401,
             {
-                "error": "Invalid token, please login again"
+                "message": "Invalid token, please login again"
             }
         )
 
@@ -143,7 +143,7 @@ def validate_refresh_token(refresh_token, refresh_secret, jwt_secret):
         return build_response(
             401,
             {
-                "error": "Token expired"
+                "message": "Token expired"
             }
         )
 
