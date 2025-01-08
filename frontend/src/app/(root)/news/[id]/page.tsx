@@ -106,11 +106,11 @@ function NewsByIdPage() {
                         {timeSincePosted(new Date(newsData.publishedAt))}
                     </p>
 
-                    <p className="text-left mt-5 font-semibold text-white
+                    <pre className="whitespace-pre-wrap text-left mt-5 font-semibold text-white
                         xs:text-sm sm:text-lg md:text-lg lg:text-xl
                     ">
                         {newsData.description}
-                    </p>
+                    </pre>
                 </div>
             ) : (
                 <h1 className="text-white font-jakarta font-bold text- text-center mt-10
