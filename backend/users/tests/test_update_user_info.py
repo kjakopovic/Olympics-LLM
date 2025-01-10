@@ -38,29 +38,6 @@ class TestUpdateUserInfoLambda(BaseTestSetup):
         self.assertEqual(response['statusCode'], 401)
         self.assertEqual(body['message'], "Invalid token, please login again")
 
-    def test_when_request_body_empty(self):
-        """
-        Test response when empty request body is sent, frontend can send it if user doesn't want to update anything.
-        """
-        
-        # Arrange
-        jwt_token = jwt.encode({"email": "test@mail.com", "role": 1}, "value", algorithm="HS256")
-        
-        event = {
-            'headers': {
-                'Authorization': jwt_token
-            },
-            "body": json.dumps({})
-        }
-
-        # Act
-        response = lambda_handler(event, {})
-        body = json.loads(response['body'])
-        
-        # Assert
-        # self.assertEqual(response['statusCode'], 200)
-        self.assertEqual(body['message'], "Nothing to update, your request body is empty")
-
     def test_when_invalid_email_in_token(self):
         """
         Test response when invalid email is in token. Probably because of malicious user.

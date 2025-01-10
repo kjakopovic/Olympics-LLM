@@ -21,7 +21,7 @@ class Request:
     first_name: str | None = None
     last_name: str | None = None
     phone_number: str | None = None
-    tags: list = []
+    tags: list | None = None
 
 @lambda_middleware
 def lambda_handler(event, context):
