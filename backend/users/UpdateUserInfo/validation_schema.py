@@ -27,5 +27,6 @@ schema = {
             "maxItems": 3
         }
     },
+    "required": [],
     "additionalProperties": False
 }

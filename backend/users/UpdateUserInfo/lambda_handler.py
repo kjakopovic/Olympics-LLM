@@ -21,7 +21,7 @@ class Request:
     first_name: str | None = None
     last_name: str | None = None
     phone_number: str | None = None
-    tags: list | None = None
+    tags: list = []
 
 @lambda_middleware
 def lambda_handler(event, context):
@@ -38,13 +38,6 @@ def lambda_handler(event, context):
         )
     
     request_body = json.loads(event.get('body'))
-    if not request_body:
-        return build_response(
-            200,
-            {
-                'message': 'Nothing to update, your request body is empty'
-            }
-        )
 
     try:
         logger.debug(f"Validating request body {request_body}")
@@ -100,8 +93,9 @@ def update_user(dynamodb, email, first_name, last_name, phone_number, tags):
     if tags:
         logger.debug(f"Updating tags to {tags}")
         tags = move_tags_to_lowercase(tags)
-        update_expression += 'tags = :tags, '
-        expression_attribute_values[':tags'] = tags
+    
+    update_expression += 'tags = :tags, '
+    expression_attribute_values[':tags'] = tags
 
     dynamodb.table.update_item(
         Key={'email': email},
