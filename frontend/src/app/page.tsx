@@ -119,6 +119,7 @@ function NewsPage() {
             setNewsData([...newsData]);
           } else {
             var query = tags.map((tag: string) => `filters[tags][$contains]=${tag}`).join("&");
+            console.log("Query:", query);
 
             const personalizedNewsData = await fetchNewsData(NEWS_API_URL, query);
 
