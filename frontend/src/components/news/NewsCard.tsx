@@ -33,8 +33,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, imageWidth,
                 />
 
                 {fullscreenView && (
-                    <div className="absolute bottom-0 left-0 w-[80%] pl-3 pb-3">
-                        <h1 className="text-white font-jakarta font-bold leading-tight
+                    <div className="absolute bottom-0 left-0 w-full min-h-[20%] rounded-b-xl pl-3 pb-3 bg-black bg-opacity-60">
+                        <h1 className="text-white font-jakarta font-bold leading-tight w-[80%]
                             xs:text-[10px] sm:text-[13px] md:text-[16px] lg:text-[20px]
                         ">
                             {title}
