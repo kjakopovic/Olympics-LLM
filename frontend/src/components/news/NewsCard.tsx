@@ -20,27 +20,30 @@ const NewsCard: React.FC<NewsCardProps> = ({ title, image, imageUrl, imageWidth,
         <div 
             className={`flex flex-col items-center justify-center ${!fullscreenView ? "mb-10" : ""}`}
         >
-            <div className={`${fullscreenView ? 
-                "w-full relative" : 
-                "w-[90%]"}
-            `}>
-                <Image
+            <div className={`${fullscreenView ? "w-full relative" : "w-[90%]"}`}>
+                <div className="group relative w-full h-full">
+                    <Image
                     src={(imageUrl ? imageUrl : image) ?? images.login}
                     alt="Logo"
                     width={imageWidth ?? 3000}
                     height={imageHeight ?? 3000}
                     className={`rounded-xl w-full mr-2 object-cover ${fullscreenView ? "aspect-[3/1]" : "aspect-[2/1]"}`}
-                />
+                    />
 
-                {fullscreenView && (
-                    <div className="absolute bottom-0 left-0 w-full min-h-[20%] rounded-b-xl pl-3 pb-3 bg-black bg-opacity-60">
+                    {fullscreenView && (
+                    <div className="absolute bottom-0 left-0 w-full min-h-[30%] rounded-b-xl pl-3 pb-3 
+                        bg-gradient-to-t from-black/60 to-black/0 via-black/60 via-opacity-60
+                        transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out
+                    ">
                         <h1 className="text-white font-jakarta font-bold leading-tight w-[80%]
-                            xs:text-[10px] sm:text-[13px] md:text-[16px] lg:text-[20px]
+                            xs:text-[10px] sm:text-[13px] md:text-[16px] lg:text-[20px] absolute text-base
+                            xs:bottom-0 sm:bottom-1 md:bottom-3 lg:bottom-5
                         ">
-                            {title}
+                        {title}
                         </h1>
                     </div>
-                )}
+                    )}
+                </div>
             </div>
 
             {!fullscreenView && (
