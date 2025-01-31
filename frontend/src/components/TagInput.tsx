@@ -56,7 +56,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       {/* Tags Display */}
       <div className="flex flex-wrap gap-2 mb-2">
         {tags.map((tag) => (
@@ -67,7 +67,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
             <span className="mr-2">{tag}</span>
             <button onClick={() => handleRemoveTag(tag)}>
               <Image
-                src={icons.close} // Replace with your close icon path
+                src={icons.close}
                 alt="Remove tag"
                 width={16}
                 height={16}
@@ -83,7 +83,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Delay to allow click
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
         onFocus={() => {
           if (input) setShowSuggestions(true);
         }}
@@ -93,11 +93,14 @@ const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
 
       {/* Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <ul className="border border-accent rounded-lg mt-1 max-h-40 overflow-y-auto bg-primary-500 z-10 absolute w-1/2">
+        <ul className="border border-accent rounded-lg mt-1 max-h-40 overflow-y-auto bg-primary-500 z-10 absolute w-full">
           {suggestions.map((sport) => (
             <li
               key={sport}
-              onClick={() => handleAddTag(sport)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleAddTag(sport);
+              }}
               className="px-4 py-2 hover:bg-accent text-white hover:text-primary-50 cursor-pointer"
             >
               {sport}
