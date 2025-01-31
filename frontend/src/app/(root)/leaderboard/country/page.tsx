@@ -83,12 +83,12 @@ function CountryLeaderboard() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-tr from-primary-200 via-primary-200 to-primary-100 flex overflow-hidden">
+    <div className="h-full bg-gradient-to-tr from-primary-200 via-primary-200 to-primary-100 flex">
       {/* SideBar */}
       <SideBar />
 
       {/* Main Content Area */}
-      <div className="flex flex-col w-4/5 p-5 overflow-hidden">
+      <div className="flex h-screen flex-col w-4/5 p-5 overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold text-accent mb-4">Leaderboard</h1>
@@ -108,7 +108,7 @@ function CountryLeaderboard() {
 
         {/* Scrollable LeaderBoard */}
         {!loading && (
-          <div className="flex-1 overflow-auto mt-4">
+          <div className="mt-4">
             <LeaderBoard data={countries} />
           </div>
         )}

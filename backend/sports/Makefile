@@ -13,3 +13,12 @@ build-GetAllSportsAchievementsFunction:
 
 build-GetAllCountriesAchievementsFunction:
 	$(MAKE) build LAMBDA_FILE=GetAllCountriesAchievements/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-GetAllMedalsPerContinentFunction:
+	$(MAKE) build LAMBDA_FILE=GetAllMedalsPerContinent/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-GetAllMedalsPerSportsmanFunction:
+	$(MAKE) build LAMBDA_FILE=GetAllMedalsPerSportsman/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
+
+build-GetAllMedalsPerYearFunction:
+	$(MAKE) build LAMBDA_FILE=GetAllMedalsPerYear/*.py ARTIFACTS_DIR=$(ARTIFACTS_DIR)
