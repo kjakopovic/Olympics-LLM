@@ -45,5 +45,7 @@ def get_medals_per_sportsmen():
     # Get top 5 sportsmen
     top_5 = medal_counts.head(5)
 
+    top_5 = top_5.reset_index()
+
     # Convert the sorted DataFrame into a list of dictionaries
     return top_5.to_dict(orient='records')

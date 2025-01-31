@@ -33,5 +33,7 @@ def get_medals_per_year():
     # Calculate total medals per year
     medal_counts_per_year['total'] = medal_counts_per_year.sum(axis=1)
 
+    medal_counts_per_year = medal_counts_per_year.reset_index()
+
     # Convert the sorted DataFrame into a list of dictionaries
     return medal_counts_per_year.to_dict(orient='records')
