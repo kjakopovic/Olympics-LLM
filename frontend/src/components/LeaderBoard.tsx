@@ -21,9 +21,9 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({ data }) => {
   }
 
   return (
-    <div className="bg-primary-50 rounded-2xl p-4 mt-8 mr-5 ml-2">
+    <div className="bg-primary-50 rounded-2xl p-4 mt-8 mr-5 ml-2 h-[500px]">
       {/* Scrollable Container */}
-      <div className="max-h-80 overflow-y-auto">
+      <div className="max-h-[97%] overflow-y-auto">
         <table className="w-full border-separate border-spacing-y-4 px-1">
           <tbody>
             {data.slice(3).map((country, index) => (
