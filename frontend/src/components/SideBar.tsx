@@ -177,6 +177,7 @@ function SideBar() {
                   Country
                 </span>
               </button>
+
               <button
                 onClick={() => {
                   setSelectedLeaderboard("Sport");
@@ -196,6 +197,28 @@ function SideBar() {
                 {/* Button Text */}
                 <span className="relative text-primary-400 flex flex-row justify-between w-full">
                   Sport
+                </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedLeaderboard("Analytics");
+                  router.push("/leaderboard/analytics");
+                }}
+                className="relative w-full h-auto flex flex-row items-center justify-start p-2 rounded-xl group mt-2"
+              >
+                {/* Background Overlay */}
+                <div
+                  className={`absolute inset-0 rounded-xl bg-gradient-to-br from-glass-100 to-glass-200/0 ${
+                    selectedLeaderboard === "Analytics"
+                      ? "opacity-16"
+                      : "opacity-0 group-hover:opacity-16 transition-opacity duration-300"
+                  } pointer-events-none`}
+                ></div>
+
+                {/* Button Text */}
+                <span className="relative text-primary-400 flex flex-row justify-between w-full">
+                  Analytics
                 </span>
               </button>
             </div>

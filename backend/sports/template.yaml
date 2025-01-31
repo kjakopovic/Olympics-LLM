@@ -94,6 +94,96 @@ Resources:
             Method: GET
             ApiId: !Ref SportServiceApi
 
+  GetAllMedalsPerContinentFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        GetAllMedalsPerContinentEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /medals/continent
+            Method: GET
+            ApiId: !Ref SportServiceApi
+
+  GetAllMedalsPerSportsmanFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        GetAllMedalsPerSportsmanEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /medals/sportsmen
+            Method: GET
+            ApiId: !Ref SportServiceApi
+
+  GetAllMedalsPerYearFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ./
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.12
+      Environment:
+        Variables:
+          JWT_SECRET_NAME: !Ref JwtSecretName
+          SECRETS_REGION_NAME: !Ref SecretsRegionName
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:*"
+                - "secretsmanager:GetSecretValue"
+              Resource: "*"
+      Events:
+        GetAllMedalsPerYearEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /medals/year
+            Method: GET
+            ApiId: !Ref SportServiceApi
+
 Outputs:
   EndpointURI:
     Description: "API Endpoint URL"
