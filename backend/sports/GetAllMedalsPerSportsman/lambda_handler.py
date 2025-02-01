@@ -67,7 +67,7 @@ def get_medals_per_sportsmen(min_year, max_year, list_of_sports):
     medal_counts['appearances'] = medal_counts.sum(axis=1)
 
     # Sort by total medals (gold first, then silver, then bronze)
-    medal_counts = medal_counts.sort_values(by=['Gold', 'Silver', 'Bronze', 'Total_Appearances'], ascending=False)
+    medal_counts = medal_counts.sort_values(by=['Gold', 'Silver', 'Bronze', 'appearances'], ascending=False)
 
     # Get top 5 sportsmen
     top_5 = medal_counts.head(5)
