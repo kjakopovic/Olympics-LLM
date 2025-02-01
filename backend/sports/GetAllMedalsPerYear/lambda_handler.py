@@ -1,16 +1,12 @@
 import logging
 import pandas as pd
 
-# from validation_schema import schema
-# from aws_lambda_powertools.utilities.validation import validate
-
 logger = logging.getLogger("GetAllMedalsPerYear")
 logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
     build_response,
-    # ValidationError
 )
 
 @lambda_middleware
