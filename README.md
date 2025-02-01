@@ -25,6 +25,9 @@ A standout feature is its focus on cultural insights, such as food trends by cou
 - **🏅 Leaderboard for Sportsmen**  
   View rankings and achievements of individual athletes.
 
+- **📈 Analytics with Charts**  
+  Compare different interesting data trough beautiful UI.
+
 ## 🖥️ Technologies used
 
 | AI | Backend | Docs | CI/CD | Frontend |
