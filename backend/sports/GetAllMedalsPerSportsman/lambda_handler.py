@@ -64,7 +64,7 @@ def get_medals_per_sportsmen(min_year, max_year, list_of_sports):
             medal_counts[medal] = 0  # Add missing medal type with count 0
 
     # Calculate total appearances (sum of all medals)
-    medal_counts['Total_Appearances'] = medal_counts.sum(axis=1)
+    medal_counts['appearances'] = medal_counts.sum(axis=1)
 
     # Sort by total medals (gold first, then silver, then bronze)
     medal_counts = medal_counts.sort_values(by=['Gold', 'Silver', 'Bronze', 'Total_Appearances'], ascending=False)
@@ -73,6 +73,15 @@ def get_medals_per_sportsmen(min_year, max_year, list_of_sports):
     top_5 = medal_counts.head(5)
 
     top_5 = top_5.reset_index()
+
+    # Rename columns for consistency
+    top_5 = top_5.rename(columns={
+        'Gold': 'gold',
+        'Silver': 'silver',
+        'Bronze': 'bronze',
+        'No medal': 'no_medal',
+        'Name': 'name'
+    })
 
     # Convert the sorted DataFrame into a list of dictionaries
     return top_5.to_dict(orient='records')

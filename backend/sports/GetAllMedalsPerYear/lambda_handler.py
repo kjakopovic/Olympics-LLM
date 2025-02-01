@@ -31,9 +31,15 @@ def get_medals_per_year():
     medal_counts_per_year = dataset.pivot_table(index='Year', columns='Medal', aggfunc='size', fill_value=0)
 
     # Calculate total medals per year
-    medal_counts_per_year['total'] = medal_counts_per_year.sum(axis=1)
+    medal_counts_per_year['total'] = medal_counts_per_year[['Gold', 'Silver', 'Bronze']].sum(axis=1)
 
+    medal_counts_per_year = medal_counts_per_year[['total']]
     medal_counts_per_year = medal_counts_per_year.reset_index()
+
+    # Rename columns for consistency
+    medal_counts_per_year = medal_counts_per_year.rename(columns={
+        'Year': 'year'
+    })
 
     # Convert the sorted DataFrame into a list of dictionaries
     return medal_counts_per_year.to_dict(orient='records')
