@@ -60,7 +60,7 @@ def get_medals_per_continent_data():
 
     dataset['continent'] = dataset['Team'].apply(get_continent)
 
-    medal_counts = dataset.pivot_table(index='Continent', columns='Medal', aggfunc='size', fill_value=0)
+    medal_counts = dataset.pivot_table(index='continent', columns='Medal', aggfunc='size', fill_value=0)
 
     medal_counts['total'] = medal_counts.sum(axis=1)
 
