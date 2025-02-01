@@ -1,12 +1,16 @@
 import logging
 import pandas as pd
 
+from validation_schema import schema
+from aws_lambda_powertools.utilities.validation import validate
+
 logger = logging.getLogger("GetAllMedalsPerContinent")
 logger.setLevel(logging.DEBUG)
 
 from common.common import (
     lambda_middleware,
     build_response,
+    ValidationError
 )
 
 continent_map = {
@@ -45,7 +49,31 @@ continent_map = {
 
 @lambda_middleware
 def lambda_handler(event, context):
-    data = get_medals_per_continent_data()
+    query_params = event.get("queryStringParameters", {})
+
+    try:
+        logger.debug(f"Validating query params: {query_params}")
+
+        validate(event=query_params, schema=schema)
+    except Exception as e:
+        logger.error(f"Validation error: {str(e)}")
+
+        raise ValidationError(str(e))
+    
+    min_year = int(query_params.get("min_year", "2000"))
+    max_year = int(query_params.get("max_year", "2024"))
+
+    if min_year > max_year:
+        logger.error("min_year should be less than max_year.")
+
+        return build_response(
+            400,
+            {
+                'message': "min_year should be less than max_year."
+            }
+        )
+
+    data = get_medals_per_continent_data(min_year, max_year)
     
     return build_response(
         200,
@@ -55,9 +83,10 @@ def lambda_handler(event, context):
         }
     )
 
-def get_medals_per_continent_data():
+def get_medals_per_continent_data(min_year, max_year):
     dataset = pd.read_csv("common/dataset.csv")
 
+    dataset = apply_filters_to_dataset(dataset, min_year, max_year)
     dataset['continent'] = dataset['Team'].apply(get_continent)
 
     medal_counts = dataset.pivot_table(index='continent', columns='Medal', aggfunc='size', fill_value=0)
@@ -81,4 +110,15 @@ def get_continent(country):
         for continent, countries in continent_map.items():
             if country in countries:
                 return continent
-    return 'Unknown'
+    return 'unknown'
+
+def apply_filters_to_dataset(dataset, min_year, max_year):
+    logger.debug(f"min year and max year: {min_year} {max_year}")
+    
+    if min_year > 1800:
+        dataset = dataset[dataset['Year'] >= min_year]
+
+    if max_year < 9999:
+        dataset = dataset[dataset['Year'] <= max_year]
+
+    return dataset
