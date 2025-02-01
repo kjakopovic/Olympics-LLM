@@ -7,6 +7,7 @@ interface FiltersModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApply: (filters: Filters) => void;
+  showSportOption?: boolean;
 }
 
 export interface Filters {
@@ -19,6 +20,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
   isOpen,
   onClose,
   onApply,
+  showSportOption = true,
 }) => {
   const currentYear = new Date().getFullYear();
   const [filters, setFilters] = useState<Filters>({
@@ -101,25 +103,27 @@ const FiltersModal: React.FC<FiltersModalProps> = ({
         </div>
 
         {/* Sport Selection */}
-        <div className="mb-6">
-          <label htmlFor="sport" className="block text-gray-500 mb-2">
-            Sport
-          </label>
-          <select
-            id="sport"
-            name="sport"
-            value={filters.sport}
-            onChange={handleChange}
-            className="w-full placeholder:text-primary-500 bg-primary-200 text-white rounded-lg px-3 py-3 focus:outline-none focus:border-accent custom-select"
-          >
-            <option value="">Select a sport</option>
-            {olympicSports.map((sport) => (
-              <option key={sport} value={sport}>
-                {sport}
-              </option>
-            ))}
-          </select>
-        </div>
+        {showSportOption && (
+          <div className="mb-6">
+            <label htmlFor="sport" className="block text-gray-500 mb-2">
+              Sport
+            </label>
+            <select
+              id="sport"
+              name="sport"
+              value={filters.sport}
+              onChange={handleChange}
+              className="w-full placeholder:text-primary-500 bg-primary-200 text-white rounded-lg px-3 py-3 focus:outline-none focus:border-accent custom-select"
+            >
+              <option value="">Select a sport</option>
+              {olympicSports.map((sport) => (
+                <option key={sport} value={sport}>
+                  {sport}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4">
